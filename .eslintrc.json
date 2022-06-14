@@ -1,6 +1,5 @@
 {
   "extends": [
-    "@strata",
     "prettier"
   ],
   "plugins": [
