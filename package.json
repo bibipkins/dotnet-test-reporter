@@ -1,0 +1,24 @@
+{
+  "name": "dotnet-test-reporter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bibipkins/Dotnet-Test-Reporter.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bibipkins/Dotnet-Test-Reporter/issues"
+  },
+  "homepage": "https://github.com/bibipkins/Dotnet-Test-Reporter#readme",
+  "dependencies": {
+    "@actions/core": "^1.8.2",
+    "@actions/github": "^5.0.3"
+  }
+}
