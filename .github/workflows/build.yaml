@@ -24,8 +24,8 @@ jobs:
       - name: copy file
         uses: canastro/copy-file-action@master
         with:
-          source: 'sample.xml'
-          target: 'sample.xml'
+          source: 'sample.trx'
+          target: 'sample.trx'
       - name: Hello world action step
         uses: ./ # Uses an action in the root directory
         id: hello
