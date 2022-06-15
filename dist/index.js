@@ -1,6 +1,71 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 9538:
+/***/ (function(__unused_webpack_module, __unused_webpack_exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+const core = __nccwpck_require__(2186);
+const github = __nccwpck_require__(5438);
+const fs = __nccwpck_require__(7147);
+const path = __nccwpck_require__(1017);
+const xml2js = __nccwpck_require__(6189);
+const getAbsolutePaths = (fileNames, directoryName) => {
+    const absolutePaths = [];
+    for (const file of fileNames) {
+        const absolutePath = path.join(directoryName, file);
+        absolutePaths.push(absolutePath);
+    }
+    return absolutePaths;
+};
+const getFiles = (trxPath) => {
+    console.log(`TRX Path: ${trxPath}`);
+    if (!fs.existsSync(trxPath)) {
+        return [];
+    }
+    const fileNames = fs.readdirSync(trxPath);
+    console.log(`Files count: ${fileNames.length}`);
+    const trxFiles = fileNames.filter(f => f.endsWith('.trx'));
+    console.log(`TRX Files count: ${trxFiles.length}`);
+    const filesWithAbsolutePaths = getAbsolutePaths(trxFiles, trxPath);
+    filesWithAbsolutePaths.forEach(f => console.log(`File: ${f}`));
+    return filesWithAbsolutePaths;
+};
+const run = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const trxPath = core.getInput('test-results');
+        const filePaths = getFiles(trxPath);
+        var parser = new xml2js.Parser();
+        for (const path of filePaths) {
+            const file = fs.readFileSync(path);
+            const result = yield parser.parseStringPromise(file);
+            const start = new Date(result.Times.start);
+            console.log(start);
+            const finish = new Date(result.Times.finish);
+            console.log(finish);
+            var milisconds = finish.getTime() - start.getTime();
+            console.log(milisconds);
+        }
+    }
+    catch (error) {
+        core.setFailed(error.message);
+    }
+});
+run();
+
+
+/***/ }),
+
 /***/ 7351:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -15448,58 +15513,12 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
-(() => {
-"use strict";
-
-const core = __nccwpck_require__(2186);
-const github = __nccwpck_require__(5438);
-const fs = __nccwpck_require__(7147);
-const path = __nccwpck_require__(1017);
-const xml2js = __nccwpck_require__(6189);
-const getAbsolutePaths = (fileNames, directoryName) => {
-    const absolutePaths = [];
-    for (const file of fileNames) {
-        const absolutePath = path.join(directoryName, file);
-        absolutePaths.push(absolutePath);
-    }
-    return absolutePaths;
-};
-const getFiles = (trxPath) => {
-    console.log(`TRX Path: ${trxPath}`);
-    if (!fs.existsSync(trxPath)) {
-        return [];
-    }
-    const fileNames = fs.readdirSync(trxPath);
-    console.log(`Files count: ${fileNames.length}`);
-    const trxFiles = fileNames.filter(f => f.endsWith('.trx'));
-    console.log(`TRX Files count: ${trxFiles.length}`);
-    const filesWithAbsolutePaths = getAbsolutePaths(trxFiles, trxPath);
-    filesWithAbsolutePaths.forEach(f => console.log(`File: ${f}`));
-    return filesWithAbsolutePaths;
-};
-const run = () => {
-    try {
-        const trxPath = core.getInput('test-results');
-        const filePaths = getFiles(trxPath);
-        var parser = new xml2js.Parser();
-        filePaths.forEach(path => {
-            const file = fs.readFileSync(path);
-            parser.parseString(file, function (_err, result) {
-                console.dir(result);
-                console.log('Done');
-            });
-        });
-    }
-    catch (error) {
-        core.setFailed(error.message);
-    }
-};
-run();
-
-})();
-
-module.exports = __webpack_exports__;
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __nccwpck_require__(9538);
+/******/ 	module.exports = __webpack_exports__;
+/******/ 	
 /******/ })()
 ;

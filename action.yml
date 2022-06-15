@@ -4,10 +4,6 @@ inputs:
   test-results:
     description: 'Path to the directory containing trx files'
     required: true
-  who-to-greet: # id of input
-    description: 'Who to greet'
-    required: true
-    default: 'World'
 outputs:
   time: # id of output
     description: 'The time we greeted you'

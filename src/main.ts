@@ -31,20 +31,23 @@ const getFiles = (trxPath: string): string[] => {
   return filesWithAbsolutePaths;
 };
 
-const run = () => {
+const run = async () => {
   try {
     const trxPath = core.getInput('test-results');
     const filePaths = getFiles(trxPath);
 
     var parser = new xml2js.Parser();
 
-    filePaths.forEach(path => {
+    for (const path of filePaths) {
       const file = fs.readFileSync(path);
-      parser.parseString(file, function (_err, result) {
-        console.dir(result);
-        console.log('Done');
-      });
-    });
+      const result = await parser.parseStringPromise(file);
+      const start = new Date(result.Times.start);
+      console.log(start);
+      const finish = new Date(result.Times.finish);
+      console.log(finish);
+      var milisconds = finish.getTime() - start.getTime();
+      console.log(milisconds);
+    }
   } catch (error: any) {
     core.setFailed(error.message);
   }
