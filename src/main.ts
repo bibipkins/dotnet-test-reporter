@@ -20,11 +20,15 @@ const getFiles = (trxPath: string): string[] => {
     return [];
   }
 
+  console.log(`1. Files exist`);
   const fileNames = fs.readdir(trxPath);
+  console.log(`2. Files count: ${fileNames.length}`);
   const trxFiles = fileNames.filter(f => f.endsWith('.trx'));
-  core.info(`Files count: ${fileNames.length}`);
+  console.log(`3. TRX Files count: ${fileNames.length}`);
   const filesWithAbsolutePaths = getAbsolutePaths(trxFiles, trxPath);
-  filesWithAbsolutePaths.forEach(f => core.info(`File: ${f}`));
+  console.log(`4`);
+  filesWithAbsolutePaths.forEach(f => console.log(`File: ${f}`));
+  console.log(`5`);
   return filesWithAbsolutePaths;
 };
 
@@ -37,7 +41,7 @@ const run = () => {
     core.setOutput('time', time);
     // Get the JSON webhook payload for the event that triggered the workflow
     const payload = JSON.stringify(github.context.payload, undefined, 2);
-    console.log(`The event payload: ${payload}`);
+    //console.log(`The event payload: ${payload}`);
 
     const trxPath = core.getInput('test-results');
     console.log(`Path: ${trxPath}`);
