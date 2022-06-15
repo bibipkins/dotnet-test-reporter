@@ -3,6 +3,7 @@ const github = require('@actions/github');
 
 const fs = require('fs');
 const path = require('path');
+const xml2js = require('xml2js');
 
 const getAbsolutePaths = (fileNames: string[], directoryName: string): string[] => {
   const absolutePaths: string[] = [];
@@ -33,7 +34,17 @@ const getFiles = (trxPath: string): string[] => {
 const run = () => {
   try {
     const trxPath = core.getInput('test-results');
-    getFiles(trxPath);
+    const filePaths = getFiles(trxPath);
+
+    var parser = new xml2js.Parser();
+
+    filePaths.forEach(path => {
+      const file = fs.readFileSync(path);
+      parser.parseString(file, function (_err, result) {
+        console.dir(result);
+        console.log('Done');
+      });
+    });
   } catch (error: any) {
     core.setFailed(error.message);
   }
