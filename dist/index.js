@@ -49,15 +49,11 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         for (const path of filePaths) {
             const file = fs.readFileSync(path);
             const result = yield parser.parseStringPromise(file);
-            console.log('result:');
-            console.dir(result);
-            console.log('result:');
-            console.dir(result.TestRun);
-            console.log('result:');
-            console.dir(result.TestRun.Times);
-            const start = new Date(result.Times.start);
+            const times = result.TestRun.Times;
+            console.dir(times[0]);
+            const start = new Date(times[0].start);
             console.log(start);
-            const finish = new Date(result.Times.finish);
+            const finish = new Date(times[0].finish);
             console.log(finish);
             var milisconds = finish.getTime() - start.getTime();
             console.log(milisconds);
