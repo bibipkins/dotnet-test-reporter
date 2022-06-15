@@ -31,6 +31,27 @@ const getFiles = (trxPath: string): string[] => {
   return filesWithAbsolutePaths;
 };
 
+const readNodeData = (node: any): any => {
+  return node['$'];
+};
+
+const getElapsedTime = (trx: any): number => {
+  const times = trx.TestRun?.Times;
+
+  if (times && times.length) {
+    const data = readNodeData(times[0]);
+    const start = new Date(data.start);
+    console.log(start);
+    const finish = new Date(data.finish);
+    console.log(finish);
+    var milisconds = finish.getTime() - start.getTime();
+    console.log(milisconds);
+    return milisconds;
+  }
+
+  return 0;
+};
+
 const run = async () => {
   try {
     const trxPath = core.getInput('test-results');
@@ -41,14 +62,7 @@ const run = async () => {
     for (const path of filePaths) {
       const file = fs.readFileSync(path);
       const result = await parser.parseStringPromise(file);
-      const times = result.TestRun.Times;
-      console.dir(times[0]);
-      const start = new Date(times[0].start);
-      console.log(start);
-      const finish = new Date(times[0].finish);
-      console.log(finish);
-      var milisconds = finish.getTime() - start.getTime();
-      console.log(milisconds);
+      getElapsedTime(result);
     }
   } catch (error: any) {
     core.setFailed(error.message);
