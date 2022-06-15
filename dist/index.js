@@ -8864,6 +8864,27 @@ var __webpack_exports__ = {};
 
 const core = __nccwpck_require__(2186);
 const github = __nccwpck_require__(5438);
+const fs = __nccwpck_require__(7147);
+const path = __nccwpck_require__(1017);
+const getAbsolutePaths = (fileNames, directoryName) => {
+    const absolutePaths = [];
+    for (const file of fileNames) {
+        const absolutePath = path.join(directoryName, file);
+        absolutePaths.push(absolutePath);
+    }
+    return absolutePaths;
+};
+const getFiles = (trxPath) => {
+    if (!fs.existsSync(trxPath)) {
+        return [];
+    }
+    const fileNames = fs.readdir(trxPath);
+    const trxFiles = fileNames.filter(f => f.endsWith('.trx'));
+    core.info(`Files count: ${fileNames.length}`);
+    const filesWithAbsolutePaths = getAbsolutePaths(trxFiles, trxPath);
+    filesWithAbsolutePaths.forEach(f => core.info(`File: ${f}`));
+    return filesWithAbsolutePaths;
+};
 const run = () => {
     try {
         // `who-to-greet` input defined in action metadata file
@@ -8874,6 +8895,9 @@ const run = () => {
         // Get the JSON webhook payload for the event that triggered the workflow
         const payload = JSON.stringify(github.context.payload, undefined, 2);
         console.log(`The event payload: ${payload}`);
+        const trxPath = core.getInput('test-results');
+        console.log(`Path: ${trxPath}`);
+        getFiles(trxPath);
     }
     catch (error) {
         core.setFailed(error.message);
