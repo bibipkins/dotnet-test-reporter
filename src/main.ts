@@ -16,7 +16,9 @@ const getAbsolutePaths = (fileNames: string[], directoryName: string): string[] 
 };
 
 const getFiles = (trxPath: string): string[] => {
+  console.log(`0`);
   if (!fs.existsSync(trxPath)) {
+    console.log(`No files =()`);
     return [];
   }
 
