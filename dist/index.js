@@ -8881,7 +8881,7 @@ const getFiles = (trxPath) => {
         return [];
     }
     console.log(`1. Files exist`);
-    const fileNames = fs.readdir(trxPath);
+    const fileNames = fs.readdirSync(trxPath);
     console.log(`2. Files count: ${fileNames.length}`);
     const trxFiles = fileNames.filter(f => f.endsWith('.trx'));
     console.log(`3. TRX Files count: ${fileNames.length}`);
