@@ -21,11 +21,6 @@ jobs:
       # you must check out the repository
       - name: Checkout
         uses: actions/checkout@v3
-      - name: copy file
-        uses: canastro/copy-file-action@master
-        with:
-          source: 'sample.trx'
-          target: 'sample.trx'
       - name: Hello world action step
         uses: ./ # Uses an action in the root directory
         id: hello
