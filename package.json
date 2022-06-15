@@ -5,8 +5,7 @@
   "private": true,
   "main": "build/main.js",
   "scripts": {
-    "build": "tsc",
-    "package": "npm run build && ncc build --license licenses.txt"
+    "build": "tsc && ncc build --license licenses.txt"
   },
   "repository": {
     "type": "git",
