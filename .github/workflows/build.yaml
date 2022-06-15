@@ -21,10 +21,16 @@ jobs:
       # you must check out the repository
       - name: Checkout
         uses: actions/checkout@v3
+      - name: copy file
+        uses: canastro/copy-file-action@master
+        with:
+          source: 'sample.xml'
+          target: 'sample.xml'
       - name: Hello world action step
         uses: ./ # Uses an action in the root directory
         id: hello
         with:
+          test-results: './'
           who-to-greet: 'Misha'
       # Use the output from the `hello` step
       - name: Get the output time
