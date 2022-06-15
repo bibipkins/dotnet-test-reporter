@@ -41,7 +41,12 @@ const run = async () => {
     for (const path of filePaths) {
       const file = fs.readFileSync(path);
       const result = await parser.parseStringPromise(file);
-      console.dir(result.Times);
+      console.log('result:');
+      console.dir(result);
+      console.log('result:');
+      console.dir(result.TestRun);
+      console.log('result:');
+      console.dir(result.TestRun.Times);
       const start = new Date(result.Times.start);
       console.log(start);
       const finish = new Date(result.Times.finish);
