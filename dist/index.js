@@ -1,6 +1,34 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 5831:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core_1 = __importDefault(__nccwpck_require__(1571));
+const github_1 = __importDefault(__nccwpck_require__(2595));
+try {
+    // `who-to-greet` input defined in action metadata file
+    const nameToGreet = core_1.default.getInput('who-to-greet');
+    console.log(`Hello ${nameToGreet}!`);
+    const time = new Date().toTimeString();
+    core_1.default.setOutput('time', time);
+    // Get the JSON webhook payload for the event that triggered the workflow
+    const payload = JSON.stringify(github_1.default.context.payload, undefined, 2);
+    console.log(`The event payload: ${payload}`);
+}
+catch (error) {
+    core_1.default.setFailed(error.message);
+}
+
+
+/***/ }),
+
 /***/ 2398:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -8857,27 +8885,12 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
-(() => {
-const core = __nccwpck_require__(1571);
-const github = __nccwpck_require__(2595);
-
-try {
-  // `who-to-greet` input defined in action metadata file
-  const nameToGreet = core.getInput('who-to-greet');
-  console.log(`Hello ${nameToGreet}!`);
-  const time = (new Date()).toTimeString();
-  core.setOutput("time", time);
-  // Get the JSON webhook payload for the event that triggered the workflow
-  const payload = JSON.stringify(github.context.payload, undefined, 2)
-  console.log(`The event payload: ${payload}`);
-} catch (error) {
-  core.setFailed(error.message);
-}
-
-})();
-
-module.exports = __webpack_exports__;
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __nccwpck_require__(5831);
+/******/ 	module.exports = __webpack_exports__;
+/******/ 	
 /******/ })()
 ;

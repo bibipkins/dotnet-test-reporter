@@ -2,23 +2,31 @@
   "name": "dotnet-test-reporter",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "private": true,
+  "main": "build/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "package": "npm run build && ncc build --license licenses.txt"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bibipkins/Dotnet-Test-Reporter.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "https://github.com/bibipkins",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/bibipkins/Dotnet-Test-Reporter/issues"
   },
   "homepage": "https://github.com/bibipkins/Dotnet-Test-Reporter#readme",
   "dependencies": {
     "@actions/core": "^1.8.2",
-    "@actions/github": "^5.0.3"
+    "@actions/github": "^5.0.3",
+    "xml2js": "^0.4.23"
+  },
+  "devDependencies": {
+    "@types/node": "^16.10.3",
+    "@vercel/ncc": "^0.33.3",
+    "typescript": "^4.6.2"
   }
 }
