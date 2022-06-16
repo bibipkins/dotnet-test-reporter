@@ -1,6 +1,6 @@
 import * as github from '@actions/github';
 
-export const publishComment = (token: string, body: string) => {
+export const publishComment = async (token: string, body: string) => {
   const {
     payload: { pull_request, repository }
   } = github.context;
@@ -15,5 +15,6 @@ export const publishComment = (token: string, body: string) => {
     return;
   }
 
-  octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
+  const a = await octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
+  console.dir(a);
 };
