@@ -5,7 +5,7 @@ type ListCommentsResponse = RestEndpointMethodTypes['issues']['listComments']['r
 
 export const publishComment = async (token: string, title: string, message: string) => {
   const {
-    payload: { pull_request, repository }
+    payload: { pull_request, repository, after }
   } = github.context;
 
   console.dir(github.context, { depth: 8 });
@@ -20,7 +20,8 @@ export const publishComment = async (token: string, title: string, message: stri
   }
 
   const header = `## ${title}`;
-  const body = `${header}\n${message}`;
+  const footer = `<sub>Last commit: ${after.substring(0, 8)}</sub>`;
+  const body = `${header}\n${message}\n\n${footer}`;
 
   const comments = await octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber });
   const existingComment = findExistingComment(comments, header);

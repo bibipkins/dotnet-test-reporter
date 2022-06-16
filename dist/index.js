@@ -43,7 +43,7 @@ exports.publishComment = void 0;
 const github = __importStar(__nccwpck_require__(5438));
 const publishComment = (token, title, message) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const { payload: { pull_request, repository } } = github.context;
+    const { payload: { pull_request, repository, after } } = github.context;
     console.dir(github.context, { depth: 8 });
     const octokit = github.getOctokit(token);
     const issueNumber = pull_request === null || pull_request === void 0 ? void 0 : pull_request.number;
@@ -53,7 +53,8 @@ const publishComment = (token, title, message) => __awaiter(void 0, void 0, void
         return;
     }
     const header = `## ${title}`;
-    const body = `${header}\n${message}`;
+    const footer = `<sub>Last commit: ${after.substring(0, 8)}</sub>`;
+    const body = `${header}\n${message}\n\n${footer}`;
     const comments = yield octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber });
     const existingComment = findExistingComment(comments, header);
     if (existingComment) {
