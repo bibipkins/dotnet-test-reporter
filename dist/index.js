@@ -51,8 +51,9 @@ const publishComment = (token, body) => __awaiter(void 0, void 0, void 0, functi
     if (!owner || !repo || !issueNumber) {
         return;
     }
-    const a = yield octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
-    console.dir(a);
+    const comments = yield octokit.rest.issues.get({ owner, repo, issue_number: issueNumber });
+    console.dir(comments);
+    yield octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
 });
 exports.publishComment = publishComment;
 

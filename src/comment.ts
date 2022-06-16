@@ -15,6 +15,8 @@ export const publishComment = async (token: string, body: string) => {
     return;
   }
 
-  const a = await octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
-  console.dir(a);
+  const comments = await octokit.rest.issues.get({ owner, repo, issue_number: issueNumber });
+  console.dir(comments);
+
+  await octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
 };
