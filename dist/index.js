@@ -68,7 +68,14 @@ const getConfiguration = () => {
     const [owner, repo] = ((_a = repository === null || repository === void 0 ? void 0 : repository.full_name) === null || _a === void 0 ? void 0 : _a.split('/')) || [];
     return { owner, repo, issueNumber, commit: after };
 };
-const findExistingComment = (comments, header) => comments.data.find(comment => { var _a, _b; return ((_a = comment.user) === null || _a === void 0 ? void 0 : _a.type) === 'Bot' && ((_b = comment.body) === null || _b === void 0 ? void 0 : _b.startsWith(header)); });
+const findExistingComment = (comments, header) => {
+    return comments.data.find(comment => {
+        var _a, _b;
+        const isBotUserType = ((_a = comment.user) === null || _a === void 0 ? void 0 : _a.type) === 'Bot';
+        const startsWithHeader = (_b = comment.body) === null || _b === void 0 ? void 0 : _b.startsWith(header);
+        return isBotUserType && startsWithHeader;
+    });
+};
 
 
 /***/ }),

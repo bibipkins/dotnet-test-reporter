@@ -37,5 +37,11 @@ const getConfiguration = () => {
   return { owner, repo, issueNumber, commit: after };
 };
 
-const findExistingComment = (comments: ListCommentsResponse, header: string) =>
-  comments.data.find(comment => comment.user?.type === 'Bot' && comment.body?.startsWith(header));
+const findExistingComment = (comments: ListCommentsResponse, header: string) => {
+  return comments.data.find(comment => {
+    const isBotUserType = comment.user?.type === 'Bot';
+    const startsWithHeader = comment.body?.startsWith(header);
+
+    return isBotUserType && startsWithHeader;
+  });
+};
