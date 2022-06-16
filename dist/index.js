@@ -20,7 +20,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __importDefault(__nccwpck_require__(2186));
-//const github = require('@actions/github');
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const path_1 = __importDefault(__nccwpck_require__(1017));
 const xml2js_1 = __importDefault(__nccwpck_require__(6189));
@@ -75,6 +74,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         }
     }
     catch (error) {
+        console.log(error);
         core_1.default.setFailed(error.message);
     }
 });

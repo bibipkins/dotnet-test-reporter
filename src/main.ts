@@ -1,6 +1,4 @@
 import core from '@actions/core';
-//const github = require('@actions/github');
-
 import fs from 'fs';
 import path from 'path';
 import xml2js from 'xml2js';
@@ -64,6 +62,7 @@ const run = async () => {
       getElapsedTime(result);
     }
   } catch (error: any) {
+    console.log(error);
     core.setFailed(error.message);
   }
 };
