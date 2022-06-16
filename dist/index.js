@@ -182,7 +182,7 @@ function run() {
                 `${passed} :heavy_check_mark: | ` +
                 `${failed} :x: | ` +
                 `${skipped} :warning:\n` +
-                `<br/>elapsed :stopwatch: ${getTimeString(elapsedTime)}`;
+                `\n elapsed :stopwatch: ${getTimeString(elapsedTime)}`;
             yield (0, comment_1.publishComment)(token, title, body);
         }
         catch (error) {
