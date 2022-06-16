@@ -63,10 +63,12 @@ async function run(): Promise<void> {
     const title = 'Test Results';
     const body =
       `Total - ${total} test${total === 1 ? 's' : ''}` +
-      `<br/>${passed} :heavy_check_mark:` +
-      `<br/>${failed} :x:` +
-      `<br/>${skipped} :grey_exclamation:` +
-      `<br/>:stopwatch: ${getTimeString(elapsedTime)}\n`;
+      `Passed | Failed | Skipped\n` +
+      `--- | --- | ---\n` +
+      `${passed} :heavy_check_mark: | ` +
+      `${failed} :x: | ` +
+      `${skipped} :warning:` +
+      `\n<br/>elapsed :stopwatch: ${getTimeString(elapsedTime)}`;
 
     await publishComment(token, title, body);
   } catch (error: any) {

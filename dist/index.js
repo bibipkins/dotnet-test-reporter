@@ -177,10 +177,12 @@ function run() {
             }
             const title = 'Test Results';
             const body = `Total - ${total} test${total === 1 ? 's' : ''}` +
-                `<br/>${passed} :heavy_check_mark:` +
-                `<br/>${failed} :x:` +
-                `<br/>${skipped} :grey_exclamation:` +
-                `<br/>:stopwatch: ${getTimeString(elapsedTime)}\n`;
+                `Passed | Failed | Skipped\n` +
+                `--- | --- | ---\n` +
+                `${passed} :heavy_check_mark: | ` +
+                `${failed} :x: | ` +
+                `${skipped} :warning:` +
+                `\n<br/>elapsed :stopwatch: ${getTimeString(elapsedTime)}`;
             yield (0, comment_1.publishComment)(token, title, body);
         }
         catch (error) {
@@ -236,13 +238,12 @@ const parseElapsedTime = (trx) => {
 const parseSummary = (trx) => {
     var _a;
     const summary = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.ResultSummary[0];
-    console.dir(summary, { depth: 8 });
     const data = readNodeData(summary);
     const counters = readNodeData(summary.Counters[0]);
-    const total = counters.total;
-    const passed = counters.passed;
-    const skipped = total - counters.executed;
-    const failed = counters.failed;
+    const total = Number(counters.total);
+    const passed = Number(counters.passed);
+    const skipped = total - Number(counters.executed);
+    const failed = Number(counters.failed);
     return { outcome: data.outcome, total, passed, failed, skipped };
 };
 const readNodeData = (node) => node['$'];
