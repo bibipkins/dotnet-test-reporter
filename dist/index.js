@@ -214,7 +214,7 @@ const parseSummary = (trx) => {
     var _a;
     const summary = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.ResultSummary;
     const data = readNodeData(summary[0]);
-    console.dir(summary);
+    console.dir(summary, { depth: 8 });
     return { outcome: data.outcome };
 };
 const readNodeData = (node) => node['$'];
