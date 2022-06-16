@@ -23,9 +23,9 @@ const parseElapsedTime = (trx: any): number => {
 };
 
 const parseSummary = (trx: any) => {
-  const summary = trx.TestRun?.ResultSummary;
+  const summary = trx.TestRun?.ResultSummary[0];
   console.dir(summary, { depth: 8 });
-  const data = readNodeData(summary[0]);
+  const data = readNodeData(summary);
   const counters = readNodeData(summary.Counters[0]);
   const total = counters.total;
   const passed = counters.passed;

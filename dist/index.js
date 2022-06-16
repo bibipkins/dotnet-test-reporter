@@ -235,9 +235,9 @@ const parseElapsedTime = (trx) => {
 };
 const parseSummary = (trx) => {
     var _a;
-    const summary = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.ResultSummary;
+    const summary = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.ResultSummary[0];
     console.dir(summary, { depth: 8 });
-    const data = readNodeData(summary[0]);
+    const data = readNodeData(summary);
     const counters = readNodeData(summary.Counters[0]);
     const total = counters.total;
     const passed = counters.passed;
