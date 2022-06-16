@@ -124,8 +124,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const path_1 = __importDefault(__nccwpck_require__(1017));
-const xml2js_1 = __importDefault(__nccwpck_require__(6189));
 const comment_1 = __nccwpck_require__(1467);
+const parsers_1 = __nccwpck_require__(4031);
 const getAbsolutePaths = (fileNames, directoryName) => {
     const absolutePaths = [];
     for (const file of fileNames) {
@@ -140,30 +140,10 @@ const getFiles = (trxPath) => {
         return [];
     }
     const fileNames = fs_1.default.readdirSync(trxPath);
-    console.log(`Files count: ${fileNames.length}`);
     const trxFiles = fileNames.filter(f => f.endsWith('.trx'));
-    console.log(`TRX Files count: ${trxFiles.length}`);
     const filesWithAbsolutePaths = getAbsolutePaths(trxFiles, trxPath);
     filesWithAbsolutePaths.forEach(f => console.log(`File: ${f}`));
     return filesWithAbsolutePaths;
-};
-const readNodeData = (node) => {
-    return node['$'];
-};
-const getElapsedTime = (trx) => {
-    var _a;
-    const times = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.Times;
-    if (times && times.length) {
-        const data = readNodeData(times[0]);
-        const start = new Date(data.start);
-        console.log(start);
-        const finish = new Date(data.finish);
-        console.log(finish);
-        var milisconds = finish.getTime() - start.getTime();
-        console.log(milisconds);
-        return milisconds;
-    }
-    return 0;
 };
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -173,10 +153,8 @@ function run() {
             const filePaths = getFiles(trxPath);
             let elapsedTime = 0;
             for (const path of filePaths) {
-                const parser = new xml2js_1.default.Parser();
-                const file = fs_1.default.readFileSync(path);
-                const result = yield parser.parseStringPromise(file);
-                elapsedTime += getElapsedTime(result);
+                const result = yield (0, parsers_1.parseTestResultsFile)(path);
+                elapsedTime += result.elapsed;
             }
             const title = 'Test Results';
             const body = `:stopwatch: ${elapsedTime} ms\nUpdated comment 2!`;
@@ -189,6 +167,57 @@ function run() {
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 4031:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseTestResultsFile = void 0;
+const xml2js_1 = __importDefault(__nccwpck_require__(6189));
+const fs_1 = __importDefault(__nccwpck_require__(7147));
+const parseTestResultsFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
+    const parser = new xml2js_1.default.Parser();
+    const file = fs_1.default.readFileSync(path);
+    const content = yield parser.parseStringPromise(file);
+    const elapsed = parseElapsedTime(content);
+    const summary = parseSummary(content);
+    return Object.assign({ elapsed }, summary);
+});
+exports.parseTestResultsFile = parseTestResultsFile;
+const parseElapsedTime = (trx) => {
+    var _a;
+    const times = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.Times;
+    const data = readNodeData(times[0]);
+    const start = new Date(data.start);
+    const finish = new Date(data.finish);
+    const milisconds = finish.getTime() - start.getTime();
+    return milisconds;
+};
+const parseSummary = (trx) => {
+    var _a;
+    const summary = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.ResultSummary;
+    const data = readNodeData(summary[0]);
+    console.dir(summary);
+    return { outcome: data.outcome };
+};
+const readNodeData = (node) => node['$'];
 
 
 /***/ }),
