@@ -53,8 +53,8 @@ const publishComment = (token, title, message) => __awaiter(void 0, void 0, void
         return;
     }
     const header = `## ${title}`;
-    const footer = `<sub>Last commit: ${after.substring(0, 8)}</sub>`;
-    const body = `${header}\n${message}\n\n${footer}`;
+    const footer = `*Last commit: ${after.substring(0, 8)}*`;
+    const body = `${header}\n${message}<br/><br/>___${footer}`;
     const comments = yield octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber });
     const existingComment = findExistingComment(comments, header);
     if (existingComment) {
