@@ -24,10 +24,15 @@ const parseElapsedTime = (trx: any): number => {
 
 const parseSummary = (trx: any) => {
   const summary = trx.TestRun?.ResultSummary;
-  const data = readNodeData(summary[0]);
   console.dir(summary, { depth: 8 });
+  const data = readNodeData(summary[0]);
+  const counters = readNodeData(summary.Counters[0]);
+  const total = counters.total;
+  const passed = counters.passed;
+  const skipped = total - counters.executed;
+  const failed = counters.failed;
 
-  return { outcome: data.outcome };
+  return { outcome: data.outcome, total, passed, failed, skipped };
 };
 
 const readNodeData = (node: any) => node['$'];

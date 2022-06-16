@@ -145,6 +145,17 @@ const getFiles = (trxPath) => {
     filesWithAbsolutePaths.forEach(f => console.log(`File: ${f}`));
     return filesWithAbsolutePaths;
 };
+const getTimeString = (elapsed) => {
+    if (elapsed >= 120000) {
+        return `${Math.abs(elapsed / 120000)}min`;
+    }
+    else if (elapsed >= 1000) {
+        return `${Math.abs(elapsed / 1000)}s`;
+    }
+    else {
+        return `${elapsed}ms`;
+    }
+};
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -152,12 +163,24 @@ function run() {
             const trxPath = core.getInput('test-results');
             const filePaths = getFiles(trxPath);
             let elapsedTime = 0;
+            let total = 0;
+            let passed = 0;
+            let failed = 0;
+            let skipped = 0;
             for (const path of filePaths) {
                 const result = yield (0, parsers_1.parseTestResultsFile)(path);
                 elapsedTime += result.elapsed;
+                total += result.total;
+                passed += result.passed;
+                failed += result.failed;
+                skipped += result.skipped;
             }
             const title = 'Test Results';
-            const body = `:stopwatch: ${elapsedTime} ms\nUpdated comment 2!`;
+            const body = `Total - ${total} test${total === 1 ? 's' : ''}` +
+                `<br/>${passed} :heavy_check_mark:` +
+                `<br/>${failed} :x:` +
+                `<br/>${skipped} :grey_exclamation:` +
+                `<br/>:stopwatch: ${getTimeString(elapsedTime)}\n`;
             yield (0, comment_1.publishComment)(token, title, body);
         }
         catch (error) {
@@ -213,9 +236,14 @@ const parseElapsedTime = (trx) => {
 const parseSummary = (trx) => {
     var _a;
     const summary = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.ResultSummary;
-    const data = readNodeData(summary[0]);
     console.dir(summary, { depth: 8 });
-    return { outcome: data.outcome };
+    const data = readNodeData(summary[0]);
+    const counters = readNodeData(summary.Counters[0]);
+    const total = counters.total;
+    const passed = counters.passed;
+    const skipped = total - counters.executed;
+    const failed = counters.failed;
+    return { outcome: data.outcome, total, passed, failed, skipped };
 };
 const readNodeData = (node) => node['$'];
 

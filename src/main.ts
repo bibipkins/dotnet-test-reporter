@@ -28,6 +28,16 @@ const getFiles = (trxPath: string): string[] => {
   return filesWithAbsolutePaths;
 };
 
+const getTimeString = (elapsed: number) => {
+  if (elapsed >= 120000) {
+    return `${Math.abs(elapsed / 120000)}min`;
+  } else if (elapsed >= 1000) {
+    return `${Math.abs(elapsed / 1000)}s`;
+  } else {
+    return `${elapsed}ms`;
+  }
+};
+
 async function run(): Promise<void> {
   try {
     const token = core.getInput('repo-token') || process.env['GITHUB_TOKEN'] || '';
@@ -36,14 +46,27 @@ async function run(): Promise<void> {
     const filePaths = getFiles(trxPath);
 
     let elapsedTime = 0;
+    let total = 0;
+    let passed = 0;
+    let failed = 0;
+    let skipped = 0;
 
     for (const path of filePaths) {
       const result = await parseTestResultsFile(path);
       elapsedTime += result.elapsed;
+      total += result.total;
+      passed += result.passed;
+      failed += result.failed;
+      skipped += result.skipped;
     }
 
     const title = 'Test Results';
-    const body = `:stopwatch: ${elapsedTime} ms\nUpdated comment 2!`;
+    const body =
+      `Total - ${total} test${total === 1 ? 's' : ''}` +
+      `<br/>${passed} :heavy_check_mark:` +
+      `<br/>${failed} :x:` +
+      `<br/>${skipped} :grey_exclamation:` +
+      `<br/>:stopwatch: ${getTimeString(elapsedTime)}\n`;
 
     await publishComment(token, title, body);
   } catch (error: any) {
