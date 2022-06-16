@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import fs from 'fs';
 import path from 'path';
 import xml2js from 'xml2js';
+import { publishComment } from './comment';
 
 const getAbsolutePaths = (fileNames: string[], directoryName: string): string[] => {
   const absolutePaths: string[] = [];
@@ -52,6 +53,8 @@ const getElapsedTime = (trx: any): number => {
 
 async function run(): Promise<void> {
   try {
+    const token = core.getInput('repo-token') || process.env['GITHUB_TOKEN'] || '';
+
     const trxPath = core.getInput('test-results');
     const filePaths = getFiles(trxPath);
 
@@ -61,6 +64,8 @@ async function run(): Promise<void> {
       const result = await parser.parseStringPromise(file);
       getElapsedTime(result);
     }
+
+    publishComment(token);
   } catch (error: any) {
     console.log(error);
     core.setFailed(error.message);
