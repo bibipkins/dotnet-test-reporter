@@ -12,7 +12,7 @@ export const publishComment = async (token: string, title: string, message: stri
   }
 
   const header = `## ${title}`;
-  const footer = `results for commit ${after.substring(0, 8)}`;
+  const footer = after ? `:pencil2: updated for commit ${after.substring(0, 8)}` : '';
   const body = `${header}\n${message}<br/><br/><br/>${footer}`;
 
   const issues = github.getOctokit(token).rest.issues;

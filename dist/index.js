@@ -48,7 +48,7 @@ const publishComment = (token, title, message) => __awaiter(void 0, void 0, void
         return;
     }
     const header = `## ${title}`;
-    const footer = `results for commit ${after.substring(0, 8)}`;
+    const footer = after ? `:pencil2: updated for commit ${after.substring(0, 8)}` : '';
     const body = `${header}\n${message}<br/><br/><br/>${footer}`;
     const issues = github.getOctokit(token).rest.issues;
     const comments = yield issues.listComments({ owner, repo, issue_number: issueNumber });
