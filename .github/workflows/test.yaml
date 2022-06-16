@@ -29,3 +29,4 @@ jobs:
         id: hello
         with:
           test-results: './'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
