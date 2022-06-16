@@ -4,6 +4,9 @@ inputs:
   test-results:
     description: 'Path to the directory containing trx files'
     required: true
+  repo-token:
+    description: 'A GitHub repository token'
+    required: false
 outputs:
   time:
     description: 'The time we greeted you'
