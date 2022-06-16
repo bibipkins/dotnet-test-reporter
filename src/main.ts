@@ -1,4 +1,4 @@
-import core from '@actions/core';
+import * as core from '@actions/core';
 import fs from 'fs';
 import path from 'path';
 import xml2js from 'xml2js';
@@ -50,7 +50,7 @@ const getElapsedTime = (trx: any): number => {
   return 0;
 };
 
-const run = async () => {
+async function run(): Promise<void> {
   try {
     const trxPath = core.getInput('test-results');
     const filePaths = getFiles(trxPath);
@@ -65,6 +65,6 @@ const run = async () => {
     console.log(error);
     core.setFailed(error.message);
   }
-};
+}
 
 run();
