@@ -20,8 +20,8 @@ export const publishComment = async (token: string, title: string, message: stri
   }
 
   const header = `## ${title}`;
-  const footer = `*Last commit: ${after.substring(0, 8)}*`;
-  const body = `${header}\n${message}<br/><br/>___${footer}`;
+  const footer = `___\n*Last commit: ${after.substring(0, 8)}*`;
+  const body = `${header}\n${message}<br/><br/>${footer}`;
 
   const comments = await octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber });
   const existingComment = findExistingComment(comments, header);
