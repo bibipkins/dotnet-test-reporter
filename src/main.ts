@@ -67,8 +67,8 @@ async function run(): Promise<void> {
       elapsedTime += getElapsedTime(result);
     }
 
-    const title = '## Test Results';
-    const body = `:stopwatch: ${elapsedTime} ms\nUpdated comment!`;
+    const title = 'Test Results';
+    const body = `:stopwatch: ${elapsedTime} ms\nUpdated comment 2!`;
 
     await publishComment(token, title, body);
   } catch (error: any) {

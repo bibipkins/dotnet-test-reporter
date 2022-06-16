@@ -41,29 +41,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.publishComment = void 0;
 const github = __importStar(__nccwpck_require__(5438));
-const publishComment = (token, title, body) => __awaiter(void 0, void 0, void 0, function* () {
+const publishComment = (token, title, message) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { payload: { pull_request, repository } } = github.context;
+    console.dir(github.context, { depth: 8 });
     const octokit = github.getOctokit(token);
     const issueNumber = pull_request === null || pull_request === void 0 ? void 0 : pull_request.number;
     const [owner, repo] = ((_a = repository === null || repository === void 0 ? void 0 : repository.full_name) === null || _a === void 0 ? void 0 : _a.split('/')) || [];
-    console.log(`Owner: ${owner} Repo: ${repo} Issue: ${issueNumber}`);
     if (!owner || !repo || !issueNumber) {
+        console.error('Failed to post a comment');
         return;
     }
+    const header = `## ${title}`;
+    const body = `${header}\n${message}`;
     const comments = yield octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber });
-    const existingComment = findTestResultsComment(comments, title);
-    console.dir(existingComment);
-    const commentBody = `${title}\n${body}`;
+    const existingComment = findExistingComment(comments, header);
     if (existingComment) {
-        yield octokit.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body: commentBody });
+        yield octokit.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
     }
     else {
-        yield octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body: commentBody });
+        yield octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
     }
 });
 exports.publishComment = publishComment;
-const findTestResultsComment = (comments, title) => comments.data.find(comment => { var _a, _b; return ((_a = comment.user) === null || _a === void 0 ? void 0 : _a.type) === 'Bot' && ((_b = comment.body) === null || _b === void 0 ? void 0 : _b.startsWith(title)); });
+const findExistingComment = (comments, header) => comments.data.find(comment => { var _a, _b; return ((_a = comment.user) === null || _a === void 0 ? void 0 : _a.type) === 'Bot' && ((_b = comment.body) === null || _b === void 0 ? void 0 : _b.startsWith(header)); });
 
 
 /***/ }),
@@ -166,8 +167,8 @@ function run() {
                 const result = yield parser.parseStringPromise(file);
                 elapsedTime += getElapsedTime(result);
             }
-            const title = '## Test Results';
-            const body = `:stopwatch: ${elapsedTime} ms\nUpdated comment!`;
+            const title = 'Test Results';
+            const body = `:stopwatch: ${elapsedTime} ms\nUpdated comment 2!`;
             yield (0, comment_1.publishComment)(token, title, body);
         }
         catch (error) {
