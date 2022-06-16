@@ -32,7 +32,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.publishComment = void 0;
 const github = __importStar(__nccwpck_require__(5438));
-const publishComment = (token) => {
+const publishComment = (token, body) => {
     var _a;
     const { payload: { pull_request, repository } } = github.context;
     const octokit = github.getOctokit(token);
@@ -42,7 +42,7 @@ const publishComment = (token) => {
     if (!owner || !repo || !issueNumber) {
         return;
     }
-    octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body: 'Test Comment' });
+    octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
 };
 exports.publishComment = publishComment;
 
@@ -140,13 +140,15 @@ function run() {
             const token = core.getInput('repo-token') || process.env['GITHUB_TOKEN'] || '';
             const trxPath = core.getInput('test-results');
             const filePaths = getFiles(trxPath);
+            let elapsedTime = 0;
             for (const path of filePaths) {
                 const parser = new xml2js_1.default.Parser();
                 const file = fs_1.default.readFileSync(path);
                 const result = yield parser.parseStringPromise(file);
-                getElapsedTime(result);
+                elapsedTime += getElapsedTime(result);
             }
-            (0, comment_1.publishComment)(token);
+            const body = `## Test Results\n:stopwatch: ${elapsedTime} ms`;
+            (0, comment_1.publishComment)(token, body);
         }
         catch (error) {
             console.log(error);

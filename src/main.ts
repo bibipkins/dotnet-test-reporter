@@ -58,14 +58,18 @@ async function run(): Promise<void> {
     const trxPath = core.getInput('test-results');
     const filePaths = getFiles(trxPath);
 
+    let elapsedTime = 0;
+
     for (const path of filePaths) {
       const parser = new xml2js.Parser();
       const file = fs.readFileSync(path);
       const result = await parser.parseStringPromise(file);
-      getElapsedTime(result);
+      elapsedTime += getElapsedTime(result);
     }
 
-    publishComment(token);
+    const body = `## Test Results\n:stopwatch: ${elapsedTime} ms`;
+
+    publishComment(token, body);
   } catch (error: any) {
     console.log(error);
     core.setFailed(error.message);
