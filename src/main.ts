@@ -1,9 +1,9 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
+import core from '@actions/core';
+//const github = require('@actions/github');
 
-const fs = require('fs');
-const path = require('path');
-const xml2js = require('xml2js');
+import fs from 'fs';
+import path from 'path';
+import xml2js from 'xml2js';
 
 const getAbsolutePaths = (fileNames: string[], directoryName: string): string[] => {
   const absolutePaths: string[] = [];
@@ -57,9 +57,8 @@ const run = async () => {
     const trxPath = core.getInput('test-results');
     const filePaths = getFiles(trxPath);
 
-    var parser = new xml2js.Parser();
-
     for (const path of filePaths) {
+      const parser = new xml2js.Parser();
       const file = fs.readFileSync(path);
       const result = await parser.parseStringPromise(file);
       getElapsedTime(result);

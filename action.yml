@@ -5,7 +5,7 @@ inputs:
     description: 'Path to the directory containing trx files'
     required: true
 outputs:
-  time: # id of output
+  time:
     description: 'The time we greeted you'
 runs:
   using: 'node16'
