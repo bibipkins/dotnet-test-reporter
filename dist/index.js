@@ -42,29 +42,32 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.publishComment = void 0;
 const github = __importStar(__nccwpck_require__(5438));
 const publishComment = (token, title, message) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const { payload: { pull_request, repository, after } } = github.context;
-    console.dir(github.context, { depth: 8 });
-    const octokit = github.getOctokit(token);
-    const issueNumber = pull_request === null || pull_request === void 0 ? void 0 : pull_request.number;
-    const [owner, repo] = ((_a = repository === null || repository === void 0 ? void 0 : repository.full_name) === null || _a === void 0 ? void 0 : _a.split('/')) || [];
+    const { owner, repo, issueNumber, commit: after } = getConfiguration();
     if (!owner || !repo || !issueNumber) {
         console.error('Failed to post a comment');
         return;
     }
     const header = `## ${title}`;
-    const footer = `___\n*Last commit: ${after.substring(0, 8)}*`;
-    const body = `${header}\n${message}<br/><br/>${footer}`;
-    const comments = yield octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber });
+    const footer = `*results for commit* ${after.substring(0, 8)}`;
+    const body = `${header}\n${message}<br/><br/><br/>${footer}`;
+    const issues = github.getOctokit(token).rest.issues;
+    const comments = yield issues.listComments({ owner, repo, issue_number: issueNumber });
     const existingComment = findExistingComment(comments, header);
     if (existingComment) {
-        yield octokit.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
+        yield issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
     }
     else {
-        yield octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
+        yield issues.createComment({ owner, repo, issue_number: issueNumber, body });
     }
 });
 exports.publishComment = publishComment;
+const getConfiguration = () => {
+    var _a;
+    const { payload: { pull_request, repository, after } } = github.context;
+    const issueNumber = pull_request === null || pull_request === void 0 ? void 0 : pull_request.number;
+    const [owner, repo] = ((_a = repository === null || repository === void 0 ? void 0 : repository.full_name) === null || _a === void 0 ? void 0 : _a.split('/')) || [];
+    return { owner, repo, issueNumber, commit: after };
+};
 const findExistingComment = (comments, header) => comments.data.find(comment => { var _a, _b; return ((_a = comment.user) === null || _a === void 0 ? void 0 : _a.type) === 'Bot' && ((_b = comment.body) === null || _b === void 0 ? void 0 : _b.startsWith(header)); });
 
 

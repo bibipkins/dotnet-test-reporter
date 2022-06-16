@@ -4,15 +4,7 @@ import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 type ListCommentsResponse = RestEndpointMethodTypes['issues']['listComments']['response'];
 
 export const publishComment = async (token: string, title: string, message: string) => {
-  const {
-    payload: { pull_request, repository, after }
-  } = github.context;
-
-  console.dir(github.context, { depth: 8 });
-
-  const octokit = github.getOctokit(token);
-  const issueNumber = pull_request?.number;
-  const [owner, repo] = repository?.full_name?.split('/') || [];
+  const { owner, repo, issueNumber, commit: after } = getConfiguration();
 
   if (!owner || !repo || !issueNumber) {
     console.error('Failed to post a comment');
@@ -20,17 +12,29 @@ export const publishComment = async (token: string, title: string, message: stri
   }
 
   const header = `## ${title}`;
-  const footer = `___\n*Last commit: ${after.substring(0, 8)}*`;
-  const body = `${header}\n${message}<br/><br/>${footer}`;
+  const footer = `*results for commit* ${after.substring(0, 8)}`;
+  const body = `${header}\n${message}<br/><br/><br/>${footer}`;
 
-  const comments = await octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber });
+  const issues = github.getOctokit(token).rest.issues;
+  const comments = await issues.listComments({ owner, repo, issue_number: issueNumber });
   const existingComment = findExistingComment(comments, header);
 
   if (existingComment) {
-    await octokit.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
+    await issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
   } else {
-    await octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
+    await issues.createComment({ owner, repo, issue_number: issueNumber, body });
   }
+};
+
+const getConfiguration = () => {
+  const {
+    payload: { pull_request, repository, after }
+  } = github.context;
+
+  const issueNumber = pull_request?.number;
+  const [owner, repo] = repository?.full_name?.split('/') || [];
+
+  return { owner, repo, issueNumber, commit: after };
 };
 
 const findExistingComment = (comments: ListCommentsResponse, header: string) =>
