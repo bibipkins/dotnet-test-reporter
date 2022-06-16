@@ -1,12 +1,11 @@
 name: 'Hello World'
 description: 'Greet someone and record the time'
 inputs:
-  who-to-greet: # id of input
-    description: 'Who to greet'
+  test-results:
+    description: 'Path to the directory containing trx files'
     required: true
-    default: 'World'
 outputs:
-  time: # id of output
+  time:
     description: 'The time we greeted you'
 runs:
   using: 'node16'
