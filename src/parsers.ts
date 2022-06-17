@@ -1,9 +1,10 @@
 import xml2js from 'xml2js';
 import fs from 'fs';
+import { ITestResult } from './data';
 
-export const parseTestResultsFile = async (path: string) => {
-  const parser = new xml2js.Parser();
+export const parseTestResultsFile = async (path: string): Promise<ITestResult> => {
   const file = fs.readFileSync(path);
+  const parser = new xml2js.Parser();
   const content = await parser.parseStringPromise(file);
 
   const elapsed = parseElapsedTime(content);

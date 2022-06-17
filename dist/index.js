@@ -80,6 +80,35 @@ const findExistingComment = (comments, header) => {
 
 /***/ }),
 
+/***/ 2060:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getTestResultPaths = void 0;
+const fs_1 = __importDefault(__nccwpck_require__(7147));
+const path_1 = __importDefault(__nccwpck_require__(1017));
+const getTestResultPaths = (path) => {
+    if (!fs_1.default.existsSync(path)) {
+        console.log('No test result files found');
+        return [];
+    }
+    const fileNames = fs_1.default.readdirSync(path);
+    const trxFiles = fileNames.filter(name => name.endsWith('.trx'));
+    const absolutePaths = getAbsolutePaths(trxFiles, path);
+    absolutePaths.forEach(path => console.log(`File: ${path}`));
+    return absolutePaths;
+};
+exports.getTestResultPaths = getTestResultPaths;
+const getAbsolutePaths = (fileNames, directoryName) => fileNames.map(fileName => path_1.default.join(directoryName, fileName));
+
+
+/***/ }),
+
 /***/ 9538:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -117,34 +146,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
-const fs_1 = __importDefault(__nccwpck_require__(7147));
-const path_1 = __importDefault(__nccwpck_require__(1017));
 const comment_1 = __nccwpck_require__(1467);
+const files_1 = __nccwpck_require__(2060);
 const parsers_1 = __nccwpck_require__(4031);
-const getAbsolutePaths = (fileNames, directoryName) => {
-    const absolutePaths = [];
-    for (const file of fileNames) {
-        const absolutePath = path_1.default.join(directoryName, file);
-        absolutePaths.push(absolutePath);
-    }
-    return absolutePaths;
-};
-const getFiles = (trxPath) => {
-    console.log(`TRX Path: ${trxPath}`);
-    if (!fs_1.default.existsSync(trxPath)) {
-        return [];
-    }
-    const fileNames = fs_1.default.readdirSync(trxPath);
-    const trxFiles = fileNames.filter(f => f.endsWith('.trx'));
-    const filesWithAbsolutePaths = getAbsolutePaths(trxFiles, trxPath);
-    filesWithAbsolutePaths.forEach(f => console.log(`File: ${f}`));
-    return filesWithAbsolutePaths;
-};
 const getTimeString = (elapsed) => {
     if (elapsed >= 120000) {
         return `${Math.abs(elapsed / 120000)}min`;
@@ -161,7 +167,7 @@ function run() {
         try {
             const token = core.getInput('repo-token') || process.env['GITHUB_TOKEN'] || '';
             const trxPath = core.getInput('test-results');
-            const filePaths = getFiles(trxPath);
+            const filePaths = (0, files_1.getTestResultPaths)(trxPath);
             let elapsedTime = 0;
             let total = 0;
             let passed = 0;
@@ -181,7 +187,7 @@ function run() {
                 `:stopwatch: ${getTimeString(elapsedTime)}\n` +
                 `:memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped\n` +
                 `--- | --- | --- | ---\n` +
-                `${total} | ${passed} | ${failed} | ${skipped} \n `;
+                `${total} | ${passed} | ${failed} | ${skipped}\n\n`;
             yield (0, comment_1.publishComment)(token, title, body);
         }
         catch (error) {
@@ -217,8 +223,8 @@ exports.parseTestResultsFile = void 0;
 const xml2js_1 = __importDefault(__nccwpck_require__(6189));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const parseTestResultsFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
-    const parser = new xml2js_1.default.Parser();
     const file = fs_1.default.readFileSync(path);
+    const parser = new xml2js_1.default.Parser();
     const content = yield parser.parseStringPromise(file);
     const elapsed = parseElapsedTime(content);
     const summary = parseSummary(content);

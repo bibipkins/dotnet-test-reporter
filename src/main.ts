@@ -1,32 +1,8 @@
 import * as core from '@actions/core';
-import fs from 'fs';
-import path from 'path';
+
 import { publishComment } from './comment';
+import { getTestResultPaths } from './files';
 import { parseTestResultsFile } from './parsers';
-
-const getAbsolutePaths = (fileNames: string[], directoryName: string): string[] => {
-  const absolutePaths: string[] = [];
-
-  for (const file of fileNames) {
-    const absolutePath = path.join(directoryName, file);
-    absolutePaths.push(absolutePath);
-  }
-
-  return absolutePaths;
-};
-
-const getFiles = (trxPath: string): string[] => {
-  console.log(`TRX Path: ${trxPath}`);
-  if (!fs.existsSync(trxPath)) {
-    return [];
-  }
-
-  const fileNames = fs.readdirSync(trxPath);
-  const trxFiles = fileNames.filter(f => f.endsWith('.trx'));
-  const filesWithAbsolutePaths = getAbsolutePaths(trxFiles, trxPath);
-  filesWithAbsolutePaths.forEach(f => console.log(`File: ${f}`));
-  return filesWithAbsolutePaths;
-};
 
 const getTimeString = (elapsed: number) => {
   if (elapsed >= 120000) {
@@ -41,9 +17,8 @@ const getTimeString = (elapsed: number) => {
 async function run(): Promise<void> {
   try {
     const token = core.getInput('repo-token') || process.env['GITHUB_TOKEN'] || '';
-
     const trxPath = core.getInput('test-results');
-    const filePaths = getFiles(trxPath);
+    const filePaths = getTestResultPaths(trxPath);
 
     let elapsedTime = 0;
     let total = 0;
@@ -67,7 +42,7 @@ async function run(): Promise<void> {
       `:stopwatch: ${getTimeString(elapsedTime)}\n` +
       `:memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped\n` +
       `--- | --- | --- | ---\n` +
-      `${total} | ${passed} | ${failed} | ${skipped} \n `;
+      `${total} | ${passed} | ${failed} | ${skipped}\n\n`;
 
     await publishComment(token, title, body);
   } catch (error: any) {
