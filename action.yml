@@ -1,11 +1,14 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Report Test Results'
+description: 'A GitHub action to parse test results and post the summary as a PR comment'
 inputs:
   test-results:
     description: 'Path to the directory containing trx files'
     required: true
-  repo-token:
-    description: 'A GitHub repository token'
+  github-token:
+    description: 'GitHub repository token'
+    required: false
+  comment-title:
+    description: 'Pull Request comment title'
     required: false
 outputs:
   time:

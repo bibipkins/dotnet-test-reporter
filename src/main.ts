@@ -1,78 +1,45 @@
 import * as core from '@actions/core';
-import fs from 'fs';
-import path from 'path';
-import xml2js from 'xml2js';
-import { publishComment } from './comment';
+import { ITestResult } from './data';
+import { getTestResultPaths, formatTestResults, parseTestResultsFile, publishComment } from './utils';
 
-const getAbsolutePaths = (fileNames: string[], directoryName: string): string[] => {
-  const absolutePaths: string[] = [];
+const aggregateTestResults = (results: ITestResult[]): ITestResult => {
+  const aggregatedResults: ITestResult = {
+    elapsed: 0,
+    total: 0,
+    passed: 0,
+    failed: 0,
+    skipped: 0
+  };
 
-  for (const file of fileNames) {
-    const absolutePath = path.join(directoryName, file);
-    absolutePaths.push(absolutePath);
+  for (const result of results) {
+    aggregatedResults.elapsed += result.elapsed;
+    aggregatedResults.total += result.total;
+    aggregatedResults.passed += result.passed;
+    aggregatedResults.failed += result.failed;
+    aggregatedResults.skipped += result.skipped;
   }
 
-  return absolutePaths;
-};
-
-const getFiles = (trxPath: string): string[] => {
-  console.log(`TRX Path: ${trxPath}`);
-  if (!fs.existsSync(trxPath)) {
-    return [];
-  }
-
-  const fileNames = fs.readdirSync(trxPath);
-  console.log(`Files count: ${fileNames.length}`);
-  const trxFiles = fileNames.filter(f => f.endsWith('.trx'));
-  console.log(`TRX Files count: ${trxFiles.length}`);
-  const filesWithAbsolutePaths = getAbsolutePaths(trxFiles, trxPath);
-  filesWithAbsolutePaths.forEach(f => console.log(`File: ${f}`));
-  return filesWithAbsolutePaths;
-};
-
-const readNodeData = (node: any): any => {
-  return node['$'];
-};
-
-const getElapsedTime = (trx: any): number => {
-  const times = trx.TestRun?.Times;
-
-  if (times && times.length) {
-    const data = readNodeData(times[0]);
-    const start = new Date(data.start);
-    console.log(start);
-    const finish = new Date(data.finish);
-    console.log(finish);
-    var milisconds = finish.getTime() - start.getTime();
-    console.log(milisconds);
-    return milisconds;
-  }
-
-  return 0;
+  return aggregatedResults;
 };
 
 async function run(): Promise<void> {
   try {
-    const token = core.getInput('repo-token') || process.env['GITHUB_TOKEN'] || '';
-
+    const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
+    const title = core.getInput('comment-title') || 'Test Results';
     const trxPath = core.getInput('test-results');
-    const filePaths = getFiles(trxPath);
+    const filePaths = getTestResultPaths(trxPath);
 
-    let elapsedTime = 0;
-
-    for (const path of filePaths) {
-      const parser = new xml2js.Parser();
-      const file = fs.readFileSync(path);
-      const result = await parser.parseStringPromise(file);
-      elapsedTime += getElapsedTime(result);
-    }
-
-    const title = 'Test Results';
-    const body = `:stopwatch: ${elapsedTime} ms\nUpdated comment 2!`;
+    const results = await Promise.all(filePaths.map(path => parseTestResultsFile(path)));
+    const aggregatedResults = aggregateTestResults(results);
+    const body = formatTestResults(aggregatedResults);
 
     await publishComment(token, title, body);
+
+    if (aggregatedResults.failed !== 0) {
+      core.setFailed(`${aggregatedResults.failed} Tests Failed`);
+    }
   } catch (error: any) {
-    console.log(error);
+    console.error(error);
     core.setFailed(error.message);
   }
 }
