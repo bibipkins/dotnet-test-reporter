@@ -176,14 +176,12 @@ function run() {
                 skipped += result.skipped;
             }
             const title = 'Test Results';
-            const body = `${failed ? `:red_circle: **FAIL**` : `:green_circle: **SUCCESS**`} - ` +
+            const body = `${failed ? `:red_circle: **FAIL**` : `:green_circle: **SUCCESS**`}` +
+                `&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp` +
                 `:stopwatch: ${getTimeString(elapsedTime)}\n` +
                 `:memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped\n` +
                 `--- | --- | --- | ---\n` +
-                `${total} | ` +
-                `${passed} | ` +
-                `${failed} | ` +
-                `${skipped} \n\n`;
+                `${total} | ${passed} | ${failed} | ${skipped} \n`;
             yield (0, comment_1.publishComment)(token, title, body);
         }
         catch (error) {
