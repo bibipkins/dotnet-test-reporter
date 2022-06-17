@@ -1,7 +1,90 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 1467:
+/***/ 9538:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core = __importStar(__nccwpck_require__(2186));
+const utils_1 = __nccwpck_require__(7782);
+const aggregateTestResults = (results) => {
+    const aggregatedResults = {
+        elapsed: 0,
+        total: 0,
+        passed: 0,
+        failed: 0,
+        skipped: 0
+    };
+    for (const result of results) {
+        aggregatedResults.elapsed += result.elapsed;
+        aggregatedResults.total += result.total;
+        aggregatedResults.passed += result.passed;
+        aggregatedResults.failed += result.failed;
+        aggregatedResults.skipped += result.skipped;
+    }
+    return aggregatedResults;
+};
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
+            const title = core.getInput('comment-title') || 'Test Results';
+            const trxPath = core.getInput('test-results');
+            const filePaths = (0, utils_1.getTestResultPaths)(trxPath);
+            const results = yield Promise.all(filePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
+            const aggregatedResults = aggregateTestResults(results);
+            const body = (0, utils_1.formatTestResults)(aggregatedResults);
+            yield (0, utils_1.publishComment)(token, title, body);
+            if (aggregatedResults.failed !== 0) {
+                core.setFailed(`${aggregatedResults.failed} Tests Failed`);
+            }
+        }
+        catch (error) {
+            console.error(error);
+            core.setFailed(error.message);
+        }
+    });
+}
+run();
+
+
+/***/ }),
+
+/***/ 3451:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -48,8 +131,8 @@ const publishComment = (token, title, message) => __awaiter(void 0, void 0, void
         return;
     }
     const header = `## ${title}`;
-    const footer = `results for commit ${after.substring(0, 8)}`;
-    const body = `${header}\n${message}<br/><br/><br/>${footer}`;
+    const footer = after ? `:pencil2: updated for commit ${after.substring(0, 8)}` : '';
+    const body = `${header}\n${message}<br/><br/>${footer}`;
     const issues = github.getOctokit(token).rest.issues;
     const comments = yield issues.listComments({ owner, repo, issue_number: issueNumber });
     const existingComment = findExistingComment(comments, header);
@@ -80,7 +163,79 @@ const findExistingComment = (comments, header) => {
 
 /***/ }),
 
-/***/ 9538:
+/***/ 396:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getTestResultPaths = void 0;
+const fs_1 = __importDefault(__nccwpck_require__(7147));
+const path_1 = __importDefault(__nccwpck_require__(1017));
+const getTestResultPaths = (path) => {
+    if (!fs_1.default.existsSync(path)) {
+        console.log('No test result files found');
+        return [];
+    }
+    const fileNames = fs_1.default.readdirSync(path);
+    const trxFiles = fileNames.filter(name => name.endsWith('.trx'));
+    const absolutePaths = getAbsolutePaths(trxFiles, path);
+    absolutePaths.forEach(path => console.log(`File: ${path}`));
+    return absolutePaths;
+};
+exports.getTestResultPaths = getTestResultPaths;
+const getAbsolutePaths = (fileNames, directoryName) => fileNames.map(fileName => path_1.default.join(directoryName, fileName));
+
+
+/***/ }),
+
+/***/ 4291:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.formatTestResults = void 0;
+const formatTestResults = (results) => {
+    const status = formatStatus(results);
+    const summary = formatSummary(results);
+    return status + summary;
+};
+exports.formatTestResults = formatTestResults;
+const formatStatus = (results) => {
+    const success = results.failed === 0;
+    const status = success ? ':green_circle: **SUCCESS**' : ':red_circle: **FAIL**';
+    const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;';
+    const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}\n`;
+    return status + delimiter + time;
+};
+const formatElapsedTime = (elapsed) => {
+    const secondsDelimiter = 1000;
+    const minutesDelimiter = 120000;
+    if (elapsed >= minutesDelimiter) {
+        return `${Math.abs(elapsed / minutesDelimiter)}min`;
+    }
+    else if (elapsed >= secondsDelimiter) {
+        return `${Math.abs(elapsed / secondsDelimiter)}s`;
+    }
+    else {
+        return `${elapsed}ms`;
+    }
+};
+const formatSummary = (results) => {
+    const { total, passed, failed, skipped } = results;
+    const tableHeader = ':memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped';
+    const tableBody = `${total} | ${passed} | ${failed} | ${skipped}`;
+    return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
+};
+
+
+/***/ }),
+
+/***/ 7782:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -96,18 +251,23 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
 }));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(3451), exports);
+__exportStar(__nccwpck_require__(396), exports);
+__exportStar(__nccwpck_require__(4291), exports);
+__exportStar(__nccwpck_require__(2780), exports);
+
+
+/***/ }),
+
+/***/ 2780:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -121,74 +281,39 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__nccwpck_require__(2186));
-const fs_1 = __importDefault(__nccwpck_require__(7147));
-const path_1 = __importDefault(__nccwpck_require__(1017));
+exports.parseTestResultsFile = void 0;
 const xml2js_1 = __importDefault(__nccwpck_require__(6189));
-const comment_1 = __nccwpck_require__(1467);
-const getAbsolutePaths = (fileNames, directoryName) => {
-    const absolutePaths = [];
-    for (const file of fileNames) {
-        const absolutePath = path_1.default.join(directoryName, file);
-        absolutePaths.push(absolutePath);
-    }
-    return absolutePaths;
-};
-const getFiles = (trxPath) => {
-    console.log(`TRX Path: ${trxPath}`);
-    if (!fs_1.default.existsSync(trxPath)) {
-        return [];
-    }
-    const fileNames = fs_1.default.readdirSync(trxPath);
-    console.log(`Files count: ${fileNames.length}`);
-    const trxFiles = fileNames.filter(f => f.endsWith('.trx'));
-    console.log(`TRX Files count: ${trxFiles.length}`);
-    const filesWithAbsolutePaths = getAbsolutePaths(trxFiles, trxPath);
-    filesWithAbsolutePaths.forEach(f => console.log(`File: ${f}`));
-    return filesWithAbsolutePaths;
-};
-const readNodeData = (node) => {
-    return node['$'];
-};
-const getElapsedTime = (trx) => {
+const fs_1 = __importDefault(__nccwpck_require__(7147));
+const parseTestResultsFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
+    const file = fs_1.default.readFileSync(path);
+    const parser = new xml2js_1.default.Parser();
+    const content = yield parser.parseStringPromise(file);
+    const elapsed = parseElapsedTime(content);
+    const summary = parseSummary(content);
+    return Object.assign({ elapsed }, summary);
+});
+exports.parseTestResultsFile = parseTestResultsFile;
+const parseElapsedTime = (trx) => {
     var _a;
     const times = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.Times;
-    if (times && times.length) {
-        const data = readNodeData(times[0]);
-        const start = new Date(data.start);
-        console.log(start);
-        const finish = new Date(data.finish);
-        console.log(finish);
-        var milisconds = finish.getTime() - start.getTime();
-        console.log(milisconds);
-        return milisconds;
-    }
-    return 0;
+    const data = readNodeData(times[0]);
+    const start = new Date(data.start);
+    const finish = new Date(data.finish);
+    const milisconds = finish.getTime() - start.getTime();
+    return milisconds;
 };
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const token = core.getInput('repo-token') || process.env['GITHUB_TOKEN'] || '';
-            const trxPath = core.getInput('test-results');
-            const filePaths = getFiles(trxPath);
-            let elapsedTime = 0;
-            for (const path of filePaths) {
-                const parser = new xml2js_1.default.Parser();
-                const file = fs_1.default.readFileSync(path);
-                const result = yield parser.parseStringPromise(file);
-                elapsedTime += getElapsedTime(result);
-            }
-            const title = 'Test Results';
-            const body = `:stopwatch: ${elapsedTime} ms\nUpdated comment 2!`;
-            yield (0, comment_1.publishComment)(token, title, body);
-        }
-        catch (error) {
-            console.log(error);
-            core.setFailed(error.message);
-        }
-    });
-}
-run();
+const parseSummary = (trx) => {
+    var _a;
+    const summary = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.ResultSummary[0];
+    const data = readNodeData(summary);
+    const counters = readNodeData(summary.Counters[0]);
+    const total = Number(counters.total);
+    const passed = Number(counters.passed);
+    const skipped = total - Number(counters.executed);
+    const failed = Number(counters.failed);
+    return { outcome: data.outcome, total, passed, failed, skipped };
+};
+const readNodeData = (node) => node['$'];
 
 
 /***/ }),
