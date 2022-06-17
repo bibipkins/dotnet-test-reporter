@@ -69,9 +69,12 @@ function run() {
             const aggregatedResults = aggregateTestResults(results);
             const body = (0, utils_1.formatTestResults)(aggregatedResults);
             yield (0, utils_1.publishComment)(token, title, body);
+            if (aggregatedResults.failed !== 0) {
+                core.setFailed(`${aggregatedResults.failed} Tests Failed`);
+            }
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             core.setFailed(error.message);
         }
     });
