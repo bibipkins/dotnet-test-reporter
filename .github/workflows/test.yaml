@@ -30,3 +30,4 @@ jobs:
         with:
           test-results: './'
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: 'My Custom Title'
