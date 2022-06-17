@@ -62,13 +62,14 @@ async function run(): Promise<void> {
 
     const title = 'Test Results';
     const body =
-      `Total - ${total} test${total === 1 ? 's' : ''}\n` +
-      `Passed | Failed | Skipped\n` +
-      `--- | --- | ---\n` +
-      `${passed} :heavy_check_mark: | ` +
-      `${failed} :x: | ` +
-      `${skipped} :warning:\n` +
-      `\n elapsed :stopwatch: ${getTimeString(elapsedTime)}`;
+      `${failed ? `:red_circle: **FAIL**` : `:green_circle: **SUCCESS**`} - ` +
+      `:stopwatch: ${getTimeString(elapsedTime)}\n` +
+      `:memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped\n` +
+      `--- | --- | --- | ---\n` +
+      `${total} | ` +
+      `${passed} | ` +
+      `${failed} | ` +
+      `${skipped} \n\n`;
 
     await publishComment(token, title, body);
   } catch (error: any) {

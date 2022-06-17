@@ -176,13 +176,14 @@ function run() {
                 skipped += result.skipped;
             }
             const title = 'Test Results';
-            const body = `Total - ${total} test${total === 1 ? 's' : ''}\n` +
-                `Passed | Failed | Skipped\n` +
-                `--- | --- | ---\n` +
-                `${passed} :heavy_check_mark: | ` +
-                `${failed} :x: | ` +
-                `${skipped} :warning:\n` +
-                `\n elapsed :stopwatch: ${getTimeString(elapsedTime)}`;
+            const body = `${failed ? `:red_circle: **FAIL**` : `:green_circle: **SUCCESS**`} - ` +
+                `:stopwatch: ${getTimeString(elapsedTime)}\n` +
+                `:memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped\n` +
+                `--- | --- | --- | ---\n` +
+                `${total} | ` +
+                `${passed} | ` +
+                `${failed} | ` +
+                `${skipped} \n\n`;
             yield (0, comment_1.publishComment)(token, title, body);
         }
         catch (error) {
