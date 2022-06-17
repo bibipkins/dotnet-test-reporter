@@ -1,7 +1,87 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 1467:
+/***/ 9538:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core = __importStar(__nccwpck_require__(2186));
+const utils_1 = __nccwpck_require__(7782);
+const aggregateTestResults = (results) => {
+    const aggregatedResults = {
+        elapsed: 0,
+        total: 0,
+        passed: 0,
+        failed: 0,
+        skipped: 0
+    };
+    for (const result of results) {
+        aggregatedResults.elapsed += result.elapsed;
+        aggregatedResults.total += result.total;
+        aggregatedResults.passed += result.passed;
+        aggregatedResults.failed += result.failed;
+        aggregatedResults.skipped += result.skipped;
+    }
+    return aggregatedResults;
+};
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
+            const title = core.getInput('comment-title') || 'Test Results';
+            const trxPath = core.getInput('test-results');
+            const filePaths = (0, utils_1.getTestResultPaths)(trxPath);
+            const results = yield Promise.all(filePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
+            const aggregatedResults = aggregateTestResults(results);
+            const body = (0, utils_1.formatTestResults)(aggregatedResults);
+            yield (0, utils_1.publishComment)(token, title, body);
+        }
+        catch (error) {
+            console.log(error);
+            core.setFailed(error.message);
+        }
+    });
+}
+run();
+
+
+/***/ }),
+
+/***/ 3451:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -49,7 +129,7 @@ const publishComment = (token, title, message) => __awaiter(void 0, void 0, void
     }
     const header = `## ${title}`;
     const footer = after ? `:pencil2: updated for commit ${after.substring(0, 8)}` : '';
-    const body = `${header}\n${message}<br/><br/><br/>${footer}`;
+    const body = `${header}\n${message}<br/><br/>${footer}`;
     const issues = github.getOctokit(token).rest.issues;
     const comments = yield issues.listComments({ owner, repo, issue_number: issueNumber });
     const existingComment = findExistingComment(comments, header);
@@ -80,7 +160,7 @@ const findExistingComment = (comments, header) => {
 
 /***/ }),
 
-/***/ 2060:
+/***/ 396:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -109,7 +189,50 @@ const getAbsolutePaths = (fileNames, directoryName) => fileNames.map(fileName =>
 
 /***/ }),
 
-/***/ 9538:
+/***/ 4291:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.formatTestResults = void 0;
+const formatTestResults = (results) => {
+    const status = formatStatus(results);
+    const summary = formatSummary(results);
+    return status + summary;
+};
+exports.formatTestResults = formatTestResults;
+const formatStatus = (results) => {
+    const success = results.failed === 0;
+    const status = success ? ':green_circle: **SUCCESS**' : ':red_circle: **FAIL**';
+    const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;';
+    const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}\n`;
+    return status + delimiter + time;
+};
+const formatElapsedTime = (elapsed) => {
+    const secondsDelimiter = 1000;
+    const minutesDelimiter = 120000;
+    if (elapsed >= minutesDelimiter) {
+        return `${Math.abs(elapsed / minutesDelimiter)}min`;
+    }
+    else if (elapsed >= secondsDelimiter) {
+        return `${Math.abs(elapsed / secondsDelimiter)}s`;
+    }
+    else {
+        return `${elapsed}ms`;
+    }
+};
+const formatSummary = (results) => {
+    const { total, passed, failed, skipped } = results;
+    const tableHeader = ':memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped';
+    const tableBody = `${total} | ${passed} | ${failed} | ${skipped}`;
+    return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
+};
+
+
+/***/ }),
+
+/***/ 7782:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -125,83 +248,19 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
 }));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__nccwpck_require__(2186));
-const comment_1 = __nccwpck_require__(1467);
-const files_1 = __nccwpck_require__(2060);
-const parsers_1 = __nccwpck_require__(4031);
-const getTimeString = (elapsed) => {
-    if (elapsed >= 120000) {
-        return `${Math.abs(elapsed / 120000)}min`;
-    }
-    else if (elapsed >= 1000) {
-        return `${Math.abs(elapsed / 1000)}s`;
-    }
-    else {
-        return `${elapsed}ms`;
-    }
-};
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const token = core.getInput('repo-token') || process.env['GITHUB_TOKEN'] || '';
-            const trxPath = core.getInput('test-results');
-            const filePaths = (0, files_1.getTestResultPaths)(trxPath);
-            let elapsedTime = 0;
-            let total = 0;
-            let passed = 0;
-            let failed = 0;
-            let skipped = 0;
-            for (const path of filePaths) {
-                const result = yield (0, parsers_1.parseTestResultsFile)(path);
-                elapsedTime += result.elapsed;
-                total += result.total;
-                passed += result.passed;
-                failed += result.failed;
-                skipped += result.skipped;
-            }
-            const title = 'Test Results';
-            const body = `${failed ? `:red_circle: **FAIL**` : `:green_circle: **SUCCESS**`}` +
-                `&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;` +
-                `:stopwatch: ${getTimeString(elapsedTime)}\n` +
-                `:memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped\n` +
-                `--- | --- | --- | ---\n` +
-                `${total} | ${passed} | ${failed} | ${skipped}\n\n`;
-            yield (0, comment_1.publishComment)(token, title, body);
-        }
-        catch (error) {
-            console.log(error);
-            core.setFailed(error.message);
-        }
-    });
-}
-run();
+__exportStar(__nccwpck_require__(3451), exports);
+__exportStar(__nccwpck_require__(396), exports);
+__exportStar(__nccwpck_require__(4291), exports);
+__exportStar(__nccwpck_require__(2780), exports);
 
 
 /***/ }),
 
-/***/ 4031:
+/***/ 2780:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";

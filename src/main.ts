@@ -1,48 +1,37 @@
 import * as core from '@actions/core';
+import { ITestResult } from './data';
+import { getTestResultPaths, formatTestResults, parseTestResultsFile, publishComment } from './utils';
 
-import { publishComment } from './comment';
-import { getTestResultPaths } from './files';
-import { parseTestResultsFile } from './parsers';
+const aggregateTestResults = (results: ITestResult[]): ITestResult => {
+  const aggregatedResults: ITestResult = {
+    elapsed: 0,
+    total: 0,
+    passed: 0,
+    failed: 0,
+    skipped: 0
+  };
 
-const getTimeString = (elapsed: number) => {
-  if (elapsed >= 120000) {
-    return `${Math.abs(elapsed / 120000)}min`;
-  } else if (elapsed >= 1000) {
-    return `${Math.abs(elapsed / 1000)}s`;
-  } else {
-    return `${elapsed}ms`;
+  for (const result of results) {
+    aggregatedResults.elapsed += result.elapsed;
+    aggregatedResults.total += result.total;
+    aggregatedResults.passed += result.passed;
+    aggregatedResults.failed += result.failed;
+    aggregatedResults.skipped += result.skipped;
   }
+
+  return aggregatedResults;
 };
 
 async function run(): Promise<void> {
   try {
-    const token = core.getInput('repo-token') || process.env['GITHUB_TOKEN'] || '';
+    const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
+    const title = core.getInput('comment-title') || 'Test Results';
     const trxPath = core.getInput('test-results');
+
     const filePaths = getTestResultPaths(trxPath);
-
-    let elapsedTime = 0;
-    let total = 0;
-    let passed = 0;
-    let failed = 0;
-    let skipped = 0;
-
-    for (const path of filePaths) {
-      const result = await parseTestResultsFile(path);
-      elapsedTime += result.elapsed;
-      total += result.total;
-      passed += result.passed;
-      failed += result.failed;
-      skipped += result.skipped;
-    }
-
-    const title = 'Test Results';
-    const body =
-      `${failed ? `:red_circle: **FAIL**` : `:green_circle: **SUCCESS**`}` +
-      `&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;` +
-      `:stopwatch: ${getTimeString(elapsedTime)}\n` +
-      `:memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped\n` +
-      `--- | --- | --- | ---\n` +
-      `${total} | ${passed} | ${failed} | ${skipped}\n\n`;
+    const results = await Promise.all(filePaths.map(path => parseTestResultsFile(path)));
+    const aggregatedResults = aggregateTestResults(results);
+    const body = formatTestResults(aggregatedResults);
 
     await publishComment(token, title, body);
   } catch (error: any) {

@@ -1,6 +1,6 @@
 import xml2js from 'xml2js';
 import fs from 'fs';
-import { ITestResult } from './data';
+import { ITestResult } from '../data';
 
 export const parseTestResultsFile = async (path: string): Promise<ITestResult> => {
   const file = fs.readFileSync(path);
