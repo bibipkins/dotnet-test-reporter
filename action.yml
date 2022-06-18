@@ -1,5 +1,5 @@
-name: 'Report Test Results'
 description: 'A GitHub action to parse test results and post the summary as a PR comment'
+author: 'https://github.com/bibipkins'
 inputs:
   test-results:
     description: 'Path to the directory containing trx files'
