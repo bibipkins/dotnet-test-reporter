@@ -1,6 +1,13 @@
 import * as core from '@actions/core';
 import { ITestResult } from './data';
-import { getTestResultPaths, formatTestResults, parseTestResultsFile, publishComment } from './utils';
+import {
+  getTestResultPaths,
+  parseTestResultsFile,
+  parseTestCoverageFile,
+  formatTestResults,
+  formatTestCoverage,
+  publishComment
+} from './utils';
 
 const aggregateTestResults = (results: ITestResult[]): ITestResult => {
   const aggregatedResults: ITestResult = {
@@ -22,22 +29,40 @@ const aggregateTestResults = (results: ITestResult[]): ITestResult => {
   return aggregatedResults;
 };
 
+const setActionStatus = (testsPassed: boolean, coveragePassed: boolean): void => {
+  if (!testsPassed) {
+    core.setFailed('Tests Failed');
+  }
+
+  if (!coveragePassed) {
+    core.setFailed('Coverage Failed');
+  }
+};
+
 async function run(): Promise<void> {
   try {
     const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
     const title = core.getInput('comment-title') || 'Test Results';
-    const trxPath = core.getInput('test-results');
-    const filePaths = getTestResultPaths(trxPath);
+    const resultsPath = core.getInput('test-results');
+    const coveragePath = core.getInput('test-coverage');
+    const minCoverage = Number(core.getInput('min-coverage'));
 
-    const results = await Promise.all(filePaths.map(path => parseTestResultsFile(path)));
+    const resultsFilePaths = getTestResultPaths(resultsPath);
+    const results = await Promise.all(resultsFilePaths.map(path => parseTestResultsFile(path)));
     const aggregatedResults = aggregateTestResults(results);
-    const body = formatTestResults(aggregatedResults);
+
+    let testsPassed = !aggregatedResults.failed;
+    let coveragePassed = true;
+    let body = formatTestResults(aggregatedResults);
+
+    if (coveragePath) {
+      const coverageResult = await parseTestCoverageFile(coveragePath);
+      coveragePassed = minCoverage ? coverageResult.lineCoverage >= minCoverage : true;
+      body += formatTestCoverage(coverageResult, minCoverage);
+    }
 
     await publishComment(token, title, body);
-
-    if (aggregatedResults.failed !== 0) {
-      core.setFailed(`${aggregatedResults.failed} Tests Failed`);
-    }
+    setActionStatus(testsPassed, coveragePassed);
   } catch (error: any) {
     console.error(error);
     core.setFailed(error.message);

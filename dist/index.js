@@ -58,20 +58,35 @@ const aggregateTestResults = (results) => {
     }
     return aggregatedResults;
 };
+const setActionStatus = (testsPassed, coveragePassed) => {
+    if (!testsPassed) {
+        core.setFailed('Tests Failed');
+    }
+    if (!coveragePassed) {
+        core.setFailed('Coverage Failed');
+    }
+};
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
             const title = core.getInput('comment-title') || 'Test Results';
-            const trxPath = core.getInput('test-results');
-            const filePaths = (0, utils_1.getTestResultPaths)(trxPath);
-            const results = yield Promise.all(filePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
+            const resultsPath = core.getInput('test-results');
+            const coveragePath = core.getInput('test-coverage');
+            const minCoverage = Number(core.getInput('min-coverage'));
+            const resultsFilePaths = (0, utils_1.getTestResultPaths)(resultsPath);
+            const results = yield Promise.all(resultsFilePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
             const aggregatedResults = aggregateTestResults(results);
-            const body = (0, utils_1.formatTestResults)(aggregatedResults);
-            yield (0, utils_1.publishComment)(token, title, body);
-            if (aggregatedResults.failed !== 0) {
-                core.setFailed(`${aggregatedResults.failed} Tests Failed`);
+            let testsPassed = !aggregatedResults.failed;
+            let coveragePassed = true;
+            let body = (0, utils_1.formatTestResults)(aggregatedResults);
+            if (coveragePath) {
+                const coverageResult = yield (0, utils_1.parseTestCoverageFile)(coveragePath);
+                coveragePassed = minCoverage ? coverageResult.lineCoverage >= minCoverage : true;
+                body += (0, utils_1.formatTestCoverage)(coverageResult, minCoverage);
             }
+            yield (0, utils_1.publishComment)(token, title, body);
+            setActionStatus(testsPassed, coveragePassed);
         }
         catch (error) {
             console.error(error);
@@ -132,7 +147,7 @@ const publishComment = (token, title, message) => __awaiter(void 0, void 0, void
     }
     const header = `## ${title}`;
     const footer = after ? `:pencil2: updated for commit ${after.substring(0, 8)}` : '';
-    const body = `${header}\n${message}<br/><br/>${footer}`;
+    const body = `${header}\n${message}<br/>${footer}`;
     const issues = github.getOctokit(token).rest.issues;
     const comments = yield issues.listComments({ owner, repo, issue_number: issueNumber });
     const existingComment = findExistingComment(comments, header);
@@ -198,19 +213,27 @@ const getAbsolutePaths = (fileNames, directoryName) => fileNames.map(fileName =>
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatTestResults = void 0;
+exports.formatTestCoverage = exports.formatTestResults = void 0;
 const formatTestResults = (results) => {
-    const status = formatStatus(results);
-    const summary = formatSummary(results);
+    const status = formatResultStatus(results);
+    const summary = formatResultSummary(results);
     return status + summary;
 };
 exports.formatTestResults = formatTestResults;
-const formatStatus = (results) => {
+const formatTestCoverage = (coverage, min) => {
+    const status = fromatCoverageStatus(coverage, min);
+    const summary = formatCoverageSummary(coverage);
+    return status + summary;
+};
+exports.formatTestCoverage = formatTestCoverage;
+const formatResultStatus = (results) => {
     const success = results.failed === 0;
-    const status = success ? ':green_circle: **SUCCESS**' : ':red_circle: **FAIL**';
-    const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;';
-    const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}\n`;
-    return status + delimiter + time;
+    const successStatus = ':green_circle: &nbsp;Tests Passed';
+    const failStatus = ':red_circle: &nbsp;Tests Failed';
+    const status = success ? successStatus : failStatus;
+    const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;';
+    const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}`;
+    return `### ${status}${delimiter}${time}\n`;
 };
 const formatElapsedTime = (elapsed) => {
     const secondsDelimiter = 1000;
@@ -225,10 +248,25 @@ const formatElapsedTime = (elapsed) => {
         return `${elapsed}ms`;
     }
 };
-const formatSummary = (results) => {
+const formatResultSummary = (results) => {
     const { total, passed, failed, skipped } = results;
     const tableHeader = ':memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped';
     const tableBody = `${total} | ${passed} | ${failed} | ${skipped}`;
+    return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
+};
+const fromatCoverageStatus = (coverage, min) => {
+    const success = coverage.lineCoverage >= min;
+    const defaultStatus = 'Coverage';
+    const successStatus = ':green_circle: &nbsp;Coverage Passed';
+    const failStatus = ':red_circle: &nbsp;Coverage Failed';
+    const status = `${success ? successStatus : failStatus} (min ${min}%)`;
+    return `### ${min ? status : defaultStatus}\n`;
+};
+const formatCoverageSummary = (coverage) => {
+    const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
+    const tableHeader = ':memo: Total | :straight_ruler: Line&nbsp;&nbsp;&nbsp; | :herb: Branch | :wrench: Method';
+    const total = `${linesCovered} / ${linesTotal}`;
+    const tableBody = `${total} | ${lineCoverage}% | ${branchCoverage}% | ${methodCoverage}%`;
     return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
 };
 
@@ -281,18 +319,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseTestResultsFile = void 0;
+exports.parseTestResultsFile = exports.parseTestCoverageFile = void 0;
 const xml2js_1 = __importDefault(__nccwpck_require__(6189));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
+const parseTestCoverageFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const content = yield readFile(path);
+    const summary = (_a = content.CoverageSession) === null || _a === void 0 ? void 0 : _a.Summary[0];
+    const data = readNodeData(summary);
+    const linesTotal = data.numSequencePoints;
+    const linesCovered = data.visitedSequencePoints;
+    const methodsTotal = data.numMethods;
+    const methodsCovered = data.visitedMethods;
+    const lineCoverage = data.sequenceCoverage;
+    const branchCoverage = data.branchCoverage;
+    const methodCoverage = Math.floor((methodsCovered / methodsTotal) * 10000) / 100;
+    return { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage };
+});
+exports.parseTestCoverageFile = parseTestCoverageFile;
 const parseTestResultsFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
-    const file = fs_1.default.readFileSync(path);
-    const parser = new xml2js_1.default.Parser();
-    const content = yield parser.parseStringPromise(file);
+    const content = yield readFile(path);
     const elapsed = parseElapsedTime(content);
     const summary = parseSummary(content);
     return Object.assign({ elapsed }, summary);
 });
 exports.parseTestResultsFile = parseTestResultsFile;
+const readFile = (path) => {
+    const file = fs_1.default.readFileSync(path);
+    const parser = new xml2js_1.default.Parser();
+    return parser.parseStringPromise(file);
+};
 const parseElapsedTime = (trx) => {
     var _a;
     const times = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.Times;
