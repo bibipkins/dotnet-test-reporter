@@ -33,7 +33,7 @@ const aggregateTestResults = (results: ITestResult[]): ITestResult => {
   return aggregatedResults;
 };
 
-async function run(): Promise<void> {
+const run = async (): Promise<void> => {
   try {
     const { token, title, resultsPath, coveragePath, minCoverage } = getActionInputs();
 
@@ -56,9 +56,8 @@ async function run(): Promise<void> {
     await publishComment(token, title, body);
     setActionStatus(testsPassed, coveragePassed);
   } catch (error: any) {
-    console.error(error);
     core.setFailed(error.message);
   }
-}
+};
 
 run();

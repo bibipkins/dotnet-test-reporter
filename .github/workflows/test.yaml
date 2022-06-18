@@ -32,5 +32,3 @@ jobs:
           test-coverage: './test-files/coverage.xml'
           min-coverage: 50.71
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Display Outputs
-        run: echo ${{join(steps.action_test.outputs.*, '\n')}}

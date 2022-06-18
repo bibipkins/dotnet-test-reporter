@@ -58,32 +58,29 @@ const aggregateTestResults = (results) => {
     }
     return aggregatedResults;
 };
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const { token, title, resultsPath, coveragePath, minCoverage } = (0, utils_1.getActionInputs)();
-            const resultsFilePaths = (0, utils_1.getTestResultPaths)(resultsPath);
-            const results = yield Promise.all(resultsFilePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
-            const aggregatedResults = aggregateTestResults(results);
-            let testsPassed = !aggregatedResults.failed;
-            let coveragePassed = true;
-            let body = (0, utils_1.formatTestResults)(aggregatedResults);
-            (0, utils_1.setResultOutputs)(aggregatedResults);
-            if (coveragePath) {
-                const coverageResult = yield (0, utils_1.parseTestCoverageFile)(coveragePath);
-                coveragePassed = minCoverage ? coverageResult.lineCoverage >= minCoverage : true;
-                body += (0, utils_1.formatTestCoverage)(coverageResult, minCoverage);
-                (0, utils_1.setCoverageOutputs)(coverageResult);
-            }
-            yield (0, utils_1.publishComment)(token, title, body);
-            (0, utils_1.setActionStatus)(testsPassed, coveragePassed);
+const run = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { token, title, resultsPath, coveragePath, minCoverage } = (0, utils_1.getActionInputs)();
+        const resultsFilePaths = (0, utils_1.getTestResultPaths)(resultsPath);
+        const results = yield Promise.all(resultsFilePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
+        const aggregatedResults = aggregateTestResults(results);
+        let testsPassed = !aggregatedResults.failed;
+        let coveragePassed = true;
+        let body = (0, utils_1.formatTestResults)(aggregatedResults);
+        (0, utils_1.setResultOutputs)(aggregatedResults);
+        if (coveragePath) {
+            const coverageResult = yield (0, utils_1.parseTestCoverageFile)(coveragePath);
+            coveragePassed = minCoverage ? coverageResult.lineCoverage >= minCoverage : true;
+            body += (0, utils_1.formatTestCoverage)(coverageResult, minCoverage);
+            (0, utils_1.setCoverageOutputs)(coverageResult);
         }
-        catch (error) {
-            console.error(error);
-            core.setFailed(error.message);
-        }
-    });
-}
+        yield (0, utils_1.publishComment)(token, title, body);
+        (0, utils_1.setActionStatus)(testsPassed, coveragePassed);
+    }
+    catch (error) {
+        core.setFailed(error.message);
+    }
+});
 run();
 
 
