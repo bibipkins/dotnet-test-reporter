@@ -219,7 +219,7 @@ const formatTestCoverage = (coverage, min) => {
 exports.formatTestCoverage = formatTestCoverage;
 const formatStatus = (results) => {
     const success = results.failed === 0;
-    const status = success ? '### :green_circle: TESTS PASSED' : '### :red_circle: TESTS FAILED';
+    const status = success ? '### :green_circle: Tests Passed' : '### :red_circle: Tests Failed';
     const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;';
     const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}\n`;
     return status + delimiter + time;
@@ -245,8 +245,9 @@ const formatResultSummary = (results) => {
 };
 const fromatCoverageStatus = (coverage, min) => {
     const success = coverage.lineCoverage < min;
-    const status = success ? '### :green_circle: COVERAGE PASSED\n' : '### :red_circle: COVERAGE FAILED\n';
-    return min ? status : '### COVERAGE\n';
+    const status = success ? '### :green_circle: Coverage Passed' : '### :red_circle: Coverage Failed';
+    const hint = ` (minimum coverage: ${min}%)\n`;
+    return min ? status + hint : '### Coverage\n';
 };
 const formatCoverageSummary = (coverage) => {
     const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
