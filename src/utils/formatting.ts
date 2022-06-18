@@ -53,7 +53,7 @@ const fromatCoverageStatus = (coverage: ITestCoverage, min: number): string => {
   const defaultStatus = 'Coverage';
   const successStatus = ':green_circle: &nbsp;Coverage Passed';
   const failStatus = ':red_circle: &nbsp;Coverage Failed';
-  const status = `${success ? successStatus : failStatus} (min: ${min}%)`;
+  const status = `${success ? successStatus : failStatus} (min ${min}%)`;
 
   return `### ${min ? status : defaultStatus}\n`;
 };
