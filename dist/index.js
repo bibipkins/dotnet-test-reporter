@@ -264,7 +264,7 @@ const fromatCoverageStatus = (coverage, min) => {
 };
 const formatCoverageSummary = (coverage) => {
     const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
-    const tableHeader = ':memo: Total | :straight_ruler: Line | :herb: Branch | :wrench: Method';
+    const tableHeader = ':memo: Total | :straight_ruler: Line&nbsp;&nbsp;&nbsp; | :herb: Branch | :wrench: Method';
     const total = `${linesCovered} / ${linesTotal}`;
     const tableBody = `${total} | ${lineCoverage}% | ${branchCoverage}% | ${methodCoverage}%`;
     return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
