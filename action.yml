@@ -17,8 +17,20 @@ inputs:
     description: 'Pull Request comment title'
     required: false
 outputs:
-  time:
-    description: 'The time we greeted you'
+  tests-total:
+    description: 'Total number of tests'
+  tests-passed:
+    description: 'Number of tests passed'
+  tests-failed:
+    description: 'Number of tests failed'
+  tests-skipped:
+    description: 'Number of tests skipped'
+  coverage-line:
+    description: 'Line code coverage'
+  coverage-branch:
+    description: 'Branch code coverage'
+  coverage-method:
+    description: 'Method code coverage'
 runs:
   using: 'node16'
   main: 'dist/index.js'

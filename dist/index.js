@@ -58,6 +58,17 @@ const aggregateTestResults = (results) => {
     }
     return aggregatedResults;
 };
+const setResultOutputs = (results) => {
+    core.setOutput('tests-total', results.total);
+    core.setOutput('tests-passed', results.passed);
+    core.setOutput('tests-failed', results.failed);
+    core.setOutput('tests-skipped', results.skipped);
+};
+const setCoverageOutputs = (coverage) => {
+    core.setOutput('coverage-line', coverage.lineCoverage);
+    core.setOutput('coverage-branch', coverage.branchCoverage);
+    core.setOutput('coverage-method', coverage.methodCoverage);
+};
 const setActionStatus = (testsPassed, coveragePassed) => {
     if (!testsPassed) {
         core.setFailed('Tests Failed');
@@ -80,10 +91,12 @@ function run() {
             let testsPassed = !aggregatedResults.failed;
             let coveragePassed = true;
             let body = (0, utils_1.formatTestResults)(aggregatedResults);
+            setResultOutputs(aggregatedResults);
             if (coveragePath) {
                 const coverageResult = yield (0, utils_1.parseTestCoverageFile)(coveragePath);
                 coveragePassed = minCoverage ? coverageResult.lineCoverage >= minCoverage : true;
                 body += (0, utils_1.formatTestCoverage)(coverageResult, minCoverage);
+                setCoverageOutputs(coverageResult);
             }
             yield (0, utils_1.publishComment)(token, title, body);
             setActionStatus(testsPassed, coveragePassed);

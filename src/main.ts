@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { ITestResult } from './data';
+import { ITestCoverage, ITestResult } from './data';
 import {
   getTestResultPaths,
   parseTestResultsFile,
@@ -29,6 +29,19 @@ const aggregateTestResults = (results: ITestResult[]): ITestResult => {
   return aggregatedResults;
 };
 
+const setResultOutputs = (results: ITestResult): void => {
+  core.setOutput('tests-total', results.total);
+  core.setOutput('tests-passed', results.passed);
+  core.setOutput('tests-failed', results.failed);
+  core.setOutput('tests-skipped', results.skipped);
+};
+
+const setCoverageOutputs = (coverage: ITestCoverage): void => {
+  core.setOutput('coverage-line', coverage.lineCoverage);
+  core.setOutput('coverage-branch', coverage.branchCoverage);
+  core.setOutput('coverage-method', coverage.methodCoverage);
+};
+
 const setActionStatus = (testsPassed: boolean, coveragePassed: boolean): void => {
   if (!testsPassed) {
     core.setFailed('Tests Failed');
@@ -54,11 +67,13 @@ async function run(): Promise<void> {
     let testsPassed = !aggregatedResults.failed;
     let coveragePassed = true;
     let body = formatTestResults(aggregatedResults);
+    setResultOutputs(aggregatedResults);
 
     if (coveragePath) {
       const coverageResult = await parseTestCoverageFile(coveragePath);
       coveragePassed = minCoverage ? coverageResult.lineCoverage >= minCoverage : true;
       body += formatTestCoverage(coverageResult, minCoverage);
+      setCoverageOutputs(coverageResult);
     }
 
     await publishComment(token, title, body);
