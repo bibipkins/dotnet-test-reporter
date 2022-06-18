@@ -1,4 +1,13 @@
-import { ITestResult } from '../data';
+import { ITestCoverage, ITestResult } from '../data';
+
+export const formatTestCoverage = (coverage: ITestCoverage): string => {
+  const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
+  const tableHeader = ':memo: Total Covered | Line | Branch | Method';
+  const total = `${linesCovered}/${linesTotal}`;
+  const tableBody = `${total} | ${lineCoverage}% | ${branchCoverage}% | ${methodCoverage}%`;
+
+  return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
+};
 
 export const formatTestResults = (results: ITestResult): string => {
   const status = formatStatus(results);
@@ -10,7 +19,7 @@ export const formatTestResults = (results: ITestResult): string => {
 const formatStatus = (results: ITestResult): string => {
   const success = results.failed === 0;
   const status = success ? ':green_circle: **SUCCESS**' : ':red_circle: **FAIL**';
-  const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;';
+  const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;';
   const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}\n`;
 
   return status + delimiter + time;

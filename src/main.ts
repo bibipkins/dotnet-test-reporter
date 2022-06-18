@@ -1,6 +1,13 @@
 import * as core from '@actions/core';
 import { ITestResult } from './data';
-import { getTestResultPaths, formatTestResults, parseTestResultsFile, publishComment } from './utils';
+import {
+  getTestResultPaths,
+  parseTestResultsFile,
+  parseTestCoverageFile,
+  formatTestResults,
+  formatTestCoverage,
+  publishComment
+} from './utils';
 
 const aggregateTestResults = (results: ITestResult[]): ITestResult => {
   const aggregatedResults: ITestResult = {
@@ -26,12 +33,19 @@ async function run(): Promise<void> {
   try {
     const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
     const title = core.getInput('comment-title') || 'Test Results';
-    const trxPath = core.getInput('test-results');
-    const filePaths = getTestResultPaths(trxPath);
+    const resultsPath = core.getInput('test-results');
+    const coverageFilePath = core.getInput('test-coverage');
 
-    const results = await Promise.all(filePaths.map(path => parseTestResultsFile(path)));
+    const resultsFilePaths = getTestResultPaths(resultsPath);
+    const results = await Promise.all(resultsFilePaths.map(path => parseTestResultsFile(path)));
     const aggregatedResults = aggregateTestResults(results);
-    const body = formatTestResults(aggregatedResults);
+
+    let body = formatTestResults(aggregatedResults);
+
+    if (coverageFilePath) {
+      const coverageResult = await parseTestCoverageFile(coverageFilePath);
+      body += formatTestCoverage(coverageResult);
+    }
 
     await publishComment(token, title, body);
 

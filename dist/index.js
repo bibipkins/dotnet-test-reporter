@@ -63,11 +63,16 @@ function run() {
         try {
             const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
             const title = core.getInput('comment-title') || 'Test Results';
-            const trxPath = core.getInput('test-results');
-            const filePaths = (0, utils_1.getTestResultPaths)(trxPath);
-            const results = yield Promise.all(filePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
+            const resultsPath = core.getInput('test-results');
+            const coverageFilePath = core.getInput('test-coverage');
+            const resultsFilePaths = (0, utils_1.getTestResultPaths)(resultsPath);
+            const results = yield Promise.all(resultsFilePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
             const aggregatedResults = aggregateTestResults(results);
-            const body = (0, utils_1.formatTestResults)(aggregatedResults);
+            let body = (0, utils_1.formatTestResults)(aggregatedResults);
+            if (coverageFilePath) {
+                const coverageResult = yield (0, utils_1.parseTestCoverageFile)(coverageFilePath);
+                body += (0, utils_1.formatTestCoverage)(coverageResult);
+            }
             yield (0, utils_1.publishComment)(token, title, body);
             if (aggregatedResults.failed !== 0) {
                 core.setFailed(`${aggregatedResults.failed} Tests Failed`);
@@ -198,7 +203,15 @@ const getAbsolutePaths = (fileNames, directoryName) => fileNames.map(fileName =>
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatTestResults = void 0;
+exports.formatTestResults = exports.formatTestCoverage = void 0;
+const formatTestCoverage = (coverage) => {
+    const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
+    const tableHeader = ':memo: Total Covered | Line | Branch | Method';
+    const total = `${linesCovered}/${linesTotal}`;
+    const tableBody = `${total} | ${lineCoverage}% | ${branchCoverage}% | ${methodCoverage}%`;
+    return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
+};
+exports.formatTestCoverage = formatTestCoverage;
 const formatTestResults = (results) => {
     const status = formatStatus(results);
     const summary = formatSummary(results);
@@ -208,7 +221,7 @@ exports.formatTestResults = formatTestResults;
 const formatStatus = (results) => {
     const success = results.failed === 0;
     const status = success ? ':green_circle: **SUCCESS**' : ':red_circle: **FAIL**';
-    const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;';
+    const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;';
     const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}\n`;
     return status + delimiter + time;
 };
@@ -281,18 +294,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseTestResultsFile = void 0;
+exports.parseTestResultsFile = exports.parseTestCoverageFile = void 0;
 const xml2js_1 = __importDefault(__nccwpck_require__(6189));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
+const parseTestCoverageFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const content = yield readFile(path);
+    const summary = (_a = content.CoverageSession) === null || _a === void 0 ? void 0 : _a.Summary[0];
+    const data = readNodeData(summary);
+    const linesTotal = data.numSequencePoints;
+    const linesCovered = data.visitedSequencePoints;
+    const methodsTotal = data.numMethods;
+    const methodsCovered = data.visitedMethods;
+    const lineCoverage = data.sequenceCoverage;
+    const branchCoverage = data.branchCoverage;
+    const methodCoverage = Math.floor((methodsCovered / methodsTotal) * 10000) / 100;
+    return { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage };
+});
+exports.parseTestCoverageFile = parseTestCoverageFile;
 const parseTestResultsFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
-    const file = fs_1.default.readFileSync(path);
-    const parser = new xml2js_1.default.Parser();
-    const content = yield parser.parseStringPromise(file);
+    const content = yield readFile(path);
     const elapsed = parseElapsedTime(content);
     const summary = parseSummary(content);
     return Object.assign({ elapsed }, summary);
 });
 exports.parseTestResultsFile = parseTestResultsFile;
+const readFile = (path) => {
+    const file = fs_1.default.readFileSync(path);
+    const parser = new xml2js_1.default.Parser();
+    return parser.parseStringPromise(file);
+};
 const parseElapsedTime = (trx) => {
     var _a;
     const times = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.Times;

@@ -1,16 +1,35 @@
 import xml2js from 'xml2js';
 import fs from 'fs';
-import { ITestResult } from '../data';
+import { ITestCoverage, ITestResult } from '../data';
+
+export const parseTestCoverageFile = async (path: string): Promise<ITestCoverage> => {
+  const content = await readFile(path);
+  const summary = content.CoverageSession?.Summary[0];
+  const data = readNodeData(summary);
+
+  const linesTotal = data.numSequencePoints;
+  const linesCovered = data.visitedSequencePoints;
+  const methodsTotal = data.numMethods;
+  const methodsCovered = data.visitedMethods;
+  const lineCoverage = data.sequenceCoverage;
+  const branchCoverage = data.branchCoverage;
+  const methodCoverage = Math.floor((methodsCovered / methodsTotal) * 10000) / 100;
+
+  return { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage };
+};
 
 export const parseTestResultsFile = async (path: string): Promise<ITestResult> => {
-  const file = fs.readFileSync(path);
-  const parser = new xml2js.Parser();
-  const content = await parser.parseStringPromise(file);
-
+  const content = await readFile(path);
   const elapsed = parseElapsedTime(content);
   const summary = parseSummary(content);
 
   return { elapsed, ...summary };
+};
+
+const readFile = (path: string): Promise<any> => {
+  const file = fs.readFileSync(path);
+  const parser = new xml2js.Parser();
+  return parser.parseStringPromise(file);
 };
 
 const parseElapsedTime = (trx: any): number => {

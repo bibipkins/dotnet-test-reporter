@@ -4,6 +4,9 @@ inputs:
   test-results:
     description: 'Path to the directory containing trx files'
     required: true
+  test-coverage:
+    description: 'Path to the file containing test coverage'
+    required: false
   github-token:
     description: 'GitHub repository token'
     required: false
