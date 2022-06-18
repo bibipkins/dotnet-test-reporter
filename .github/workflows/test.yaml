@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./
-        id: hello
+        id: action_test
         with:
           test-results: './test-files/'
           test-coverage: './test-files/coverage.xml'
