@@ -45,7 +45,7 @@ const formatResultSummary = (results: ITestResult): string => {
 };
 
 const fromatCoverageStatus = (coverage: ITestCoverage, min: number): string => {
-  const success = coverage.lineCoverage < min;
+  const success = coverage.lineCoverage >= min;
   const status = success ? '### :green_circle: Coverage Passed' : '### :red_circle: Coverage Failed';
   const hint = ` (minimum: ${min}%)\n`;
 

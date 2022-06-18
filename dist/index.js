@@ -244,7 +244,7 @@ const formatResultSummary = (results) => {
     return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
 };
 const fromatCoverageStatus = (coverage, min) => {
-    const success = coverage.lineCoverage < min;
+    const success = coverage.lineCoverage >= min;
     const status = success ? '### :green_circle: Coverage Passed' : '### :red_circle: Coverage Failed';
     const hint = ` (minimum: ${min}%)\n`;
     return min ? status + hint : '### Coverage\n';
