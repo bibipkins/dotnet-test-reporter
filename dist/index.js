@@ -58,48 +58,25 @@ const aggregateTestResults = (results) => {
     }
     return aggregatedResults;
 };
-const setResultOutputs = (results) => {
-    core.setOutput('tests-total', results.total);
-    core.setOutput('tests-passed', results.passed);
-    core.setOutput('tests-failed', results.failed);
-    core.setOutput('tests-skipped', results.skipped);
-};
-const setCoverageOutputs = (coverage) => {
-    core.setOutput('coverage-line', coverage.lineCoverage);
-    core.setOutput('coverage-branch', coverage.branchCoverage);
-    core.setOutput('coverage-method', coverage.methodCoverage);
-};
-const setActionStatus = (testsPassed, coveragePassed) => {
-    if (!testsPassed) {
-        core.setFailed('Tests Failed');
-    }
-    if (!coveragePassed) {
-        core.setFailed('Coverage Failed');
-    }
-};
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
-            const title = core.getInput('comment-title') || 'Test Results';
-            const resultsPath = core.getInput('test-results');
-            const coveragePath = core.getInput('test-coverage');
-            const minCoverage = Number(core.getInput('min-coverage'));
+            const { token, title, resultsPath, coveragePath, minCoverage } = (0, utils_1.getActionInputs)();
             const resultsFilePaths = (0, utils_1.getTestResultPaths)(resultsPath);
             const results = yield Promise.all(resultsFilePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
             const aggregatedResults = aggregateTestResults(results);
             let testsPassed = !aggregatedResults.failed;
             let coveragePassed = true;
             let body = (0, utils_1.formatTestResults)(aggregatedResults);
-            setResultOutputs(aggregatedResults);
+            (0, utils_1.setResultOutputs)(aggregatedResults);
             if (coveragePath) {
                 const coverageResult = yield (0, utils_1.parseTestCoverageFile)(coveragePath);
                 coveragePassed = minCoverage ? coverageResult.lineCoverage >= minCoverage : true;
                 body += (0, utils_1.formatTestCoverage)(coverageResult, minCoverage);
-                setCoverageOutputs(coverageResult);
+                (0, utils_1.setCoverageOutputs)(coverageResult);
             }
             yield (0, utils_1.publishComment)(token, title, body);
-            setActionStatus(testsPassed, coveragePassed);
+            (0, utils_1.setActionStatus)(testsPassed, coveragePassed);
         }
         catch (error) {
             console.error(error);
@@ -108,6 +85,72 @@ function run() {
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 2216:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.setActionStatus = exports.setCoverageOutputs = exports.setResultOutputs = exports.getActionInputs = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const getActionInputs = () => {
+    const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
+    const title = core.getInput('comment-title') || 'Test Results';
+    const resultsPath = core.getInput('test-results');
+    const coveragePath = core.getInput('test-coverage');
+    const minCoverage = Number(core.getInput('min-coverage'));
+    return { token, title, resultsPath, coveragePath, minCoverage };
+};
+exports.getActionInputs = getActionInputs;
+const setResultOutputs = (results) => {
+    core.setOutput('tests-total', results.total);
+    core.setOutput('tests-passed', results.passed);
+    core.setOutput('tests-failed', results.failed);
+    core.setOutput('tests-skipped', results.skipped);
+};
+exports.setResultOutputs = setResultOutputs;
+const setCoverageOutputs = (coverage) => {
+    core.setOutput('coverage-line', coverage.lineCoverage);
+    core.setOutput('coverage-branch', coverage.branchCoverage);
+    core.setOutput('coverage-method', coverage.methodCoverage);
+};
+exports.setCoverageOutputs = setCoverageOutputs;
+const setActionStatus = (testsPassed, coveragePassed) => {
+    if (!testsPassed) {
+        core.setFailed('Tests Failed');
+    }
+    if (!coveragePassed) {
+        core.setFailed('Coverage Failed');
+    }
+};
+exports.setActionStatus = setActionStatus;
 
 
 /***/ }),
@@ -310,6 +353,7 @@ __exportStar(__nccwpck_require__(3451), exports);
 __exportStar(__nccwpck_require__(396), exports);
 __exportStar(__nccwpck_require__(4291), exports);
 __exportStar(__nccwpck_require__(2780), exports);
+__exportStar(__nccwpck_require__(2216), exports);
 
 
 /***/ }),

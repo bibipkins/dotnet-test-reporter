@@ -1,12 +1,16 @@
 import * as core from '@actions/core';
-import { ITestCoverage, ITestResult } from './data';
+import { ITestResult } from './data';
 import {
+  getActionInputs,
   getTestResultPaths,
   parseTestResultsFile,
   parseTestCoverageFile,
   formatTestResults,
   formatTestCoverage,
-  publishComment
+  setResultOutputs,
+  setCoverageOutputs,
+  publishComment,
+  setActionStatus
 } from './utils';
 
 const aggregateTestResults = (results: ITestResult[]): ITestResult => {
@@ -29,36 +33,9 @@ const aggregateTestResults = (results: ITestResult[]): ITestResult => {
   return aggregatedResults;
 };
 
-const setResultOutputs = (results: ITestResult): void => {
-  core.setOutput('tests-total', results.total);
-  core.setOutput('tests-passed', results.passed);
-  core.setOutput('tests-failed', results.failed);
-  core.setOutput('tests-skipped', results.skipped);
-};
-
-const setCoverageOutputs = (coverage: ITestCoverage): void => {
-  core.setOutput('coverage-line', coverage.lineCoverage);
-  core.setOutput('coverage-branch', coverage.branchCoverage);
-  core.setOutput('coverage-method', coverage.methodCoverage);
-};
-
-const setActionStatus = (testsPassed: boolean, coveragePassed: boolean): void => {
-  if (!testsPassed) {
-    core.setFailed('Tests Failed');
-  }
-
-  if (!coveragePassed) {
-    core.setFailed('Coverage Failed');
-  }
-};
-
 async function run(): Promise<void> {
   try {
-    const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
-    const title = core.getInput('comment-title') || 'Test Results';
-    const resultsPath = core.getInput('test-results');
-    const coveragePath = core.getInput('test-coverage');
-    const minCoverage = Number(core.getInput('min-coverage'));
+    const { token, title, resultsPath, coveragePath, minCoverage } = getActionInputs();
 
     const resultsFilePaths = getTestResultPaths(resultsPath);
     const results = await Promise.all(resultsFilePaths.map(path => parseTestResultsFile(path)));
