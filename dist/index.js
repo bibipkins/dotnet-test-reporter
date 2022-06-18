@@ -138,7 +138,7 @@ const publishComment = (token, title, message) => __awaiter(void 0, void 0, void
     }
     const header = `## ${title}`;
     const footer = after ? `:pencil2: updated for commit ${after.substring(0, 8)}` : '';
-    const body = `${header}\n${message}<br/><br/>${footer}`;
+    const body = `${header}\n${message}<br/>${footer}`;
     const issues = github.getOctokit(token).rest.issues;
     const comments = yield issues.listComments({ owner, repo, issue_number: issueNumber });
     const existingComment = findExistingComment(comments, header);
@@ -206,7 +206,7 @@ const getAbsolutePaths = (fileNames, directoryName) => fileNames.map(fileName =>
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.formatTestCoverage = exports.formatTestResults = void 0;
 const formatTestResults = (results) => {
-    const status = formatStatus(results);
+    const status = formatResultStatus(results);
     const summary = formatResultSummary(results);
     return status + summary;
 };
@@ -217,7 +217,7 @@ const formatTestCoverage = (coverage, min) => {
     return status + summary;
 };
 exports.formatTestCoverage = formatTestCoverage;
-const formatStatus = (results) => {
+const formatResultStatus = (results) => {
     const success = results.failed === 0;
     const status = success ? '### :green_circle: Tests Passed' : '### :red_circle: Tests Failed';
     const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;';
@@ -246,7 +246,7 @@ const formatResultSummary = (results) => {
 const fromatCoverageStatus = (coverage, min) => {
     const success = coverage.lineCoverage < min;
     const status = success ? '### :green_circle: Coverage Passed' : '### :red_circle: Coverage Failed';
-    const hint = ` (minimum coverage: ${min}%)\n`;
+    const hint = ` (minimum: ${min}%)\n`;
     return min ? status + hint : '### Coverage\n';
 };
 const formatCoverageSummary = (coverage) => {

@@ -1,7 +1,7 @@
 import { ITestCoverage, ITestResult } from '../data';
 
 export const formatTestResults = (results: ITestResult): string => {
-  const status = formatStatus(results);
+  const status = formatResultStatus(results);
   const summary = formatResultSummary(results);
 
   return status + summary;
@@ -14,7 +14,7 @@ export const formatTestCoverage = (coverage: ITestCoverage, min: number): string
   return status + summary;
 };
 
-const formatStatus = (results: ITestResult): string => {
+const formatResultStatus = (results: ITestResult): string => {
   const success = results.failed === 0;
   const status = success ? '### :green_circle: Tests Passed' : '### :red_circle: Tests Failed';
   const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;';
@@ -47,7 +47,7 @@ const formatResultSummary = (results: ITestResult): string => {
 const fromatCoverageStatus = (coverage: ITestCoverage, min: number): string => {
   const success = coverage.lineCoverage < min;
   const status = success ? '### :green_circle: Coverage Passed' : '### :red_circle: Coverage Failed';
-  const hint = ` (minimum coverage: ${min}%)\n`;
+  const hint = ` (minimum: ${min}%)\n`;
 
   return min ? status + hint : '### Coverage\n';
 };
