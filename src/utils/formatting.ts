@@ -16,11 +16,14 @@ export const formatTestCoverage = (coverage: ITestCoverage, min: number): string
 
 const formatResultStatus = (results: ITestResult): string => {
   const success = results.failed === 0;
-  const status = success ? '### :green_circle: Tests Passed' : '### :red_circle: Tests Failed';
-  const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;';
-  const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}\n`;
 
-  return status + delimiter + time;
+  const successStatus = ':green_circle: &nbsp; Tests Passed';
+  const failStatus = ':red_circle: &nbsp; Tests Failed';
+  const status = success ? successStatus : failStatus;
+  const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;';
+  const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}`;
+
+  return `### ${status}${delimiter}${time}\n`;
 };
 
 const formatElapsedTime = (elapsed: number): string => {
@@ -46,15 +49,18 @@ const formatResultSummary = (results: ITestResult): string => {
 
 const fromatCoverageStatus = (coverage: ITestCoverage, min: number): string => {
   const success = coverage.lineCoverage >= min;
-  const status = success ? '### :green_circle: Coverage Passed' : '### :red_circle: Coverage Failed';
-  const hint = ` (minimum: ${min}%)\n`;
 
-  return min ? status + hint : '### Coverage\n';
+  const defaultStatus = 'Coverage';
+  const successStatus = ':green_circle: &nbsp; Coverage Passed';
+  const failStatus = ':red_circle: &nbsp; Coverage Failed';
+  const status = `${success ? successStatus : failStatus} (minimum: ${min}%)`;
+
+  return `### ${min ? status : defaultStatus}\n`;
 };
 
 const formatCoverageSummary = (coverage: ITestCoverage): string => {
   const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
-  const tableHeader = ':memo: Total | Line | Branch | Method';
+  const tableHeader = ':memo: Total | :straight_ruler: Line | :herb: Branch | :wrench: Method';
   const total = `${linesCovered} / ${linesTotal}`;
   const tableBody = `${total} | ${lineCoverage}% | ${branchCoverage}% | ${methodCoverage}%`;
 
