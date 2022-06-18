@@ -58,26 +58,35 @@ const aggregateTestResults = (results) => {
     }
     return aggregatedResults;
 };
+const setActionStatus = (testsPassed, coveragePassed) => {
+    if (!testsPassed) {
+        core.setFailed('Tests Failed');
+    }
+    if (!coveragePassed) {
+        core.setFailed('Coverage Failed');
+    }
+};
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
             const title = core.getInput('comment-title') || 'Test Results';
             const resultsPath = core.getInput('test-results');
-            const coverageFilePath = core.getInput('test-coverage');
+            const coveragePath = core.getInput('test-coverage');
             const minCoverage = Number(core.getInput('min-coverage'));
             const resultsFilePaths = (0, utils_1.getTestResultPaths)(resultsPath);
             const results = yield Promise.all(resultsFilePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
             const aggregatedResults = aggregateTestResults(results);
+            let testsPassed = !aggregatedResults.failed;
+            let coveragePassed = true;
             let body = (0, utils_1.formatTestResults)(aggregatedResults);
-            if (coverageFilePath) {
-                const coverageResult = yield (0, utils_1.parseTestCoverageFile)(coverageFilePath);
+            if (coveragePath) {
+                const coverageResult = yield (0, utils_1.parseTestCoverageFile)(coveragePath);
+                coveragePassed = minCoverage ? coverageResult.lineCoverage >= minCoverage : true;
                 body += (0, utils_1.formatTestCoverage)(coverageResult, minCoverage);
             }
             yield (0, utils_1.publishComment)(token, title, body);
-            if (aggregatedResults.failed !== 0) {
-                core.setFailed(`${aggregatedResults.failed} Tests Failed`);
-            }
+            setActionStatus(testsPassed, coveragePassed);
         }
         catch (error) {
             console.error(error);
@@ -219,8 +228,8 @@ const formatTestCoverage = (coverage, min) => {
 exports.formatTestCoverage = formatTestCoverage;
 const formatResultStatus = (results) => {
     const success = results.failed === 0;
-    const successStatus = ':green_circle: &nbsp; Tests Passed';
-    const failStatus = ':red_circle: &nbsp; Tests Failed';
+    const successStatus = ':green_circle: &nbsp;Tests Passed';
+    const failStatus = ':red_circle: &nbsp;Tests Failed';
     const status = success ? successStatus : failStatus;
     const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;';
     const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}`;
@@ -248,9 +257,9 @@ const formatResultSummary = (results) => {
 const fromatCoverageStatus = (coverage, min) => {
     const success = coverage.lineCoverage >= min;
     const defaultStatus = 'Coverage';
-    const successStatus = ':green_circle: &nbsp; Coverage Passed';
-    const failStatus = ':red_circle: &nbsp; Coverage Failed';
-    const status = `${success ? successStatus : failStatus} (minimum: ${min}%)`;
+    const successStatus = ':green_circle: &nbsp;Coverage Passed';
+    const failStatus = ':red_circle: &nbsp;Coverage Failed';
+    const status = `${success ? successStatus : failStatus} (min: ${min}%)`;
     return `### ${min ? status : defaultStatus}\n`;
 };
 const formatCoverageSummary = (coverage) => {

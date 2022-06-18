@@ -29,30 +29,40 @@ const aggregateTestResults = (results: ITestResult[]): ITestResult => {
   return aggregatedResults;
 };
 
+const setActionStatus = (testsPassed: boolean, coveragePassed: boolean): void => {
+  if (!testsPassed) {
+    core.setFailed('Tests Failed');
+  }
+
+  if (!coveragePassed) {
+    core.setFailed('Coverage Failed');
+  }
+};
+
 async function run(): Promise<void> {
   try {
     const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
     const title = core.getInput('comment-title') || 'Test Results';
     const resultsPath = core.getInput('test-results');
-    const coverageFilePath = core.getInput('test-coverage');
+    const coveragePath = core.getInput('test-coverage');
     const minCoverage = Number(core.getInput('min-coverage'));
 
     const resultsFilePaths = getTestResultPaths(resultsPath);
     const results = await Promise.all(resultsFilePaths.map(path => parseTestResultsFile(path)));
     const aggregatedResults = aggregateTestResults(results);
 
+    let testsPassed = !aggregatedResults.failed;
+    let coveragePassed = true;
     let body = formatTestResults(aggregatedResults);
 
-    if (coverageFilePath) {
-      const coverageResult = await parseTestCoverageFile(coverageFilePath);
+    if (coveragePath) {
+      const coverageResult = await parseTestCoverageFile(coveragePath);
+      coveragePassed = minCoverage ? coverageResult.lineCoverage >= minCoverage : true;
       body += formatTestCoverage(coverageResult, minCoverage);
     }
 
     await publishComment(token, title, body);
-
-    if (aggregatedResults.failed !== 0) {
-      core.setFailed(`${aggregatedResults.failed} Tests Failed`);
-    }
+    setActionStatus(testsPassed, coveragePassed);
   } catch (error: any) {
     console.error(error);
     core.setFailed(error.message);
