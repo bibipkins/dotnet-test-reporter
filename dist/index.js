@@ -65,13 +65,14 @@ function run() {
             const title = core.getInput('comment-title') || 'Test Results';
             const resultsPath = core.getInput('test-results');
             const coverageFilePath = core.getInput('test-coverage');
+            const minCoverage = Number(core.getInput('min-coverage'));
             const resultsFilePaths = (0, utils_1.getTestResultPaths)(resultsPath);
             const results = yield Promise.all(resultsFilePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
             const aggregatedResults = aggregateTestResults(results);
             let body = (0, utils_1.formatTestResults)(aggregatedResults);
             if (coverageFilePath) {
                 const coverageResult = yield (0, utils_1.parseTestCoverageFile)(coverageFilePath);
-                body += (0, utils_1.formatTestCoverage)(coverageResult);
+                body += (0, utils_1.formatTestCoverage)(coverageResult, minCoverage);
             }
             yield (0, utils_1.publishComment)(token, title, body);
             if (aggregatedResults.failed !== 0) {
@@ -203,24 +204,22 @@ const getAbsolutePaths = (fileNames, directoryName) => fileNames.map(fileName =>
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatTestResults = exports.formatTestCoverage = void 0;
-const formatTestCoverage = (coverage) => {
-    const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
-    const tableHeader = ':memo: Total Covered | Line | Branch | Method';
-    const total = `${linesCovered}/${linesTotal}`;
-    const tableBody = `${total} | ${lineCoverage}% | ${branchCoverage}% | ${methodCoverage}%`;
-    return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
-};
-exports.formatTestCoverage = formatTestCoverage;
+exports.formatTestCoverage = exports.formatTestResults = void 0;
 const formatTestResults = (results) => {
     const status = formatStatus(results);
-    const summary = formatSummary(results);
+    const summary = formatResultSummary(results);
     return status + summary;
 };
 exports.formatTestResults = formatTestResults;
+const formatTestCoverage = (coverage, min) => {
+    const status = fromatCoverageStatus(coverage, min);
+    const summary = formatCoverageSummary(coverage);
+    return status + summary;
+};
+exports.formatTestCoverage = formatTestCoverage;
 const formatStatus = (results) => {
     const success = results.failed === 0;
-    const status = success ? ':green_circle: **SUCCESS**' : ':red_circle: **FAIL**';
+    const status = success ? '### :green_circle: TESTS PASSED' : '### :red_circle: TESTS FAILED';
     const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;';
     const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}\n`;
     return status + delimiter + time;
@@ -238,10 +237,22 @@ const formatElapsedTime = (elapsed) => {
         return `${elapsed}ms`;
     }
 };
-const formatSummary = (results) => {
+const formatResultSummary = (results) => {
     const { total, passed, failed, skipped } = results;
     const tableHeader = ':memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped';
     const tableBody = `${total} | ${passed} | ${failed} | ${skipped}`;
+    return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
+};
+const fromatCoverageStatus = (coverage, min) => {
+    const success = coverage.lineCoverage < min;
+    const status = success ? '### :green_circle: COVERAGE PASSED\n' : '### :red_circle: COVERAGE FAILED\n';
+    return min ? status : '### COVERAGE\n';
+};
+const formatCoverageSummary = (coverage) => {
+    const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
+    const tableHeader = ':memo: Total | Line | Branch | Method';
+    const total = `${linesCovered} / ${linesTotal}`;
+    const tableBody = `${total} | ${lineCoverage}% | ${branchCoverage}% | ${methodCoverage}%`;
     return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
 };
 

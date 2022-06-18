@@ -35,6 +35,7 @@ async function run(): Promise<void> {
     const title = core.getInput('comment-title') || 'Test Results';
     const resultsPath = core.getInput('test-results');
     const coverageFilePath = core.getInput('test-coverage');
+    const minCoverage = Number(core.getInput('min-coverage'));
 
     const resultsFilePaths = getTestResultPaths(resultsPath);
     const results = await Promise.all(resultsFilePaths.map(path => parseTestResultsFile(path)));
@@ -44,7 +45,7 @@ async function run(): Promise<void> {
 
     if (coverageFilePath) {
       const coverageResult = await parseTestCoverageFile(coverageFilePath);
-      body += formatTestCoverage(coverageResult);
+      body += formatTestCoverage(coverageResult, minCoverage);
     }
 
     await publishComment(token, title, body);

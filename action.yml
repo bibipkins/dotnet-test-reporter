@@ -7,6 +7,9 @@ inputs:
   test-coverage:
     description: 'Path to the file containing test coverage'
     required: false
+  min-coverage:
+    description: 'Minimum allowed coverage (from 0.00 to 100.00)'
+    required: false
   github-token:
     description: 'GitHub repository token'
     required: false
