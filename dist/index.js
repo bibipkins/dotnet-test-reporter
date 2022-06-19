@@ -60,10 +60,10 @@ const aggregateTestResults = (results) => {
 };
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, minCoverage } = (0, utils_1.getActionInputs)();
+        const { token, title, resultsPath, coveragePath, minCoverage, postNewComment } = (0, utils_1.getActionInputs)();
         const resultsFilePaths = (0, utils_1.getTestResultPaths)(resultsPath);
-        const results = yield Promise.all(resultsFilePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
-        const aggregatedResults = aggregateTestResults(results);
+        const testResults = yield Promise.all(resultsFilePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
+        const aggregatedResults = aggregateTestResults(testResults);
         let testsPassed = !aggregatedResults.failed;
         let coveragePassed = true;
         let body = (0, utils_1.formatTestResults)(aggregatedResults);
@@ -74,7 +74,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             body += (0, utils_1.formatTestCoverage)(coverageResult, minCoverage);
             (0, utils_1.setCoverageOutputs)(coverageResult);
         }
-        yield (0, utils_1.publishComment)(token, title, body);
+        yield (0, utils_1.publishComment)(token, title, body, postNewComment);
         (0, utils_1.setActionStatus)(testsPassed, coveragePassed);
     }
     catch (error) {
@@ -123,7 +123,9 @@ const getActionInputs = () => {
     const resultsPath = core.getInput('test-results');
     const coveragePath = core.getInput('test-coverage');
     const minCoverage = Number(core.getInput('min-coverage'));
-    return { token, title, resultsPath, coveragePath, minCoverage };
+    const postNewComment = Boolean(core.getInput('post-new-comment'));
+    console.log('New Comment: ', core.getInput('post-new-comment'), postNewComment);
+    return { token, title, resultsPath, coveragePath, minCoverage, postNewComment };
 };
 exports.getActionInputs = getActionInputs;
 const setResultOutputs = (results) => {
@@ -192,9 +194,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.publishComment = void 0;
 const github = __importStar(__nccwpck_require__(5438));
-const publishComment = (token, title, message) => __awaiter(void 0, void 0, void 0, function* () {
+const publishComment = (token, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
     const { owner, repo, issueNumber, commit: after } = getConfiguration();
-    if (!owner || !repo || !issueNumber) {
+    if (!token || !owner || !repo || !issueNumber) {
         console.error('Failed to post a comment');
         return;
     }
@@ -204,7 +206,7 @@ const publishComment = (token, title, message) => __awaiter(void 0, void 0, void
     const issues = github.getOctokit(token).rest.issues;
     const comments = yield issues.listComments({ owner, repo, issue_number: issueNumber });
     const existingComment = findExistingComment(comments, header);
-    if (existingComment) {
+    if (existingComment && !postNew) {
         yield issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
     }
     else {

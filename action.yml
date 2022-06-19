@@ -1,6 +1,9 @@
 description: 'A GitHub action to parse test results and post the summary as a PR comment'
 author: 'https://github.com/bibipkins'
 inputs:
+  github-token:
+    description: 'GitHub repository token'
+    required: true
   test-results:
     description: 'Path to the directory containing trx files'
     required: true
@@ -10,12 +13,13 @@ inputs:
   min-coverage:
     description: 'Minimum allowed coverage (from 0.00 to 100.00)'
     required: false
-  github-token:
-    description: 'GitHub repository token'
-    required: false
   comment-title:
     description: 'Pull Request comment title'
     required: false
+  post-new-comment:
+    description: 'Boolean flag. Set to true to post a new comment after each run'
+    required: false
+    default: false
 outputs:
   tests-total:
     description: 'Total number of tests'
