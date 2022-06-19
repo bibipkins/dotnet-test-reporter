@@ -10,8 +10,9 @@ export const formatTestResults = (results: ITestResult): string => {
 export const formatTestCoverage = (coverage: ITestCoverage, min: number): string => {
   const status = fromatCoverageStatus(coverage, min);
   const summary = formatCoverageSummary(coverage);
+  const footer = min ? `_minimum coverage needed: ${min}%_` : '';
 
-  return status + summary;
+  return status + summary + footer;
 };
 
 const formatResultStatus = (results: ITestResult): string => {
@@ -24,6 +25,14 @@ const formatResultStatus = (results: ITestResult): string => {
   const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}`;
 
   return `### ${status}${delimiter}${time}\n`;
+};
+
+const formatResultSummary = (results: ITestResult): string => {
+  const { total, passed, failed, skipped } = results;
+  const tableHeader = ':memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped';
+  const tableBody = `${total} | ${passed} | ${failed} | ${skipped}`;
+
+  return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
 };
 
 const formatElapsedTime = (elapsed: number): string => {
@@ -39,21 +48,13 @@ const formatElapsedTime = (elapsed: number): string => {
   }
 };
 
-const formatResultSummary = (results: ITestResult): string => {
-  const { total, passed, failed, skipped } = results;
-  const tableHeader = ':memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped';
-  const tableBody = `${total} | ${passed} | ${failed} | ${skipped}`;
-
-  return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
-};
-
 const fromatCoverageStatus = (coverage: ITestCoverage, min: number): string => {
   const success = coverage.lineCoverage >= min;
 
   const defaultStatus = 'Coverage';
   const successStatus = ':green_circle: &nbsp;Coverage Passed';
   const failStatus = ':red_circle: &nbsp;Coverage Failed';
-  const status = `${success ? successStatus : failStatus} (min ${min}%)`;
+  const status = `${success ? successStatus : failStatus}`;
 
   return `### ${min ? status : defaultStatus}\n`;
 };

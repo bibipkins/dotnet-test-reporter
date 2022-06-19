@@ -3,7 +3,12 @@ import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 
 type ListCommentsResponse = RestEndpointMethodTypes['issues']['listComments']['response'];
 
-export const publishComment = async (token: string, title: string, message: string, postNew: boolean) => {
+export const publishComment = async (
+  token: string,
+  title: string,
+  message: string,
+  postNew: boolean
+): Promise<void> => {
   const { owner, repo, issueNumber, commit: after } = getConfiguration();
 
   if (!token || !owner || !repo || !issueNumber) {
