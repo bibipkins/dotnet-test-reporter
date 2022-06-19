@@ -7,8 +7,9 @@ export const getActionInputs = (): IActionInputs => {
   const resultsPath = core.getInput('test-results');
   const coveragePath = core.getInput('test-coverage');
   const minCoverage = Number(core.getInput('min-coverage'));
+  const postNewComment = core.getInput('post-new-comment') == 'true';
 
-  return { token, title, resultsPath, coveragePath, minCoverage };
+  return { token, title, resultsPath, coveragePath, minCoverage, postNewComment };
 };
 
 export const setResultOutputs = (results: ITestResult): void => {

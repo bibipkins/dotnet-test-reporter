@@ -35,11 +35,11 @@ const aggregateTestResults = (results: ITestResult[]): ITestResult => {
 
 const run = async (): Promise<void> => {
   try {
-    const { token, title, resultsPath, coveragePath, minCoverage } = getActionInputs();
+    const { token, title, resultsPath, coveragePath, minCoverage, postNewComment } = getActionInputs();
 
     const resultsFilePaths = getTestResultPaths(resultsPath);
-    const results = await Promise.all(resultsFilePaths.map(path => parseTestResultsFile(path)));
-    const aggregatedResults = aggregateTestResults(results);
+    const testResults = await Promise.all(resultsFilePaths.map(path => parseTestResultsFile(path)));
+    const aggregatedResults = aggregateTestResults(testResults);
 
     let testsPassed = !aggregatedResults.failed;
     let coveragePassed = true;
@@ -53,7 +53,7 @@ const run = async (): Promise<void> => {
       setCoverageOutputs(coverageResult);
     }
 
-    await publishComment(token, title, body);
+    await publishComment(token, title, body, postNewComment);
     setActionStatus(testsPassed, coveragePassed);
   } catch (error: any) {
     core.setFailed(error.message);
