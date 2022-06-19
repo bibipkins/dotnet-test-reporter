@@ -307,7 +307,7 @@ exports.formatTestResults = formatTestResults;
 const formatTestCoverage = (coverage, min) => {
     const status = fromatCoverageStatus(coverage, min);
     const summary = formatCoverageSummary(coverage);
-    const footer = min ? `_minimum coverage needed: ${min}%_` : '';
+    const footer = min ? `_minimum coverage needed: ${min}%_\n` : '';
     return status + summary + footer;
 };
 exports.formatTestCoverage = formatTestCoverage;
