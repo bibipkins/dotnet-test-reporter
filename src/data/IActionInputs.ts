@@ -4,4 +4,5 @@ export default interface IActionInputs {
   resultsPath: string;
   coveragePath: string;
   minCoverage: number;
+  postNewComment: boolean;
 }

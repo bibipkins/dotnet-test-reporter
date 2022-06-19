@@ -60,10 +60,10 @@ const aggregateTestResults = (results) => {
 };
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, minCoverage } = (0, utils_1.getActionInputs)();
+        const { token, title, resultsPath, coveragePath, minCoverage, postNewComment } = (0, utils_1.getActionInputs)();
         const resultsFilePaths = (0, utils_1.getTestResultPaths)(resultsPath);
-        const results = yield Promise.all(resultsFilePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
-        const aggregatedResults = aggregateTestResults(results);
+        const testResults = yield Promise.all(resultsFilePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
+        const aggregatedResults = aggregateTestResults(testResults);
         let testsPassed = !aggregatedResults.failed;
         let coveragePassed = true;
         let body = (0, utils_1.formatTestResults)(aggregatedResults);
@@ -74,7 +74,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             body += (0, utils_1.formatTestCoverage)(coverageResult, minCoverage);
             (0, utils_1.setCoverageOutputs)(coverageResult);
         }
-        yield (0, utils_1.publishComment)(token, title, body);
+        yield (0, utils_1.publishComment)(token, title, body, postNewComment);
         (0, utils_1.setActionStatus)(testsPassed, coveragePassed);
     }
     catch (error) {
@@ -123,7 +123,8 @@ const getActionInputs = () => {
     const resultsPath = core.getInput('test-results');
     const coveragePath = core.getInput('test-coverage');
     const minCoverage = Number(core.getInput('min-coverage'));
-    return { token, title, resultsPath, coveragePath, minCoverage };
+    const postNewComment = core.getInput('post-new-comment') == 'true';
+    return { token, title, resultsPath, coveragePath, minCoverage, postNewComment };
 };
 exports.getActionInputs = getActionInputs;
 const setResultOutputs = (results) => {
@@ -192,9 +193,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.publishComment = void 0;
 const github = __importStar(__nccwpck_require__(5438));
-const publishComment = (token, title, message) => __awaiter(void 0, void 0, void 0, function* () {
+const publishComment = (token, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
     const { owner, repo, issueNumber, commit: after } = getConfiguration();
-    if (!owner || !repo || !issueNumber) {
+    if (!token || !owner || !repo || !issueNumber) {
         console.error('Failed to post a comment');
         return;
     }
@@ -204,7 +205,7 @@ const publishComment = (token, title, message) => __awaiter(void 0, void 0, void
     const issues = github.getOctokit(token).rest.issues;
     const comments = yield issues.listComments({ owner, repo, issue_number: issueNumber });
     const existingComment = findExistingComment(comments, header);
-    if (existingComment) {
+    if (existingComment && !postNew) {
         yield issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
     }
     else {
@@ -260,72 +261,6 @@ const getAbsolutePaths = (fileNames, directoryName) => fileNames.map(fileName =>
 
 /***/ }),
 
-/***/ 4291:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatTestCoverage = exports.formatTestResults = void 0;
-const formatTestResults = (results) => {
-    const status = formatResultStatus(results);
-    const summary = formatResultSummary(results);
-    return status + summary;
-};
-exports.formatTestResults = formatTestResults;
-const formatTestCoverage = (coverage, min) => {
-    const status = fromatCoverageStatus(coverage, min);
-    const summary = formatCoverageSummary(coverage);
-    return status + summary;
-};
-exports.formatTestCoverage = formatTestCoverage;
-const formatResultStatus = (results) => {
-    const success = results.failed === 0;
-    const successStatus = ':green_circle: &nbsp;Tests Passed';
-    const failStatus = ':red_circle: &nbsp;Tests Failed';
-    const status = success ? successStatus : failStatus;
-    const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;';
-    const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}`;
-    return `### ${status}${delimiter}${time}\n`;
-};
-const formatElapsedTime = (elapsed) => {
-    const secondsDelimiter = 1000;
-    const minutesDelimiter = 120000;
-    if (elapsed >= minutesDelimiter) {
-        return `${Math.abs(elapsed / minutesDelimiter)}min`;
-    }
-    else if (elapsed >= secondsDelimiter) {
-        return `${Math.abs(elapsed / secondsDelimiter)}s`;
-    }
-    else {
-        return `${elapsed}ms`;
-    }
-};
-const formatResultSummary = (results) => {
-    const { total, passed, failed, skipped } = results;
-    const tableHeader = ':memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped';
-    const tableBody = `${total} | ${passed} | ${failed} | ${skipped}`;
-    return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
-};
-const fromatCoverageStatus = (coverage, min) => {
-    const success = coverage.lineCoverage >= min;
-    const defaultStatus = 'Coverage';
-    const successStatus = ':green_circle: &nbsp;Coverage Passed';
-    const failStatus = ':red_circle: &nbsp;Coverage Failed';
-    const status = `${success ? successStatus : failStatus} (min ${min}%)`;
-    return `### ${min ? status : defaultStatus}\n`;
-};
-const formatCoverageSummary = (coverage) => {
-    const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
-    const tableHeader = ':memo: Total | :straight_ruler: Line&nbsp;&nbsp;&nbsp; | :herb: Branch | :wrench: Method';
-    const total = `${linesCovered} / ${linesTotal}`;
-    const tableBody = `${total} | ${lineCoverage}% | ${branchCoverage}% | ${methodCoverage}%`;
-    return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
-};
-
-
-/***/ }),
-
 /***/ 7782:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -348,9 +283,76 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(3451), exports);
 __exportStar(__nccwpck_require__(396), exports);
-__exportStar(__nccwpck_require__(4291), exports);
+__exportStar(__nccwpck_require__(120), exports);
 __exportStar(__nccwpck_require__(2780), exports);
 __exportStar(__nccwpck_require__(2216), exports);
+
+
+/***/ }),
+
+/***/ 120:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.formatTestCoverage = exports.formatTestResults = void 0;
+const formatTestResults = (results) => {
+    const status = formatResultStatus(results);
+    const summary = formatResultSummary(results);
+    return status + summary;
+};
+exports.formatTestResults = formatTestResults;
+const formatTestCoverage = (coverage, min) => {
+    const status = fromatCoverageStatus(coverage, min);
+    const summary = formatCoverageSummary(coverage);
+    const footer = min ? `_minimum coverage needed: ${min}%_\n\n` : '';
+    return status + summary + footer;
+};
+exports.formatTestCoverage = formatTestCoverage;
+const formatResultStatus = (results) => {
+    const success = results.failed === 0;
+    const successStatus = ':green_circle: &nbsp;Tests Passed';
+    const failStatus = ':red_circle: &nbsp;Tests Failed';
+    const status = success ? successStatus : failStatus;
+    const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;';
+    const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}`;
+    return `### ${status}${delimiter}${time}\n`;
+};
+const formatResultSummary = (results) => {
+    const { total, passed, failed, skipped } = results;
+    const tableHeader = ':memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped';
+    const tableBody = `${total} | ${passed} | ${failed} | ${skipped}`;
+    return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
+};
+const formatElapsedTime = (elapsed) => {
+    const secondsDelimiter = 1000;
+    const minutesDelimiter = 120000;
+    if (elapsed >= minutesDelimiter) {
+        return `${Math.abs(elapsed / minutesDelimiter)}min`;
+    }
+    else if (elapsed >= secondsDelimiter) {
+        return `${Math.abs(elapsed / secondsDelimiter)}s`;
+    }
+    else {
+        return `${elapsed}ms`;
+    }
+};
+const fromatCoverageStatus = (coverage, min) => {
+    const success = coverage.lineCoverage >= min;
+    const defaultStatus = 'Coverage';
+    const successStatus = ':green_circle: &nbsp;Coverage Passed';
+    const failStatus = ':red_circle: &nbsp;Coverage Failed';
+    const status = `${success ? successStatus : failStatus}`;
+    return `### ${min ? status : defaultStatus}\n`;
+};
+const formatCoverageSummary = (coverage) => {
+    const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
+    const tableHeader = ':memo: Total | :straight_ruler: Line&nbsp;&nbsp;&nbsp; | :herb: Branch | :wrench: Method';
+    const total = `${linesCovered} / ${linesTotal}`;
+    const tableBody = `${total} | ${lineCoverage}% | ${branchCoverage}% | ${methodCoverage}%`;
+    return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
+};
 
 
 /***/ }),
