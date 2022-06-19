@@ -124,7 +124,6 @@ const getActionInputs = () => {
     const coveragePath = core.getInput('test-coverage');
     const minCoverage = Number(core.getInput('min-coverage'));
     const postNewComment = core.getInput('post-new-comment') == 'true';
-    console.log('New Comment: ', core.getInput('post-new-comment'), postNewComment);
     return { token, title, resultsPath, coveragePath, minCoverage, postNewComment };
 };
 exports.getActionInputs = getActionInputs;
