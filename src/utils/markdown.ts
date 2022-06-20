@@ -21,7 +21,7 @@ const formatResultStatus = (results: ITestResult): string => {
   const successStatus = ':green_circle: &nbsp;Tests Passed';
   const failStatus = ':red_circle: &nbsp;Tests Failed';
   const status = success ? successStatus : failStatus;
-  const delimiter = '&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;';
+  const delimiter = ' &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; ';
   const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}`;
 
   return `### ${status}${delimiter}${time}\n`;
@@ -40,9 +40,9 @@ const formatElapsedTime = (elapsed: number): string => {
   const minutesDelimiter = 120000;
 
   if (elapsed >= minutesDelimiter) {
-    return `${Math.abs(elapsed / minutesDelimiter)}min`;
+    return `${Math.round(elapsed / 6000) / 10}min`;
   } else if (elapsed >= secondsDelimiter) {
-    return `${Math.abs(elapsed / secondsDelimiter)}s`;
+    return `${Math.round(elapsed / 100) / 10}s`;
   } else {
     return `${elapsed}ms`;
   }
