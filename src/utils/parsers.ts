@@ -32,6 +32,8 @@ const readFile = (path: string): Promise<any> => {
   return parser.parseStringPromise(file);
 };
 
+const readNodeData = (node: any) => node['$'];
+
 const parseElapsedTime = (trx: any): number => {
   const times = trx.TestRun?.Times;
   const data = readNodeData(times[0]);
@@ -53,5 +55,3 @@ const parseSummary = (trx: any) => {
 
   return { outcome: data.outcome, total, passed, failed, skipped };
 };
-
-const readNodeData = (node: any) => node['$'];

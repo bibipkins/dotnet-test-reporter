@@ -405,6 +405,7 @@ const readFile = (path) => {
     const parser = new xml2js_1.default.Parser();
     return parser.parseStringPromise(file);
 };
+const readNodeData = (node) => node['$'];
 const parseElapsedTime = (trx) => {
     var _a;
     const times = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.Times;
@@ -425,7 +426,6 @@ const parseSummary = (trx) => {
     const failed = Number(counters.failed);
     return { outcome: data.outcome, total, passed, failed, skipped };
 };
-const readNodeData = (node) => node['$'];
 
 
 /***/ }),
