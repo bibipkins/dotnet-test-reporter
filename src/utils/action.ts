@@ -12,7 +12,7 @@ export const getActionInputs = (): IActionInputs => {
   return { token, title, resultsPath, coveragePath, minCoverage, postNewComment };
 };
 
-export const setResultOutputs = (results: ITestResult): void => {
+export const setResultsOutputs = (results: ITestResult): void => {
   core.setOutput('tests-total', results.total);
   core.setOutput('tests-passed', results.passed);
   core.setOutput('tests-failed', results.failed);
@@ -27,7 +27,6 @@ export const setCoverageOutputs = (coverage: ITestCoverage): void => {
 
 export const setActionStatus = (testsPassed: boolean, coveragePassed: boolean): void => {
   if (!testsPassed) {
-    core.setFailed('Tests Failed');
   }
 
   if (!coveragePassed) {

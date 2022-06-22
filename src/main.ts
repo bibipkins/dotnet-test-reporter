@@ -2,12 +2,12 @@ import * as core from '@actions/core';
 import { ITestResult } from './data';
 import {
   getActionInputs,
-  getTestResultPaths,
-  parseTestResultsFile,
-  parseTestCoverageFile,
+  findFiles,
+  parseTestResults,
+  parseTestCoverage,
   formatTestResults,
   formatTestCoverage,
-  setResultOutputs,
+  setResultsOutputs,
   setCoverageOutputs,
   publishComment,
   setActionStatus
@@ -15,6 +15,7 @@ import {
 
 const aggregateTestResults = (results: ITestResult[]): ITestResult => {
   const aggregatedResults: ITestResult = {
+    success: true,
     elapsed: 0,
     total: 0,
     passed: 0,
@@ -23,6 +24,7 @@ const aggregateTestResults = (results: ITestResult[]): ITestResult => {
   };
 
   for (const result of results) {
+    aggregatedResults.success = aggregatedResults.success && result.success;
     aggregatedResults.elapsed += result.elapsed;
     aggregatedResults.total += result.total;
     aggregatedResults.passed += result.passed;
@@ -37,20 +39,42 @@ const run = async (): Promise<void> => {
   try {
     const { token, title, resultsPath, coveragePath, minCoverage, postNewComment } = getActionInputs();
 
-    const resultsFilePaths = getTestResultPaths(resultsPath);
-    const testResults = await Promise.all(resultsFilePaths.map(path => parseTestResultsFile(path)));
-    const aggregatedResults = aggregateTestResults(testResults);
-
-    let testsPassed = !aggregatedResults.failed;
+    let body = '';
+    let testsPassed = true;
     let coveragePassed = true;
-    let body = formatTestResults(aggregatedResults);
-    setResultOutputs(aggregatedResults);
+
+    const testResults: ITestResult[] = [];
+    const resultsFilePaths = findFiles(resultsPath, '.trx');
+
+    if (resultsFilePaths.length === 0) {
+      throw Error(`No test results found in ${resultsPath}`);
+    }
+
+    for (const path of resultsFilePaths) {
+      const result = await parseTestResults(path);
+
+      if (!result) {
+        throw Error(`Failed parsing ${path}`);
+      }
+
+      testResults.push(result);
+    }
+
+    const aggregatedResults = aggregateTestResults(testResults);
+    setResultsOutputs(aggregatedResults);
+    testsPassed = aggregatedResults.success;
+    body += formatTestResults(aggregatedResults);
 
     if (coveragePath) {
-      const coverageResult = await parseTestCoverageFile(coveragePath);
-      coveragePassed = minCoverage ? coverageResult.lineCoverage >= minCoverage : true;
-      body += formatTestCoverage(coverageResult, minCoverage);
-      setCoverageOutputs(coverageResult);
+      const testCoverage = await parseTestCoverage(coveragePath, minCoverage);
+
+      if (!testCoverage) {
+        console.error(`Failed parsing ${coveragePath}`);
+      } else {
+        setCoverageOutputs(testCoverage);
+        coveragePassed = testCoverage.success;
+        body += formatTestCoverage(testCoverage, minCoverage);
+      }
     }
 
     await publishComment(token, title, body, postNewComment);

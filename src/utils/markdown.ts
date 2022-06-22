@@ -1,8 +1,8 @@
 import { ITestCoverage, ITestResult } from '../data';
 
 export const formatTestResults = (results: ITestResult): string => {
-  const status = formatResultStatus(results);
-  const summary = formatResultSummary(results);
+  const status = formatResultsStatus(results);
+  const summary = formatResultsSummary(results);
 
   return status + summary;
 };
@@ -15,24 +15,23 @@ export const formatTestCoverage = (coverage: ITestCoverage, min: number): string
   return status + summary + footer;
 };
 
-const formatResultStatus = (results: ITestResult): string => {
-  const success = results.failed === 0;
-
+const formatResultsStatus = (results: ITestResult): string => {
   const successStatus = ':green_circle: &nbsp;Tests Passed';
   const failStatus = ':red_circle: &nbsp;Tests Failed';
-  const status = success ? successStatus : failStatus;
+  const status = results.success ? successStatus : failStatus;
   const delimiter = ' &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; ';
   const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}`;
 
-  return `### ${status}${delimiter}${time}\n`;
+  return formatHeader(status + delimiter + time);
 };
 
-const formatResultSummary = (results: ITestResult): string => {
+const formatResultsSummary = (results: ITestResult): string => {
   const { total, passed, failed, skipped } = results;
-  const tableHeader = ':memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped';
-  const tableBody = `${total} | ${passed} | ${failed} | ${skipped}`;
 
-  return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
+  return formatTable(
+    [':memo: Total', ':heavy_check_mark: Passed', ':x: Failed', ':warning: Skipped'],
+    [total, passed, failed, skipped]
+  );
 };
 
 const formatElapsedTime = (elapsed: number): string => {
@@ -49,21 +48,30 @@ const formatElapsedTime = (elapsed: number): string => {
 };
 
 const fromatCoverageStatus = (coverage: ITestCoverage, min: number): string => {
-  const success = coverage.lineCoverage >= min;
-
-  const defaultStatus = 'Coverage';
   const successStatus = ':green_circle: &nbsp;Coverage Passed';
   const failStatus = ':red_circle: &nbsp;Coverage Failed';
-  const status = `${success ? successStatus : failStatus}`;
+  const status = coverage.success ? successStatus : failStatus;
 
-  return `### ${min ? status : defaultStatus}\n`;
+  return formatHeader(min ? status : 'Coverage');
 };
 
 const formatCoverageSummary = (coverage: ITestCoverage): string => {
   const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
-  const tableHeader = ':memo: Total | :straight_ruler: Line&nbsp;&nbsp;&nbsp; | :herb: Branch | :wrench: Method';
-  const total = `${linesCovered} / ${linesTotal}`;
-  const tableBody = `${total} | ${lineCoverage}% | ${branchCoverage}% | ${methodCoverage}%`;
 
-  return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
+  return formatTable(
+    [':memo: Total', ':straight_ruler: Line&nbsp;&nbsp;&nbsp;', ':herb: Branch', ':wrench: Method'],
+    [`${linesCovered} / ${linesTotal}`, `${lineCoverage}%`, `${branchCoverage}%`, `${methodCoverage}%`]
+  );
 };
+
+const formatTable = (columns: string[], ...data: (string | number)[][]): string => {
+  const tableHeader = formatColumns(columns);
+  const tableBody = data.map(row => formatColumns(row)).join('\n');
+  const delimiter = formatColumns(columns.map(() => '---'));
+
+  return `${tableHeader}\n${delimiter}\n${tableBody}\n\n`;
+};
+
+const formatColumns = (columns: (string | number)[]): string => columns.join(' | ');
+
+const formatHeader = (header: string): string => `### ${header}\n`;

@@ -1,11 +1,65 @@
-import xml2js from 'xml2js';
-import fs from 'fs';
+import { readFile } from './files';
 import { ITestCoverage, ITestResult } from '../data';
 
-export const parseTestCoverageFile = async (path: string): Promise<ITestCoverage> => {
-  const content = await readFile(path);
-  const summary = content.CoverageSession?.Summary[0];
-  const data = readNodeData(summary);
+export const parseTestResults = async (filePath: string): Promise<ITestResult | null> => {
+  const file = await readFile(filePath);
+
+  if (!file) {
+    return null;
+  }
+
+  const { start, finish } = parseElapsedTime(file);
+  const { outcome, total, passed, failed, executed } = parseResultsSummary(file);
+
+  const elapsed = finish.getTime() - start.getTime();
+  const skipped = total - executed;
+  const success = failed === 0 && outcome === 'Completed';
+
+  return { success, elapsed, total, passed, failed, skipped };
+};
+
+export const parseTestCoverage = async (filePath: string, min: number): Promise<ITestCoverage | null> => {
+  const file = await readFile(filePath);
+
+  if (!file) {
+    return null;
+  }
+
+  const { linesTotal, linesCovered, methodsTotal, methodsCovered, lineCoverage, branchCoverage } =
+    parseCoverageSummary(file);
+
+  const methodCoverage = Math.floor((methodsCovered / methodsTotal) * 10000) / 100;
+  const success = !min || lineCoverage >= min;
+
+  return { success, linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage };
+};
+
+const parseElapsedTime = (file: any) => {
+  const times = file.TestRun?.Times;
+  const data = parseNodeData(times[0]);
+
+  const start = new Date(data.start);
+  const finish = new Date(data.finish);
+
+  return { start, finish };
+};
+
+const parseResultsSummary = (file: any) => {
+  const summary = file.TestRun.ResultSummary[0];
+  const data = parseNodeData(summary);
+  const counters = parseNodeData(summary.Counters[0]);
+
+  const total = Number(counters.total);
+  const passed = Number(counters.passed);
+  const failed = Number(counters.failed);
+  const executed = Number(counters.executed);
+
+  return { outcome: data.outcome, total, passed, failed, executed };
+};
+
+const parseCoverageSummary = (file: any) => {
+  const summary = file.CoverageSession?.Summary[0];
+  const data = parseNodeData(summary);
 
   const linesTotal = data.numSequencePoints;
   const linesCovered = data.visitedSequencePoints;
@@ -13,45 +67,8 @@ export const parseTestCoverageFile = async (path: string): Promise<ITestCoverage
   const methodsCovered = data.visitedMethods;
   const lineCoverage = data.sequenceCoverage;
   const branchCoverage = data.branchCoverage;
-  const methodCoverage = Math.floor((methodsCovered / methodsTotal) * 10000) / 100;
 
-  return { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage };
+  return { linesTotal, linesCovered, methodsTotal, methodsCovered, lineCoverage, branchCoverage };
 };
 
-export const parseTestResultsFile = async (path: string): Promise<ITestResult> => {
-  const content = await readFile(path);
-  const elapsed = parseElapsedTime(content);
-  const summary = parseSummary(content);
-
-  return { elapsed, ...summary };
-};
-
-const readFile = (path: string): Promise<any> => {
-  const file = fs.readFileSync(path);
-  const parser = new xml2js.Parser();
-  return parser.parseStringPromise(file);
-};
-
-const readNodeData = (node: any) => node['$'];
-
-const parseElapsedTime = (trx: any): number => {
-  const times = trx.TestRun?.Times;
-  const data = readNodeData(times[0]);
-  const start = new Date(data.start);
-  const finish = new Date(data.finish);
-  const milisconds = finish.getTime() - start.getTime();
-
-  return milisconds;
-};
-
-const parseSummary = (trx: any) => {
-  const summary = trx.TestRun?.ResultSummary[0];
-  const data = readNodeData(summary);
-  const counters = readNodeData(summary.Counters[0]);
-  const total = Number(counters.total);
-  const passed = Number(counters.passed);
-  const skipped = total - Number(counters.executed);
-  const failed = Number(counters.failed);
-
-  return { outcome: data.outcome, total, passed, failed, skipped };
-};
+const parseNodeData = (node: any) => node['$'];
