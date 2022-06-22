@@ -57,6 +57,7 @@ const run = async (): Promise<void> => {
         throw Error(`Failed parsing ${path}`);
       }
 
+      console.log(`Processed ${path}`);
       testResults.push(result);
     }
 
@@ -69,8 +70,9 @@ const run = async (): Promise<void> => {
       const testCoverage = await parseTestCoverage(coveragePath, minCoverage);
 
       if (!testCoverage) {
-        console.error(`Failed parsing ${coveragePath}`);
+        console.log(`Failed parsing ${coveragePath}`);
       } else {
+        console.log(`Processed ${coveragePath}`);
         setCoverageOutputs(testCoverage);
         coveragePassed = testCoverage.success;
         body += formatTestCoverage(testCoverage, minCoverage);

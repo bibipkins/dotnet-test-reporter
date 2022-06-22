@@ -76,6 +76,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             if (!result) {
                 throw Error(`Failed parsing ${path}`);
             }
+            console.log(`Processed ${path}`);
             testResults.push(result);
         }
         const aggregatedResults = aggregateTestResults(testResults);
@@ -85,9 +86,10 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         if (coveragePath) {
             const testCoverage = yield (0, utils_1.parseTestCoverage)(coveragePath, minCoverage);
             if (!testCoverage) {
-                console.error(`Failed parsing ${coveragePath}`);
+                console.log(`Failed parsing ${coveragePath}`);
             }
             else {
+                console.log(`Processed ${coveragePath}`);
                 (0, utils_1.setCoverageOutputs)(testCoverage);
                 coveragePassed = testCoverage.success;
                 body += (0, utils_1.formatTestCoverage)(testCoverage, minCoverage);
@@ -142,7 +144,7 @@ const getActionInputs = () => {
     const resultsPath = core.getInput('test-results');
     const coveragePath = core.getInput('test-coverage');
     const minCoverage = Number(core.getInput('min-coverage'));
-    const postNewComment = core.getInput('post-new-comment') == 'true';
+    const postNewComment = core.getBooleanInput('post-new-comment');
     return { token, title, resultsPath, coveragePath, minCoverage, postNewComment };
 };
 exports.getActionInputs = getActionInputs;
@@ -161,6 +163,7 @@ const setCoverageOutputs = (coverage) => {
 exports.setCoverageOutputs = setCoverageOutputs;
 const setActionStatus = (testsPassed, coveragePassed) => {
     if (!testsPassed) {
+        core.setFailed('Tests Failed');
     }
     if (!coveragePassed) {
         core.setFailed('Coverage Failed');
