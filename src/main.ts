@@ -6,7 +6,7 @@ import { getActionInputs, formatTestResults, formatTestCoverage, publishComment,
 const run = async (): Promise<void> => {
   try {
     const { token, title, resultsPath, coveragePath, minCoverage, postNewComment } = getActionInputs();
-
+    core.setFailed('Tesing Action Failed');
     let body = '';
     let testsPassed = true;
     let coveragePassed = true;

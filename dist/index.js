@@ -79,6 +79,7 @@ const utils_1 = __nccwpck_require__(7782);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { token, title, resultsPath, coveragePath, minCoverage, postNewComment } = (0, utils_1.getActionInputs)();
+        core.setFailed('Tesing Action Failed');
         let body = '';
         let testsPassed = true;
         let coveragePassed = true;
