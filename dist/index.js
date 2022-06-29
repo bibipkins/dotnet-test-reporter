@@ -1,6 +1,39 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 3725:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.processTestCoverage = void 0;
+const utils_1 = __nccwpck_require__(7782);
+const processTestCoverage = (coveragePath, minCoverage) => __awaiter(void 0, void 0, void 0, function* () {
+    const testCoverage = yield (0, utils_1.parseTestCoverage)(coveragePath, minCoverage);
+    if (!testCoverage) {
+        console.log(`Failed parsing ${coveragePath}`);
+    }
+    else {
+        console.log(`Processed ${coveragePath}`);
+        (0, utils_1.setCoverageOutputs)(testCoverage);
+    }
+    return testCoverage;
+});
+exports.processTestCoverage = processTestCoverage;
+
+
+/***/ }),
+
 /***/ 9538:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -40,57 +73,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
+const results_1 = __nccwpck_require__(1530);
+const coverage_1 = __nccwpck_require__(3725);
 const utils_1 = __nccwpck_require__(7782);
-const aggregateTestResults = (results) => {
-    const aggregatedResults = {
-        success: true,
-        elapsed: 0,
-        total: 0,
-        passed: 0,
-        failed: 0,
-        skipped: 0
-    };
-    for (const result of results) {
-        aggregatedResults.success = aggregatedResults.success && result.success;
-        aggregatedResults.elapsed += result.elapsed;
-        aggregatedResults.total += result.total;
-        aggregatedResults.passed += result.passed;
-        aggregatedResults.failed += result.failed;
-        aggregatedResults.skipped += result.skipped;
-    }
-    return aggregatedResults;
-};
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { token, title, resultsPath, coveragePath, minCoverage, postNewComment } = (0, utils_1.getActionInputs)();
         let body = '';
         let testsPassed = true;
         let coveragePassed = true;
-        const testResults = [];
-        const resultsFilePaths = (0, utils_1.findFiles)(resultsPath, '.trx');
-        if (resultsFilePaths.length === 0) {
-            throw Error(`No test results found in ${resultsPath}`);
-        }
-        for (const path of resultsFilePaths) {
-            const result = yield (0, utils_1.parseTestResults)(path);
-            if (!result) {
-                throw Error(`Failed parsing ${path}`);
-            }
-            console.log(`Processed ${path}`);
-            testResults.push(result);
-        }
-        const aggregatedResults = aggregateTestResults(testResults);
-        (0, utils_1.setResultsOutputs)(aggregatedResults);
-        testsPassed = aggregatedResults.success;
-        body += (0, utils_1.formatTestResults)(aggregatedResults);
+        const testResults = yield (0, results_1.processTestResults)(resultsPath);
+        testsPassed = testResults.success;
+        body += (0, utils_1.formatTestResults)(testResults);
         if (coveragePath) {
-            const testCoverage = yield (0, utils_1.parseTestCoverage)(coveragePath, minCoverage);
-            if (!testCoverage) {
+            const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, minCoverage);
+            if (testCoverage) {
                 console.log(`Failed parsing ${coveragePath}`);
-            }
-            else {
-                console.log(`Processed ${coveragePath}`);
-                (0, utils_1.setCoverageOutputs)(testCoverage);
                 coveragePassed = testCoverage.success;
                 body += (0, utils_1.formatTestCoverage)(testCoverage, minCoverage);
             }
@@ -103,6 +101,60 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 run();
+
+
+/***/ }),
+
+/***/ 1530:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.processTestResults = void 0;
+const utils_1 = __nccwpck_require__(7782);
+const processTestResults = (resultsPath) => __awaiter(void 0, void 0, void 0, function* () {
+    const aggregatedResult = getDefaultTestResult();
+    const filePaths = (0, utils_1.findFiles)(resultsPath, '.trx');
+    if (!filePaths.length) {
+        throw Error(`No test results found in ${resultsPath}`);
+    }
+    for (const path of filePaths) {
+        const result = yield (0, utils_1.parseTestResults)(path);
+        if (!result) {
+            throw Error(`Failed parsing ${path}`);
+        }
+        mergeTestResults(aggregatedResult, result);
+    }
+    (0, utils_1.setResultsOutputs)(aggregatedResult);
+    return aggregatedResult;
+});
+exports.processTestResults = processTestResults;
+const mergeTestResults = (result1, result2) => {
+    result1.success = result1.success && result2.success;
+    result1.elapsed += result2.elapsed;
+    result1.total += result2.total;
+    result1.passed += result2.passed;
+    result1.failed += result2.failed;
+    result1.skipped += result2.skipped;
+};
+const getDefaultTestResult = () => ({
+    success: true,
+    elapsed: 0,
+    total: 0,
+    passed: 0,
+    failed: 0,
+    skipped: 0
+});
 
 
 /***/ }),
