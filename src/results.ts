@@ -1,5 +1,5 @@
 import { ITestResult } from './data';
-import { findFiles, parseTestResults, setResultsOutputs } from './utils';
+import { findFiles, parseTestResults, setActionFailed, setResultsOutputs } from './utils';
 
 export const processTestResults = async (resultsPath: string): Promise<ITestResult> => {
   const aggregatedResult = getDefaultTestResult();
@@ -10,18 +10,27 @@ export const processTestResults = async (resultsPath: string): Promise<ITestResu
   }
 
   for (const path of filePaths) {
-    const result = await parseTestResults(path);
-
-    if (!result) {
-      throw Error(`Failed parsing ${path}`);
-    }
-
-    mergeTestResults(aggregatedResult, result);
+    await processResult(path, aggregatedResult);
   }
 
   setResultsOutputs(aggregatedResult);
 
+  if (!aggregatedResult.success) {
+    setActionFailed('Tests Failed');
+  }
+
   return aggregatedResult;
+};
+
+const processResult = async (path: string, aggregatedResult: ITestResult): Promise<void> => {
+  const result = await parseTestResults(path);
+
+  if (!result) {
+    throw Error(`Failed parsing ${path}`);
+  }
+
+  console.log(`Processed ${path}`);
+  mergeTestResults(aggregatedResult, result);
 };
 
 const mergeTestResults = (result1: ITestResult, result2: ITestResult): void => {

@@ -1,5 +1,6 @@
 import * as github from '@actions/github';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
+import { formatFooter, formatHeader } from './markdown';
 
 type ListCommentsResponse = RestEndpointMethodTypes['issues']['listComments']['response'];
 
@@ -9,16 +10,16 @@ export const publishComment = async (
   message: string,
   postNew: boolean
 ): Promise<void> => {
-  const { owner, repo, issueNumber, commit: after } = getConfiguration();
+  const { owner, repo, issueNumber, commit } = getConfiguration();
 
   if (!token || !owner || !repo || !issueNumber) {
-    console.error('Failed to post a comment');
+    console.log('Failed to post a comment');
     return;
   }
 
-  const header = `## ${title}`;
-  const footer = after ? `:pencil2: updated for commit ${after.substring(0, 8)}` : '';
-  const body = `${header}\n${message}<br/>${footer}`;
+  const header = formatHeader(title);
+  const footer = commit ? formatFooter(commit) : '';
+  const body = `${header}${message}${footer}`;
 
   const issues = github.getOctokit(token).rest.issues;
   const comments = await issues.listComments({ owner, repo, issue_number: issueNumber });

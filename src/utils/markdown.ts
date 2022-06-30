@@ -1,5 +1,11 @@
 import { ITestCoverage, ITestResult } from '../data';
 
+export const formatHeader = (header: string): string => `## ${header}\n`;
+
+export const formatSubHeader = (header: string): string => `### ${header}\n`;
+
+export const formatFooter = (commit: string) => `<br/>:pencil2: updated for commit ${commit.substring(0, 8)}`;
+
 export const formatTestResults = (results: ITestResult): string => {
   const status = formatResultsStatus(results);
   const summary = formatResultsSummary(results);
@@ -22,7 +28,7 @@ const formatResultsStatus = (results: ITestResult): string => {
   const delimiter = ' &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; ';
   const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}`;
 
-  return formatHeader(status + delimiter + time);
+  return formatSubHeader(status + delimiter + time);
 };
 
 const formatResultsSummary = (results: ITestResult): string => {
@@ -52,7 +58,7 @@ const fromatCoverageStatus = (coverage: ITestCoverage, min: number): string => {
   const failStatus = ':red_circle: &nbsp;Coverage Failed';
   const status = coverage.success ? successStatus : failStatus;
 
-  return formatHeader(min ? status : 'Coverage');
+  return formatSubHeader(min ? status : 'Coverage');
 };
 
 const formatCoverageSummary = (coverage: ITestCoverage): string => {
@@ -73,5 +79,3 @@ const formatTable = (columns: string[], ...data: (string | number)[][]): string 
 };
 
 const formatColumns = (columns: (string | number)[]): string => columns.join(' | ');
-
-const formatHeader = (header: string): string => `### ${header}\n`;

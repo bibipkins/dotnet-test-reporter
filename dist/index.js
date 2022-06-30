@@ -22,10 +22,12 @@ const processTestCoverage = (coveragePath, minCoverage) => __awaiter(void 0, voi
     const testCoverage = yield (0, utils_1.parseTestCoverage)(coveragePath, minCoverage);
     if (!testCoverage) {
         console.log(`Failed parsing ${coveragePath}`);
+        return null;
     }
-    else {
-        console.log(`Processed ${coveragePath}`);
-        (0, utils_1.setCoverageOutputs)(testCoverage);
+    console.log(`Processed ${coveragePath}`);
+    (0, utils_1.setCoverageOutputs)(testCoverage);
+    if (!testCoverage.success) {
+        (0, utils_1.setActionFailed)('Coverage Failed');
     }
     return testCoverage;
 });
@@ -39,29 +41,6 @@ exports.processTestCoverage = processTestCoverage;
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -72,33 +51,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__nccwpck_require__(2186));
 const results_1 = __nccwpck_require__(1530);
 const coverage_1 = __nccwpck_require__(3725);
 const utils_1 = __nccwpck_require__(7782);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { token, title, resultsPath, coveragePath, minCoverage, postNewComment } = (0, utils_1.getActionInputs)();
-        core.setFailed('Tesing Action Failed');
-        let body = '';
-        let testsPassed = true;
-        let coveragePassed = true;
         const testResults = yield (0, results_1.processTestResults)(resultsPath);
-        testsPassed = testResults.success;
-        body += (0, utils_1.formatTestResults)(testResults);
+        let body = (0, utils_1.formatTestResults)(testResults);
         if (coveragePath) {
             const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, minCoverage);
-            if (testCoverage) {
-                console.log(`Failed parsing ${coveragePath}`);
-                coveragePassed = testCoverage.success;
-                body += (0, utils_1.formatTestCoverage)(testCoverage, minCoverage);
-            }
+            body += testCoverage ? (0, utils_1.formatTestCoverage)(testCoverage, minCoverage) : '';
         }
         yield (0, utils_1.publishComment)(token, title, body, postNewComment);
-        (0, utils_1.setActionStatus)(testsPassed, coveragePassed);
     }
     catch (error) {
-        core.setFailed(error.message);
+        (0, utils_1.setActionFailed)(error.message);
     }
 });
 run();
@@ -130,16 +98,23 @@ const processTestResults = (resultsPath) => __awaiter(void 0, void 0, void 0, fu
         throw Error(`No test results found in ${resultsPath}`);
     }
     for (const path of filePaths) {
-        const result = yield (0, utils_1.parseTestResults)(path);
-        if (!result) {
-            throw Error(`Failed parsing ${path}`);
-        }
-        mergeTestResults(aggregatedResult, result);
+        yield processResult(path, aggregatedResult);
     }
     (0, utils_1.setResultsOutputs)(aggregatedResult);
+    if (!aggregatedResult.success) {
+        (0, utils_1.setActionFailed)('Tests Failed');
+    }
     return aggregatedResult;
 });
 exports.processTestResults = processTestResults;
+const processResult = (path, aggregatedResult) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield (0, utils_1.parseTestResults)(path);
+    if (!result) {
+        throw Error(`Failed parsing ${path}`);
+    }
+    console.log(`Processed ${path}`);
+    mergeTestResults(aggregatedResult, result);
+});
 const mergeTestResults = (result1, result2) => {
     result1.success = result1.success && result2.success;
     result1.elapsed += result2.elapsed;
@@ -189,7 +164,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.setActionStatus = exports.setCoverageOutputs = exports.setResultsOutputs = exports.getActionInputs = void 0;
+exports.setActionFailed = exports.setCoverageOutputs = exports.setResultsOutputs = exports.getActionInputs = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const getActionInputs = () => {
     const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
@@ -214,15 +189,10 @@ const setCoverageOutputs = (coverage) => {
     core.setOutput('coverage-method', coverage.methodCoverage);
 };
 exports.setCoverageOutputs = setCoverageOutputs;
-const setActionStatus = (testsPassed, coveragePassed) => {
-    if (!testsPassed) {
-        core.setFailed('Tests Failed');
-    }
-    if (!coveragePassed) {
-        core.setFailed('Coverage Failed');
-    }
+const setActionFailed = (message) => {
+    core.setFailed(message);
 };
-exports.setActionStatus = setActionStatus;
+exports.setActionFailed = setActionFailed;
 
 
 /***/ }),
@@ -267,15 +237,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.publishComment = void 0;
 const github = __importStar(__nccwpck_require__(5438));
+const markdown_1 = __nccwpck_require__(120);
 const publishComment = (token, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
-    const { owner, repo, issueNumber, commit: after } = getConfiguration();
+    const { owner, repo, issueNumber, commit } = getConfiguration();
     if (!token || !owner || !repo || !issueNumber) {
-        console.error('Failed to post a comment');
+        console.log('Failed to post a comment');
         return;
     }
-    const header = `## ${title}`;
-    const footer = after ? `:pencil2: updated for commit ${after.substring(0, 8)}` : '';
-    const body = `${header}\n${message}<br/>${footer}`;
+    const header = (0, markdown_1.formatHeader)(title);
+    const footer = commit ? (0, markdown_1.formatFooter)(commit) : '';
+    const body = `${header}${message}${footer}`;
     const issues = github.getOctokit(token).rest.issues;
     const comments = yield issues.listComments({ owner, repo, issue_number: issueNumber });
     const existingComment = findExistingComment(comments, header);
@@ -395,7 +366,13 @@ __exportStar(__nccwpck_require__(2216), exports);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatTestCoverage = exports.formatTestResults = void 0;
+exports.formatTestCoverage = exports.formatTestResults = exports.formatFooter = exports.formatSubHeader = exports.formatHeader = void 0;
+const formatHeader = (header) => `## ${header}\n`;
+exports.formatHeader = formatHeader;
+const formatSubHeader = (header) => `### ${header}\n`;
+exports.formatSubHeader = formatSubHeader;
+const formatFooter = (commit) => `<br/>:pencil2: updated for commit ${commit.substring(0, 8)}`;
+exports.formatFooter = formatFooter;
 const formatTestResults = (results) => {
     const status = formatResultsStatus(results);
     const summary = formatResultsSummary(results);
@@ -415,7 +392,7 @@ const formatResultsStatus = (results) => {
     const status = results.success ? successStatus : failStatus;
     const delimiter = ' &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; ';
     const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}`;
-    return formatHeader(status + delimiter + time);
+    return (0, exports.formatSubHeader)(status + delimiter + time);
 };
 const formatResultsSummary = (results) => {
     const { total, passed, failed, skipped } = results;
@@ -438,7 +415,7 @@ const fromatCoverageStatus = (coverage, min) => {
     const successStatus = ':green_circle: &nbsp;Coverage Passed';
     const failStatus = ':red_circle: &nbsp;Coverage Failed';
     const status = coverage.success ? successStatus : failStatus;
-    return formatHeader(min ? status : 'Coverage');
+    return (0, exports.formatSubHeader)(min ? status : 'Coverage');
 };
 const formatCoverageSummary = (coverage) => {
     const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
@@ -451,7 +428,6 @@ const formatTable = (columns, ...data) => {
     return `${tableHeader}\n${delimiter}\n${tableBody}\n\n`;
 };
 const formatColumns = (columns) => columns.join(' | ');
-const formatHeader = (header) => `### ${header}\n`;
 
 
 /***/ }),

@@ -25,12 +25,6 @@ export const setCoverageOutputs = (coverage: ITestCoverage): void => {
   core.setOutput('coverage-method', coverage.methodCoverage);
 };
 
-export const setActionStatus = (testsPassed: boolean, coveragePassed: boolean): void => {
-  if (!testsPassed) {
-    core.setFailed('Tests Failed');
-  }
-
-  if (!coveragePassed) {
-    core.setFailed('Coverage Failed');
-  }
+export const setActionFailed = (message: string): void => {
+  core.setFailed(message);
 };
