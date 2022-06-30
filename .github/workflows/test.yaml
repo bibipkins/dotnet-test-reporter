@@ -29,6 +29,6 @@ jobs:
         id: action_test
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          test-results: ./files/
+          test-results: ./files1/
           test-coverage: ./files/test_coverage1.xml
           min-coverage: 46
