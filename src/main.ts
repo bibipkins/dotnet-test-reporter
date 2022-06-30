@@ -1,62 +1,22 @@
-import * as core from '@actions/core';
-import { ITestResult } from './data';
-import {
-  getActionInputs,
-  getTestResultPaths,
-  parseTestResultsFile,
-  parseTestCoverageFile,
-  formatTestResults,
-  formatTestCoverage,
-  setResultOutputs,
-  setCoverageOutputs,
-  publishComment,
-  setActionStatus
-} from './utils';
-
-const aggregateTestResults = (results: ITestResult[]): ITestResult => {
-  const aggregatedResults: ITestResult = {
-    elapsed: 0,
-    total: 0,
-    passed: 0,
-    failed: 0,
-    skipped: 0
-  };
-
-  for (const result of results) {
-    aggregatedResults.elapsed += result.elapsed;
-    aggregatedResults.total += result.total;
-    aggregatedResults.passed += result.passed;
-    aggregatedResults.failed += result.failed;
-    aggregatedResults.skipped += result.skipped;
-  }
-
-  return aggregatedResults;
-};
+import { processTestResults } from './results';
+import { processTestCoverage } from './coverage';
+import { getActionInputs, formatTestResults, formatTestCoverage, publishComment, setActionFailed } from './utils';
 
 const run = async (): Promise<void> => {
   try {
     const { token, title, resultsPath, coveragePath, minCoverage, postNewComment } = getActionInputs();
 
-    const resultsFilePaths = getTestResultPaths(resultsPath);
-    const testResults = await Promise.all(resultsFilePaths.map(path => parseTestResultsFile(path)));
-    const aggregatedResults = aggregateTestResults(testResults);
-
-    let testsPassed = !aggregatedResults.failed;
-    let coveragePassed = true;
-    let body = formatTestResults(aggregatedResults);
-    setResultOutputs(aggregatedResults);
+    const testResults = await processTestResults(resultsPath);
+    let body = formatTestResults(testResults);
 
     if (coveragePath) {
-      const coverageResult = await parseTestCoverageFile(coveragePath);
-      coveragePassed = minCoverage ? coverageResult.lineCoverage >= minCoverage : true;
-      body += formatTestCoverage(coverageResult, minCoverage);
-      setCoverageOutputs(coverageResult);
+      const testCoverage = await processTestCoverage(coveragePath, minCoverage);
+      body += testCoverage ? formatTestCoverage(testCoverage, minCoverage) : '';
     }
 
     await publishComment(token, title, body, postNewComment);
-    setActionStatus(testsPassed, coveragePassed);
-  } catch (error: any) {
-    core.setFailed(error.message);
+  } catch (error) {
+    setActionFailed((error as Error).message);
   }
 };
 

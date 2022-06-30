@@ -1,4 +1,5 @@
 export default interface ITestResult {
+  success: boolean;
   elapsed: number;
   total: number;
   passed: number;

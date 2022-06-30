@@ -7,12 +7,12 @@ export const getActionInputs = (): IActionInputs => {
   const resultsPath = core.getInput('test-results');
   const coveragePath = core.getInput('test-coverage');
   const minCoverage = Number(core.getInput('min-coverage'));
-  const postNewComment = core.getInput('post-new-comment') == 'true';
+  const postNewComment = core.getBooleanInput('post-new-comment');
 
   return { token, title, resultsPath, coveragePath, minCoverage, postNewComment };
 };
 
-export const setResultOutputs = (results: ITestResult): void => {
+export const setResultsOutputs = (results: ITestResult): void => {
   core.setOutput('tests-total', results.total);
   core.setOutput('tests-passed', results.passed);
   core.setOutput('tests-failed', results.failed);
@@ -25,12 +25,6 @@ export const setCoverageOutputs = (coverage: ITestCoverage): void => {
   core.setOutput('coverage-method', coverage.methodCoverage);
 };
 
-export const setActionStatus = (testsPassed: boolean, coveragePassed: boolean): void => {
-  if (!testsPassed) {
-    core.setFailed('Tests Failed');
-  }
-
-  if (!coveragePassed) {
-    core.setFailed('Coverage Failed');
-  }
+export const setActionFailed = (message: string): void => {
+  core.setFailed(message);
 };

@@ -1,34 +1,11 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 9538:
+/***/ 3725:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -39,49 +16,121 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__nccwpck_require__(2186));
+exports.processTestCoverage = void 0;
 const utils_1 = __nccwpck_require__(7782);
-const aggregateTestResults = (results) => {
-    const aggregatedResults = {
-        elapsed: 0,
-        total: 0,
-        passed: 0,
-        failed: 0,
-        skipped: 0
-    };
-    for (const result of results) {
-        aggregatedResults.elapsed += result.elapsed;
-        aggregatedResults.total += result.total;
-        aggregatedResults.passed += result.passed;
-        aggregatedResults.failed += result.failed;
-        aggregatedResults.skipped += result.skipped;
+const processTestCoverage = (coveragePath, minCoverage) => __awaiter(void 0, void 0, void 0, function* () {
+    const testCoverage = yield (0, utils_1.parseTestCoverage)(coveragePath, minCoverage);
+    if (!testCoverage) {
+        console.log(`Failed parsing ${coveragePath}`);
+        return null;
     }
-    return aggregatedResults;
+    console.log(`Processed ${coveragePath}`);
+    (0, utils_1.setCoverageOutputs)(testCoverage);
+    if (!testCoverage.success) {
+        (0, utils_1.setActionFailed)('Coverage Failed');
+    }
+    return testCoverage;
+});
+exports.processTestCoverage = processTestCoverage;
+
+
+/***/ }),
+
+/***/ 9538:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const results_1 = __nccwpck_require__(1530);
+const coverage_1 = __nccwpck_require__(3725);
+const utils_1 = __nccwpck_require__(7782);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { token, title, resultsPath, coveragePath, minCoverage, postNewComment } = (0, utils_1.getActionInputs)();
-        const resultsFilePaths = (0, utils_1.getTestResultPaths)(resultsPath);
-        const testResults = yield Promise.all(resultsFilePaths.map(path => (0, utils_1.parseTestResultsFile)(path)));
-        const aggregatedResults = aggregateTestResults(testResults);
-        let testsPassed = !aggregatedResults.failed;
-        let coveragePassed = true;
-        let body = (0, utils_1.formatTestResults)(aggregatedResults);
-        (0, utils_1.setResultOutputs)(aggregatedResults);
+        const testResults = yield (0, results_1.processTestResults)(resultsPath);
+        let body = (0, utils_1.formatTestResults)(testResults);
         if (coveragePath) {
-            const coverageResult = yield (0, utils_1.parseTestCoverageFile)(coveragePath);
-            coveragePassed = minCoverage ? coverageResult.lineCoverage >= minCoverage : true;
-            body += (0, utils_1.formatTestCoverage)(coverageResult, minCoverage);
-            (0, utils_1.setCoverageOutputs)(coverageResult);
+            const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, minCoverage);
+            body += testCoverage ? (0, utils_1.formatTestCoverage)(testCoverage, minCoverage) : '';
         }
         yield (0, utils_1.publishComment)(token, title, body, postNewComment);
-        (0, utils_1.setActionStatus)(testsPassed, coveragePassed);
     }
     catch (error) {
-        core.setFailed(error.message);
+        (0, utils_1.setActionFailed)(error.message);
     }
 });
 run();
+
+
+/***/ }),
+
+/***/ 1530:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.processTestResults = void 0;
+const utils_1 = __nccwpck_require__(7782);
+const processTestResults = (resultsPath) => __awaiter(void 0, void 0, void 0, function* () {
+    const aggregatedResult = getDefaultTestResult();
+    const filePaths = (0, utils_1.findFiles)(resultsPath, '.trx');
+    if (!filePaths.length) {
+        throw Error(`No test results found in ${resultsPath}`);
+    }
+    for (const path of filePaths) {
+        yield processResult(path, aggregatedResult);
+    }
+    (0, utils_1.setResultsOutputs)(aggregatedResult);
+    if (!aggregatedResult.success) {
+        (0, utils_1.setActionFailed)('Tests Failed');
+    }
+    return aggregatedResult;
+});
+exports.processTestResults = processTestResults;
+const processResult = (path, aggregatedResult) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield (0, utils_1.parseTestResults)(path);
+    if (!result) {
+        throw Error(`Failed parsing ${path}`);
+    }
+    console.log(`Processed ${path}`);
+    mergeTestResults(aggregatedResult, result);
+});
+const mergeTestResults = (result1, result2) => {
+    result1.success = result1.success && result2.success;
+    result1.elapsed += result2.elapsed;
+    result1.total += result2.total;
+    result1.passed += result2.passed;
+    result1.failed += result2.failed;
+    result1.skipped += result2.skipped;
+};
+const getDefaultTestResult = () => ({
+    success: true,
+    elapsed: 0,
+    total: 0,
+    passed: 0,
+    failed: 0,
+    skipped: 0
+});
 
 
 /***/ }),
@@ -115,7 +164,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.setActionStatus = exports.setCoverageOutputs = exports.setResultOutputs = exports.getActionInputs = void 0;
+exports.setActionFailed = exports.setCoverageOutputs = exports.setResultsOutputs = exports.getActionInputs = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const getActionInputs = () => {
     const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
@@ -123,32 +172,27 @@ const getActionInputs = () => {
     const resultsPath = core.getInput('test-results');
     const coveragePath = core.getInput('test-coverage');
     const minCoverage = Number(core.getInput('min-coverage'));
-    const postNewComment = core.getInput('post-new-comment') == 'true';
+    const postNewComment = core.getBooleanInput('post-new-comment');
     return { token, title, resultsPath, coveragePath, minCoverage, postNewComment };
 };
 exports.getActionInputs = getActionInputs;
-const setResultOutputs = (results) => {
+const setResultsOutputs = (results) => {
     core.setOutput('tests-total', results.total);
     core.setOutput('tests-passed', results.passed);
     core.setOutput('tests-failed', results.failed);
     core.setOutput('tests-skipped', results.skipped);
 };
-exports.setResultOutputs = setResultOutputs;
+exports.setResultsOutputs = setResultsOutputs;
 const setCoverageOutputs = (coverage) => {
     core.setOutput('coverage-line', coverage.lineCoverage);
     core.setOutput('coverage-branch', coverage.branchCoverage);
     core.setOutput('coverage-method', coverage.methodCoverage);
 };
 exports.setCoverageOutputs = setCoverageOutputs;
-const setActionStatus = (testsPassed, coveragePassed) => {
-    if (!testsPassed) {
-        core.setFailed('Tests Failed');
-    }
-    if (!coveragePassed) {
-        core.setFailed('Coverage Failed');
-    }
+const setActionFailed = (message) => {
+    core.setFailed(message);
 };
-exports.setActionStatus = setActionStatus;
+exports.setActionFailed = setActionFailed;
 
 
 /***/ }),
@@ -193,15 +237,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.publishComment = void 0;
 const github = __importStar(__nccwpck_require__(5438));
+const markdown_1 = __nccwpck_require__(120);
 const publishComment = (token, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
-    const { owner, repo, issueNumber, commit: after } = getConfiguration();
+    const { owner, repo, issueNumber, commit } = getConfiguration();
     if (!token || !owner || !repo || !issueNumber) {
-        console.error('Failed to post a comment');
+        console.log('Failed to post a comment');
         return;
     }
-    const header = `## ${title}`;
-    const footer = after ? `:pencil2: updated for commit ${after.substring(0, 8)}` : '';
-    const body = `${header}\n${message}<br/>${footer}`;
+    const header = (0, markdown_1.formatHeader)(title);
+    const footer = commit ? (0, markdown_1.formatFooter)(commit) : '';
+    const body = `${header}${message}${footer}`;
     const issues = github.getOctokit(token).rest.issues;
     const comments = yield issues.listComments({ owner, repo, issue_number: issueNumber });
     const existingComment = findExistingComment(comments, header);
@@ -237,26 +282,51 @@ const findExistingComment = (comments, header) => {
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getTestResultPaths = void 0;
+exports.findFiles = exports.readFile = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const path_1 = __importDefault(__nccwpck_require__(1017));
-const getTestResultPaths = (path) => {
-    if (!fs_1.default.existsSync(path)) {
-        console.log('No test result files found');
+const xml2js_1 = __importDefault(__nccwpck_require__(6189));
+const readFile = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!fs_1.default.existsSync(filePath)) {
+            return null;
+        }
+        const file = fs_1.default.readFileSync(filePath);
+        const parser = new xml2js_1.default.Parser();
+        return yield parser.parseStringPromise(file);
+    }
+    catch (_a) {
+        return null;
+    }
+});
+exports.readFile = readFile;
+const findFiles = (directoryPath, extension) => {
+    try {
+        if (!fs_1.default.existsSync(directoryPath)) {
+            return [];
+        }
+        const fileNames = fs_1.default.readdirSync(directoryPath);
+        const filteredFileNames = fileNames.filter(fileName => fileName.endsWith(extension));
+        return filteredFileNames.map(fileName => path_1.default.join(directoryPath, fileName));
+    }
+    catch (_a) {
         return [];
     }
-    const fileNames = fs_1.default.readdirSync(path);
-    const trxFiles = fileNames.filter(name => name.endsWith('.trx'));
-    const absolutePaths = getAbsolutePaths(trxFiles, path);
-    absolutePaths.forEach(path => console.log(`File: ${path}`));
-    return absolutePaths;
 };
-exports.getTestResultPaths = getTestResultPaths;
-const getAbsolutePaths = (fileNames, directoryName) => fileNames.map(fileName => path_1.default.join(directoryName, fileName));
+exports.findFiles = findFiles;
 
 
 /***/ }),
@@ -296,10 +366,16 @@ __exportStar(__nccwpck_require__(2216), exports);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatTestCoverage = exports.formatTestResults = void 0;
+exports.formatTestCoverage = exports.formatTestResults = exports.formatFooter = exports.formatSubHeader = exports.formatHeader = void 0;
+const formatHeader = (header) => `## ${header}\n`;
+exports.formatHeader = formatHeader;
+const formatSubHeader = (header) => `### ${header}\n`;
+exports.formatSubHeader = formatSubHeader;
+const formatFooter = (commit) => `<br/>:pencil2: updated for commit ${commit.substring(0, 8)}`;
+exports.formatFooter = formatFooter;
 const formatTestResults = (results) => {
-    const status = formatResultStatus(results);
-    const summary = formatResultSummary(results);
+    const status = formatResultsStatus(results);
+    const summary = formatResultsSummary(results);
     return status + summary;
 };
 exports.formatTestResults = formatTestResults;
@@ -310,20 +386,17 @@ const formatTestCoverage = (coverage, min) => {
     return status + summary + footer;
 };
 exports.formatTestCoverage = formatTestCoverage;
-const formatResultStatus = (results) => {
-    const success = results.failed === 0;
+const formatResultsStatus = (results) => {
     const successStatus = ':green_circle: &nbsp;Tests Passed';
     const failStatus = ':red_circle: &nbsp;Tests Failed';
-    const status = success ? successStatus : failStatus;
+    const status = results.success ? successStatus : failStatus;
     const delimiter = ' &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; ';
     const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}`;
-    return `### ${status}${delimiter}${time}\n`;
+    return (0, exports.formatSubHeader)(status + delimiter + time);
 };
-const formatResultSummary = (results) => {
+const formatResultsSummary = (results) => {
     const { total, passed, failed, skipped } = results;
-    const tableHeader = ':memo: Total | :heavy_check_mark: Passed | :x: Failed | :warning: Skipped';
-    const tableBody = `${total} | ${passed} | ${failed} | ${skipped}`;
-    return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
+    return formatTable([':memo: Total', ':heavy_check_mark: Passed', ':x: Failed', ':warning: Skipped'], [total, passed, failed, skipped]);
 };
 const formatElapsedTime = (elapsed) => {
     const secondsDelimiter = 1000;
@@ -339,20 +412,22 @@ const formatElapsedTime = (elapsed) => {
     }
 };
 const fromatCoverageStatus = (coverage, min) => {
-    const success = coverage.lineCoverage >= min;
-    const defaultStatus = 'Coverage';
     const successStatus = ':green_circle: &nbsp;Coverage Passed';
     const failStatus = ':red_circle: &nbsp;Coverage Failed';
-    const status = `${success ? successStatus : failStatus}`;
-    return `### ${min ? status : defaultStatus}\n`;
+    const status = coverage.success ? successStatus : failStatus;
+    return (0, exports.formatSubHeader)(min ? status : 'Coverage');
 };
 const formatCoverageSummary = (coverage) => {
     const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
-    const tableHeader = ':memo: Total | :straight_ruler: Line&nbsp;&nbsp;&nbsp; | :herb: Branch | :wrench: Method';
-    const total = `${linesCovered} / ${linesTotal}`;
-    const tableBody = `${total} | ${lineCoverage}% | ${branchCoverage}% | ${methodCoverage}%`;
-    return `${tableHeader}\n--- | --- | --- | ---\n${tableBody}\n\n`;
+    return formatTable([':memo: Total', ':straight_ruler: Line&nbsp;&nbsp;&nbsp;', ':herb: Branch', ':wrench: Method'], [`${linesCovered} / ${linesTotal}`, `${lineCoverage}%`, `${branchCoverage}%`, `${methodCoverage}%`]);
 };
+const formatTable = (columns, ...data) => {
+    const tableHeader = formatColumns(columns);
+    const tableBody = data.map(row => formatColumns(row)).join('\n');
+    const delimiter = formatColumns(columns.map(() => '---'));
+    return `${tableHeader}\n${delimiter}\n${tableBody}\n\n`;
+};
+const formatColumns = (columns) => columns.join(' | ');
 
 
 /***/ }),
@@ -371,61 +446,64 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseTestResultsFile = exports.parseTestCoverageFile = void 0;
-const xml2js_1 = __importDefault(__nccwpck_require__(6189));
-const fs_1 = __importDefault(__nccwpck_require__(7147));
-const parseTestCoverageFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
+exports.parseTestCoverage = exports.parseTestResults = void 0;
+const files_1 = __nccwpck_require__(396);
+const parseTestResults = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
+    const file = yield (0, files_1.readFile)(filePath);
+    if (!file) {
+        return null;
+    }
+    const { start, finish } = parseElapsedTime(file);
+    const { outcome, total, passed, failed, executed } = parseResultsSummary(file);
+    const elapsed = finish.getTime() - start.getTime();
+    const skipped = total - executed;
+    const success = failed === 0 && outcome === 'Completed';
+    return { success, elapsed, total, passed, failed, skipped };
+});
+exports.parseTestResults = parseTestResults;
+const parseTestCoverage = (filePath, min) => __awaiter(void 0, void 0, void 0, function* () {
+    const file = yield (0, files_1.readFile)(filePath);
+    if (!file) {
+        return null;
+    }
+    const { linesTotal, linesCovered, methodsTotal, methodsCovered, lineCoverage, branchCoverage } = parseCoverageSummary(file);
+    const methodCoverage = Math.floor((methodsCovered / methodsTotal) * 10000) / 100;
+    const success = !min || lineCoverage >= min;
+    return { success, linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage };
+});
+exports.parseTestCoverage = parseTestCoverage;
+const parseElapsedTime = (file) => {
     var _a;
-    const content = yield readFile(path);
-    const summary = (_a = content.CoverageSession) === null || _a === void 0 ? void 0 : _a.Summary[0];
-    const data = readNodeData(summary);
+    const times = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.Times;
+    const data = parseNodeData(times[0]);
+    const start = new Date(data.start);
+    const finish = new Date(data.finish);
+    return { start, finish };
+};
+const parseResultsSummary = (file) => {
+    const summary = file.TestRun.ResultSummary[0];
+    const data = parseNodeData(summary);
+    const counters = parseNodeData(summary.Counters[0]);
+    const total = Number(counters.total);
+    const passed = Number(counters.passed);
+    const failed = Number(counters.failed);
+    const executed = Number(counters.executed);
+    return { outcome: data.outcome, total, passed, failed, executed };
+};
+const parseCoverageSummary = (file) => {
+    var _a;
+    const summary = (_a = file.CoverageSession) === null || _a === void 0 ? void 0 : _a.Summary[0];
+    const data = parseNodeData(summary);
     const linesTotal = data.numSequencePoints;
     const linesCovered = data.visitedSequencePoints;
     const methodsTotal = data.numMethods;
     const methodsCovered = data.visitedMethods;
     const lineCoverage = data.sequenceCoverage;
     const branchCoverage = data.branchCoverage;
-    const methodCoverage = Math.floor((methodsCovered / methodsTotal) * 10000) / 100;
-    return { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage };
-});
-exports.parseTestCoverageFile = parseTestCoverageFile;
-const parseTestResultsFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
-    const content = yield readFile(path);
-    const elapsed = parseElapsedTime(content);
-    const summary = parseSummary(content);
-    return Object.assign({ elapsed }, summary);
-});
-exports.parseTestResultsFile = parseTestResultsFile;
-const readFile = (path) => {
-    const file = fs_1.default.readFileSync(path);
-    const parser = new xml2js_1.default.Parser();
-    return parser.parseStringPromise(file);
+    return { linesTotal, linesCovered, methodsTotal, methodsCovered, lineCoverage, branchCoverage };
 };
-const parseElapsedTime = (trx) => {
-    var _a;
-    const times = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.Times;
-    const data = readNodeData(times[0]);
-    const start = new Date(data.start);
-    const finish = new Date(data.finish);
-    const milisconds = finish.getTime() - start.getTime();
-    return milisconds;
-};
-const parseSummary = (trx) => {
-    var _a;
-    const summary = (_a = trx.TestRun) === null || _a === void 0 ? void 0 : _a.ResultSummary[0];
-    const data = readNodeData(summary);
-    const counters = readNodeData(summary.Counters[0]);
-    const total = Number(counters.total);
-    const passed = Number(counters.passed);
-    const skipped = total - Number(counters.executed);
-    const failed = Number(counters.failed);
-    return { outcome: data.outcome, total, passed, failed, skipped };
-};
-const readNodeData = (node) => node['$'];
+const parseNodeData = (node) => node['$'];
 
 
 /***/ }),
