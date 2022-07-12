@@ -59,7 +59,7 @@ Method code coverage
 ## Example usage
 
 ```yaml
-uses: actions/dotnet-test-reporter@v1
+uses: bibipkins/dotnet-test-reporter@v1
 with:
   github-token: ${{ secrets.GITHUB_TOKEN }}
   test-results: ./TestResults/
