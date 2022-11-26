@@ -24,6 +24,12 @@ inputs:
     description: 'Boolean flag. Set to true to post a new comment after each run'
     required: false
     default: false
+  groups:
+    description:
+      'An array of test result groups. Each element has "name", "test-results", "test-coverage" and "min-coverage"
+      properties'
+    required: false
+    default: []
 outputs:
   tests-total:
     description: 'Total number of tests'

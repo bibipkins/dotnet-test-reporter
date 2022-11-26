@@ -9,6 +9,12 @@ export const getActionInputs = (): IActionInputs => {
   const minCoverage = Number(core.getInput('min-coverage'));
   const postNewComment = core.getBooleanInput('post-new-comment');
 
+  const groups = core.getMultilineInput('groups');
+  console.log(groups);
+
+  const groups1 = core.getInput('groups');
+  console.log(groups1);
+
   return { token, title, resultsPath, coveragePath, minCoverage, postNewComment };
 };
 
