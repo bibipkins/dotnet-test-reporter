@@ -387,7 +387,7 @@ const formatTestCoverage = (coverage, min) => {
     const status = min ? `- ${getStatusText(success)} with ${min}% threshold` : '';
     const lines = `📏 ${linesCovered} / ${linesTotal} lines covered`;
     const branches = `🌿 ${branchesCovered} / ${branchesTotal} branches covered`;
-    return `${title} ${info} ${status}\n${lines}\n${branches}\n`;
+    return `${title} ${info} ${status}\n${lines} ${branches}\n`;
 };
 exports.formatTestCoverage = formatTestCoverage;
 const formatElapsedTime = (elapsed) => {

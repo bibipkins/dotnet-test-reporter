@@ -26,7 +26,7 @@ export const formatTestCoverage = (coverage: ITestCoverage, min: number): string
   const lines = `📏 ${linesCovered} / ${linesTotal} lines covered`;
   const branches = `🌿 ${branchesCovered} / ${branchesTotal} branches covered`;
 
-  return `${title} ${info} ${status}\n${lines}\n${branches}\n`;
+  return `${title} ${info} ${status}\n${lines} ${branches}\n`;
 };
 
 const formatElapsedTime = (elapsed: number): string => {
