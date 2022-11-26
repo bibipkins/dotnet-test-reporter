@@ -29,4 +29,4 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           test-results: ./files/
           test-coverage: ./files/test_coverage_opencover.xml
-          min-coverage: 46
+          min-coverage: 47
