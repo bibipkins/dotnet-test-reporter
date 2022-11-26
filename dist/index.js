@@ -385,8 +385,8 @@ const formatTestCoverage = (coverage, min) => {
     const title = `${min ? getStatusIcon(success) : '📝'} Coverage`;
     const info = `**${lineCoverage}%**`;
     const status = min ? `- ${getStatusText(success)} with ${min}% threshold` : '';
-    const lines = `📏 **${linesCovered} / ${linesTotal}** lines covered`;
-    const branches = `🌿 **${branchesCovered} / ${branchesTotal}** branches covered`;
+    const lines = `📏 ${linesCovered} / ${linesTotal} lines covered`;
+    const branches = `🌿 ${branchesCovered} / ${branchesTotal} branches covered`;
     return `${title} ${info} ${status}\n${lines}\n${branches}\n`;
 };
 exports.formatTestCoverage = formatTestCoverage;
