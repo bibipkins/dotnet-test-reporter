@@ -27,7 +27,7 @@
     "@octokit/plugin-rest-endpoint-methods": "^5.14.0",
     "@types/node": "^16.11.41",
     "@types/xml2js": "^0.4.11",
-    "@vercel/ncc": "^0.33.3",
+    "@vercel/ncc": "^0.34.0",
     "eslint": "^8.17.0",
     "eslint-plugin-github": "^4.3.2",
     "prettier": "^2.7.0",
