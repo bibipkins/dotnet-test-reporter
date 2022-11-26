@@ -29,7 +29,6 @@ inputs:
       'An array of test result groups. Each element has "name", "test-results", "test-coverage" and "min-coverage"
       properties'
     required: false
-    default: []
 outputs:
   tests-total:
     description: 'Total number of tests'
