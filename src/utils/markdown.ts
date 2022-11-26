@@ -23,8 +23,8 @@ export const formatTestCoverage = (coverage: ITestCoverage, min: number): string
   const info = `**${lineCoverage}%**`;
   const status = min ? `- ${getStatusText(success)} with ${min}% threshold` : '';
 
-  const lines = `📏 **${linesCovered} / ${linesTotal}** lines covered`;
-  const branches = `🌿 **${branchesCovered} / ${branchesTotal}** branches covered`;
+  const lines = `📏 ${linesCovered} / ${linesTotal} lines covered`;
+  const branches = `🌿 ${branchesCovered} / ${branchesTotal} branches covered`;
 
   return `${title} ${info} ${status}\n${lines}\n${branches}\n`;
 };
