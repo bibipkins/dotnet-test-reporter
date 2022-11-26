@@ -22,7 +22,6 @@ export const setResultsOutputs = (results: ITestResult): void => {
 export const setCoverageOutputs = (coverage: ITestCoverage): void => {
   core.setOutput('coverage-line', coverage.lineCoverage);
   core.setOutput('coverage-branch', coverage.branchCoverage);
-  core.setOutput('coverage-method', coverage.methodCoverage);
 };
 
 export const setActionFailed = (message: string): void => {

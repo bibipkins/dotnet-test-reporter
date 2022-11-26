@@ -37,8 +37,6 @@ outputs:
     description: 'Line code coverage'
   coverage-branch:
     description: 'Branch code coverage'
-  coverage-method:
-    description: 'Method code coverage'
 runs:
   using: 'node16'
   main: 'dist/index.js'

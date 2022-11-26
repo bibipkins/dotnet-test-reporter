@@ -25,13 +25,10 @@ export const parseTestCoverage = async (filePath: string, min: number): Promise<
     return null;
   }
 
-  const { linesTotal, linesCovered, methodsTotal, methodsCovered, lineCoverage, branchCoverage } =
-    parseCoverageSummary(file);
+  const summary = parseCoverageSummary(file);
+  const success = !min || summary.lineCoverage >= min;
 
-  const methodCoverage = Math.floor((methodsCovered / methodsTotal) * 10000) / 100;
-  const success = !min || lineCoverage >= min;
-
-  return { success, linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage };
+  return { success, ...summary };
 };
 
 const parseElapsedTime = (file: any) => {
@@ -63,12 +60,13 @@ const parseCoverageSummary = (file: any) => {
 
   const linesTotal = data.numSequencePoints;
   const linesCovered = data.visitedSequencePoints;
-  const methodsTotal = data.numMethods;
-  const methodsCovered = data.visitedMethods;
   const lineCoverage = data.sequenceCoverage;
+
+  const branchesTotal = data.numBranchPoints;
+  const branchesCovered = data.visitedBranchPoints;
   const branchCoverage = data.branchCoverage;
 
-  return { linesTotal, linesCovered, methodsTotal, methodsCovered, lineCoverage, branchCoverage };
+  return { linesTotal, linesCovered, lineCoverage, branchesTotal, branchesCovered, branchCoverage };
 };
 
 const parseNodeData = (node: any) => node['$'];

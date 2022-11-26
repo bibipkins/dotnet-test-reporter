@@ -186,7 +186,6 @@ exports.setResultsOutputs = setResultsOutputs;
 const setCoverageOutputs = (coverage) => {
     core.setOutput('coverage-line', coverage.lineCoverage);
     core.setOutput('coverage-branch', coverage.branchCoverage);
-    core.setOutput('coverage-method', coverage.methodCoverage);
 };
 exports.setCoverageOutputs = setCoverageOutputs;
 const setActionFailed = (message) => {
@@ -371,33 +370,26 @@ const formatHeader = (header) => `## ${header}\n`;
 exports.formatHeader = formatHeader;
 const formatSubHeader = (header) => `### ${header}\n`;
 exports.formatSubHeader = formatSubHeader;
-const formatFooter = (commit) => `<br/>:pencil2: updated for commit ${commit.substring(0, 8)}`;
+const formatFooter = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 exports.formatFooter = formatFooter;
 const formatTestResults = (results) => {
-    const status = formatResultsStatus(results);
-    const summary = formatResultsSummary(results);
-    return status + summary;
+    const { total, passed, skipped, success } = results;
+    const title = `${getStatusIcon(success)} Tests`;
+    const info = `**${passed} / ${total}**${skipped ? ` (${skipped} skipped)` : ''}`;
+    const status = `- ${getStatusText(success)} in ${formatElapsedTime(results.elapsed)}`;
+    return `${title} ${info} ${status}\n`;
 };
 exports.formatTestResults = formatTestResults;
 const formatTestCoverage = (coverage, min) => {
-    const status = fromatCoverageStatus(coverage, min);
-    const summary = formatCoverageSummary(coverage);
-    const footer = min ? `_minimum coverage needed: ${min}%_\n\n` : '';
-    return status + summary + footer;
+    const { linesCovered, linesTotal, lineCoverage, branchesTotal, branchesCovered, success } = coverage;
+    const title = `${min ? getStatusIcon(success) : '📝'} Coverage`;
+    const info = `**${lineCoverage}%**`;
+    const status = min ? `- ${getStatusText(success)} with ${min}% threshold` : '';
+    const lines = `📏 **${linesCovered} / ${linesTotal}** lines covered`;
+    const branches = `🌿 **${branchesCovered} / ${branchesTotal}** branches covered`;
+    return `${title} ${info} ${status}\n${lines}\n${branches}\n`;
 };
 exports.formatTestCoverage = formatTestCoverage;
-const formatResultsStatus = (results) => {
-    const successStatus = ':green_circle: &nbsp;Tests Passed';
-    const failStatus = ':red_circle: &nbsp;Tests Failed';
-    const status = results.success ? successStatus : failStatus;
-    const delimiter = ' &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; ';
-    const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}`;
-    return (0, exports.formatSubHeader)(status + delimiter + time);
-};
-const formatResultsSummary = (results) => {
-    const { total, passed, failed, skipped } = results;
-    return formatTable([':memo: Total', ':heavy_check_mark: Passed', ':x: Failed', ':warning: Skipped'], [total, passed, failed, skipped]);
-};
 const formatElapsedTime = (elapsed) => {
     const secondsDelimiter = 1000;
     const minutesDelimiter = 120000;
@@ -411,23 +403,8 @@ const formatElapsedTime = (elapsed) => {
         return `${elapsed}ms`;
     }
 };
-const fromatCoverageStatus = (coverage, min) => {
-    const successStatus = ':green_circle: &nbsp;Coverage Passed';
-    const failStatus = ':red_circle: &nbsp;Coverage Failed';
-    const status = coverage.success ? successStatus : failStatus;
-    return (0, exports.formatSubHeader)(min ? status : 'Coverage');
-};
-const formatCoverageSummary = (coverage) => {
-    const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
-    return formatTable([':memo: Total', ':straight_ruler: Line&nbsp;&nbsp;&nbsp;', ':herb: Branch', ':wrench: Method'], [`${linesCovered} / ${linesTotal}`, `${lineCoverage}%`, `${branchCoverage}%`, `${methodCoverage}%`]);
-};
-const formatTable = (columns, ...data) => {
-    const tableHeader = formatColumns(columns);
-    const tableBody = data.map(row => formatColumns(row)).join('\n');
-    const delimiter = formatColumns(columns.map(() => '---'));
-    return `${tableHeader}\n${delimiter}\n${tableBody}\n\n`;
-};
-const formatColumns = (columns) => columns.join(' | ');
+const getStatusIcon = (success) => (success ? '✔️' : '❌');
+const getStatusText = (success) => (success ? '**passed**' : '**failed**');
 
 
 /***/ }),
@@ -467,10 +444,9 @@ const parseTestCoverage = (filePath, min) => __awaiter(void 0, void 0, void 0, f
     if (!file) {
         return null;
     }
-    const { linesTotal, linesCovered, methodsTotal, methodsCovered, lineCoverage, branchCoverage } = parseCoverageSummary(file);
-    const methodCoverage = Math.floor((methodsCovered / methodsTotal) * 10000) / 100;
-    const success = !min || lineCoverage >= min;
-    return { success, linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage };
+    const summary = parseCoverageSummary(file);
+    const success = !min || summary.lineCoverage >= min;
+    return Object.assign({ success }, summary);
 });
 exports.parseTestCoverage = parseTestCoverage;
 const parseElapsedTime = (file) => {
@@ -497,11 +473,11 @@ const parseCoverageSummary = (file) => {
     const data = parseNodeData(summary);
     const linesTotal = data.numSequencePoints;
     const linesCovered = data.visitedSequencePoints;
-    const methodsTotal = data.numMethods;
-    const methodsCovered = data.visitedMethods;
     const lineCoverage = data.sequenceCoverage;
+    const branchesTotal = data.numBranchPoints;
+    const branchesCovered = data.visitedBranchPoints;
     const branchCoverage = data.branchCoverage;
-    return { linesTotal, linesCovered, methodsTotal, methodsCovered, lineCoverage, branchCoverage };
+    return { linesTotal, linesCovered, lineCoverage, branchesTotal, branchesCovered, branchCoverage };
 };
 const parseNodeData = (node) => node['$'];
 
