@@ -371,33 +371,24 @@ const formatHeader = (header) => `## ${header}\n`;
 exports.formatHeader = formatHeader;
 const formatSubHeader = (header) => `### ${header}\n`;
 exports.formatSubHeader = formatSubHeader;
-const formatFooter = (commit) => `<br/>:pencil2: updated for commit ${commit.substring(0, 8)}`;
+const formatFooter = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 exports.formatFooter = formatFooter;
 const formatTestResults = (results) => {
-    const status = formatResultsStatus(results);
-    const summary = formatResultsSummary(results);
-    return status + summary;
+    const { total, passed, skipped, success } = results;
+    const status = success ? '✔️ Tests Passed' : '❌ Tests Failed';
+    const info = `**${passed} / ${total}**${skipped ? ` (${skipped} skipped)` : ''}`;
+    const time = `in ⏱️ ${formatElapsedTime(results.elapsed)}`;
+    return `${status} ${info} ${time}\n`;
 };
 exports.formatTestResults = formatTestResults;
 const formatTestCoverage = (coverage, min) => {
-    const status = fromatCoverageStatus(coverage, min);
-    const summary = formatCoverageSummary(coverage);
-    const footer = min ? `_minimum coverage needed: ${min}%_\n\n` : '';
-    return status + summary + footer;
+    const { linesCovered, linesTotal, lineCoverage, success } = coverage;
+    const status = min ? (success ? '✔️ Coverage Passed' : '❌ Coverage Failed') : '📝 Coverage';
+    const info = `**${lineCoverage}%**${min ? ` (threshold - ${min}%)` : ''}`;
+    const details = `📏 **${linesCovered} / ${linesTotal}** lines covered`;
+    return `${status} ${info}\n${details}\n`;
 };
 exports.formatTestCoverage = formatTestCoverage;
-const formatResultsStatus = (results) => {
-    const successStatus = ':green_circle: &nbsp;Tests Passed';
-    const failStatus = ':red_circle: &nbsp;Tests Failed';
-    const status = results.success ? successStatus : failStatus;
-    const delimiter = ' &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; ';
-    const time = `:stopwatch: ${formatElapsedTime(results.elapsed)}`;
-    return (0, exports.formatSubHeader)(status + delimiter + time);
-};
-const formatResultsSummary = (results) => {
-    const { total, passed, failed, skipped } = results;
-    return formatTable([':memo: Total', ':heavy_check_mark: Passed', ':x: Failed', ':warning: Skipped'], [total, passed, failed, skipped]);
-};
 const formatElapsedTime = (elapsed) => {
     const secondsDelimiter = 1000;
     const minutesDelimiter = 120000;
@@ -411,23 +402,6 @@ const formatElapsedTime = (elapsed) => {
         return `${elapsed}ms`;
     }
 };
-const fromatCoverageStatus = (coverage, min) => {
-    const successStatus = ':green_circle: &nbsp;Coverage Passed';
-    const failStatus = ':red_circle: &nbsp;Coverage Failed';
-    const status = coverage.success ? successStatus : failStatus;
-    return (0, exports.formatSubHeader)(min ? status : 'Coverage');
-};
-const formatCoverageSummary = (coverage) => {
-    const { linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage } = coverage;
-    return formatTable([':memo: Total', ':straight_ruler: Line&nbsp;&nbsp;&nbsp;', ':herb: Branch', ':wrench: Method'], [`${linesCovered} / ${linesTotal}`, `${lineCoverage}%`, `${branchCoverage}%`, `${methodCoverage}%`]);
-};
-const formatTable = (columns, ...data) => {
-    const tableHeader = formatColumns(columns);
-    const tableBody = data.map(row => formatColumns(row)).join('\n');
-    const delimiter = formatColumns(columns.map(() => '---'));
-    return `${tableHeader}\n${delimiter}\n${tableBody}\n\n`;
-};
-const formatColumns = (columns) => columns.join(' | ');
 
 
 /***/ }),
