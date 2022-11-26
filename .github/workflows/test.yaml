@@ -30,8 +30,9 @@ jobs:
           test-results: ./files/
           test-coverage: ./files/test_coverage_opencover.xml
           min-coverage: 46
-          groups:
-            - name: OpenCover
+          groups: '[{
+              name: OpenCover
               test-results: ./files/
               test-coverage: ./files/test_coverage_opencover.xml
               min-coverage: 46
+          }]'
