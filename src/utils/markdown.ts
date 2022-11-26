@@ -9,21 +9,24 @@ export const formatFooter = (commit: string) => `<br/>_✏️ updated for commit
 export const formatTestResults = (results: ITestResult): string => {
   const { total, passed, skipped, success } = results;
 
-  const status = success ? '✔️ Tests Passed' : '❌ Tests Failed';
+  const title = `${getStatusIcon(success)} Tests`;
   const info = `**${passed} / ${total}**${skipped ? ` (${skipped} skipped)` : ''}`;
-  const time = `in ⏱️ ${formatElapsedTime(results.elapsed)}`;
+  const status = `- ${getStatusText(success)} in ${formatElapsedTime(results.elapsed)}`;
 
-  return `${status} ${info} ${time}\n`;
+  return `${title} ${info} ${status}\n`;
 };
 
 export const formatTestCoverage = (coverage: ITestCoverage, min: number): string => {
-  const { linesCovered, linesTotal, lineCoverage, success } = coverage;
+  const { linesCovered, linesTotal, lineCoverage, branchesTotal, branchesCovered, success } = coverage;
 
-  const status = min ? (success ? '✔️ Coverage Passed' : '❌ Coverage Failed') : '📝 Coverage';
-  const info = `**${lineCoverage}%**${min ? ` (threshold - ${min}%)` : ''}`;
-  const details = `📏 **${linesCovered} / ${linesTotal}** lines covered`;
+  const title = `${min ? getStatusIcon(success) : '📝'} Coverage`;
+  const info = `**${lineCoverage}%**`;
+  const status = min ? `- ${getStatusText(success)} with ${min}% threshold` : '';
 
-  return `${status} ${info}\n${details}\n`;
+  const lines = `📏 **${linesCovered} / ${linesTotal}** lines covered`;
+  const branches = `🌿 **${branchesCovered} / ${branchesTotal}** branches covered`;
+
+  return `${title} ${info} ${status}\n${lines}\n${branches}\n`;
 };
 
 const formatElapsedTime = (elapsed: number): string => {
@@ -38,3 +41,7 @@ const formatElapsedTime = (elapsed: number): string => {
     return `${elapsed}ms`;
   }
 };
+
+const getStatusIcon = (success: boolean) => (success ? '✔️' : '❌');
+
+const getStatusText = (success: boolean) => (success ? '**passed**' : '**failed**');

@@ -186,7 +186,6 @@ exports.setResultsOutputs = setResultsOutputs;
 const setCoverageOutputs = (coverage) => {
     core.setOutput('coverage-line', coverage.lineCoverage);
     core.setOutput('coverage-branch', coverage.branchCoverage);
-    core.setOutput('coverage-method', coverage.methodCoverage);
 };
 exports.setCoverageOutputs = setCoverageOutputs;
 const setActionFailed = (message) => {
@@ -375,18 +374,20 @@ const formatFooter = (commit) => `<br/>_✏️ updated for commit ${commit.subst
 exports.formatFooter = formatFooter;
 const formatTestResults = (results) => {
     const { total, passed, skipped, success } = results;
-    const status = success ? '✔️ Tests Passed' : '❌ Tests Failed';
+    const title = `${getStatusIcon(success)} Tests`;
     const info = `**${passed} / ${total}**${skipped ? ` (${skipped} skipped)` : ''}`;
-    const time = `in ⏱️ ${formatElapsedTime(results.elapsed)}`;
-    return `${status} ${info} ${time}\n`;
+    const status = `- ${getStatusText(success)} in ${formatElapsedTime(results.elapsed)}`;
+    return `${title} ${info} ${status}\n`;
 };
 exports.formatTestResults = formatTestResults;
 const formatTestCoverage = (coverage, min) => {
-    const { linesCovered, linesTotal, lineCoverage, success } = coverage;
-    const status = min ? (success ? '✔️ Coverage Passed' : '❌ Coverage Failed') : '📝 Coverage';
-    const info = `**${lineCoverage}%**${min ? ` (threshold - ${min}%)` : ''}`;
-    const details = `📏 **${linesCovered} / ${linesTotal}** lines covered`;
-    return `${status} ${info}\n${details}\n`;
+    const { linesCovered, linesTotal, lineCoverage, branchesTotal, branchesCovered, success } = coverage;
+    const title = `${min ? getStatusIcon(success) : '📝'} Coverage`;
+    const info = `**${lineCoverage}%**`;
+    const status = min ? `- ${getStatusText(success)} with ${min}% threshold` : '';
+    const lines = `📏 **${linesCovered} / ${linesTotal}** lines covered`;
+    const branches = `🌿 **${branchesCovered} / ${branchesTotal}** branches covered`;
+    return `${title} ${info} ${status}\n${lines}\n${branches}\n`;
 };
 exports.formatTestCoverage = formatTestCoverage;
 const formatElapsedTime = (elapsed) => {
@@ -402,6 +403,8 @@ const formatElapsedTime = (elapsed) => {
         return `${elapsed}ms`;
     }
 };
+const getStatusIcon = (success) => (success ? '✔️' : '❌');
+const getStatusText = (success) => (success ? '**passed**' : '**failed**');
 
 
 /***/ }),
@@ -441,10 +444,9 @@ const parseTestCoverage = (filePath, min) => __awaiter(void 0, void 0, void 0, f
     if (!file) {
         return null;
     }
-    const { linesTotal, linesCovered, methodsTotal, methodsCovered, lineCoverage, branchCoverage } = parseCoverageSummary(file);
-    const methodCoverage = Math.floor((methodsCovered / methodsTotal) * 10000) / 100;
-    const success = !min || lineCoverage >= min;
-    return { success, linesTotal, linesCovered, lineCoverage, branchCoverage, methodCoverage };
+    const summary = parseCoverageSummary(file);
+    const success = !min || summary.lineCoverage >= min;
+    return Object.assign({ success }, summary);
 });
 exports.parseTestCoverage = parseTestCoverage;
 const parseElapsedTime = (file) => {
@@ -471,11 +473,11 @@ const parseCoverageSummary = (file) => {
     const data = parseNodeData(summary);
     const linesTotal = data.numSequencePoints;
     const linesCovered = data.visitedSequencePoints;
-    const methodsTotal = data.numMethods;
-    const methodsCovered = data.visitedMethods;
     const lineCoverage = data.sequenceCoverage;
+    const branchesTotal = data.numBranchPoints;
+    const branchesCovered = data.visitedBranchPoints;
     const branchCoverage = data.branchCoverage;
-    return { linesTotal, linesCovered, methodsTotal, methodsCovered, lineCoverage, branchCoverage };
+    return { linesTotal, linesCovered, lineCoverage, branchesTotal, branchesCovered, branchCoverage };
 };
 const parseNodeData = (node) => node['$'];
 
