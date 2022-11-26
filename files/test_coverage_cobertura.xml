@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <coverage line-rate="0.46" branch-rate="0.2777" version="1.9" timestamp="1657884873" lines-covered="121" lines-valid="263" branches-covered="5" branches-valid="18">
   <sources>
-    <source>C:\Users\mstep2.SOFTSERVE\source\repos\eShopOnWeb\src\ApplicationCore\</source>
+    <source>C:\Users\testuser\source\repos\eShopOnWeb\src\ApplicationCore\</source>
   </sources>
   <packages>
     <package name="ApplicationCore" line-rate="0.46" branch-rate="0.2777" complexity="100">
