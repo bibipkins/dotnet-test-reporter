@@ -174,6 +174,18 @@ const inputs = {
     coveragePath: 'coverage-path',
     coverageThreshold: 'coverage-threshold'
 };
+const outputs = {
+    total: 'tests-total',
+    passed: 'tests-passed',
+    failed: 'tests-failed',
+    skipped: 'tests-skipped',
+    lineCoverage: 'coverage-line',
+    linesTotal: 'coverage-lines-total',
+    linesCovered: 'coverage-lines-covered',
+    branchCoverage: 'coverage-branch',
+    branchesTotal: 'coverage-branches-total',
+    branchesCovered: 'coverage-branches-covered'
+};
 const getActionInputs = () => {
     const token = core.getInput(inputs.token) || process.env['GITHUB_TOKEN'] || '';
     const title = core.getInput(inputs.title);
@@ -185,15 +197,19 @@ const getActionInputs = () => {
 };
 exports.getActionInputs = getActionInputs;
 const setResultsOutputs = (results) => {
-    core.setOutput('tests-total', results.total);
-    core.setOutput('tests-passed', results.passed);
-    core.setOutput('tests-failed', results.failed);
-    core.setOutput('tests-skipped', results.skipped);
+    core.setOutput(outputs.total, results.total);
+    core.setOutput(outputs.passed, results.passed);
+    core.setOutput(outputs.failed, results.failed);
+    core.setOutput(outputs.skipped, results.skipped);
 };
 exports.setResultsOutputs = setResultsOutputs;
 const setCoverageOutputs = (coverage) => {
-    core.setOutput('coverage-line', coverage.lineCoverage);
-    core.setOutput('coverage-branch', coverage.branchCoverage);
+    core.setOutput(outputs.lineCoverage, coverage.lineCoverage);
+    core.setOutput(outputs.linesTotal, coverage.linesTotal);
+    core.setOutput(outputs.linesCovered, coverage.linesCovered);
+    core.setOutput(outputs.branchCoverage, coverage.branchCoverage);
+    core.setOutput(outputs.branchesTotal, coverage.branchesTotal);
+    core.setOutput(outputs.branchesCovered, coverage.branchesCovered);
 };
 exports.setCoverageOutputs = setCoverageOutputs;
 const setActionFailed = (message) => {
