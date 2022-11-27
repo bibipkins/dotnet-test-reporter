@@ -9,10 +9,10 @@ inputs:
     description: 'GitHub repository token'
     required: true
   results-path:
-    description: 'Path to the directory containing test result files'
+    description: 'Path to the directory containing trx files'
     required: true
   coverage-path:
-    description: 'Path to the test coverage file'
+    description: 'Path to the file containing test coverage'
     required: false
   coverage-type:
     description: 'Coverage file type'
@@ -26,8 +26,7 @@ inputs:
     required: false
     default: 'Test Results'
   post-new-comment:
-    description:
-      'Boolean flag. Set to true to post a new comment after each run. Set to false to update an existing comment'
+    description: 'Boolean flag. Set to true to post a new comment after each run'
     required: false
     default: false
 outputs:
@@ -41,8 +40,16 @@ outputs:
     description: 'Number of tests skipped'
   coverage-line:
     description: 'Line code coverage'
+  coverage-lines-total:
+    description: 'Total lines of code'
+  coverage-lines-covered:
+    description: 'Lines of code covered'
   coverage-branch:
     description: 'Branch code coverage'
+  coverage-branches-total:
+    description: 'Total branches'
+  coverage-branches-covered:
+    description: 'Branches covered'
 runs:
   using: 'node16'
   main: 'dist/index.js'
