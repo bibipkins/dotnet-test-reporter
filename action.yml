@@ -24,10 +24,10 @@ inputs:
     description: 'Boolean flag. Set to true to post a new comment after each run'
     required: false
     default: false
-  groups:
+  config:
     description:
-      'An array of test result groups. Each element has "name", "test-results", "test-coverage" and "min-coverage"
-      properties'
+      'JSON string representing an array of test result. Each element has "name", "test-results", "test-coverage" and
+      "min-coverage" properties'
     required: false
 outputs:
   tests-total:
