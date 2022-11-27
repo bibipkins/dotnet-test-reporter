@@ -1,5 +1,6 @@
 import { IResult } from './data';
-import { findFiles, parseTestResults, setActionFailed, setResultOutputs } from './utils';
+import { findFiles, setActionFailed, setResultOutputs } from './utils';
+import TrxParser from './parsers/TrxParser';
 
 export const processTestResults = async (resultsPath: string): Promise<IResult> => {
   const aggregatedResult = getDefaultTestResult();
@@ -23,7 +24,8 @@ export const processTestResults = async (resultsPath: string): Promise<IResult> 
 };
 
 const processResult = async (path: string, aggregatedResult: IResult): Promise<void> => {
-  const result = await parseTestResults(path);
+  const parser = new TrxParser();
+  const result = await parser.parse(path);
 
   if (!result) {
     throw Error(`Failed parsing ${path}`);

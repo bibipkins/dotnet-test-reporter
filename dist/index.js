@@ -20,9 +20,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.processTestCoverage = void 0;
+const utils_1 = __nccwpck_require__(7782);
 const CoberturaParser_1 = __importDefault(__nccwpck_require__(4397));
 const OpencoverParser_1 = __importDefault(__nccwpck_require__(9594));
-const utils_1 = __nccwpck_require__(7782);
 const parsers = {
     opencover: new OpencoverParser_1.default(),
     cobertura: new CoberturaParser_1.default()
@@ -174,7 +174,7 @@ exports["default"] = OpencoverParser;
 
 /***/ }),
 
-/***/ 1530:
+/***/ 8761:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -189,8 +189,68 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+const utils_1 = __nccwpck_require__(7782);
+class TrxParser {
+    constructor() {
+        this.parseSummary = (file) => {
+            const summary = file.TestRun.ResultSummary[0];
+            const data = summary['$'];
+            const counters = summary.Counters[0]['$'];
+            const total = Number(counters.total);
+            const passed = Number(counters.passed);
+            const failed = Number(counters.failed);
+            const executed = Number(counters.executed);
+            return { outcome: data.outcome, total, passed, failed, executed };
+        };
+    }
+    parse(filePath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const file = yield (0, utils_1.readXmlFile)(filePath);
+            if (!file) {
+                return null;
+            }
+            const { start, finish } = this.parseElapsedTime(file);
+            const { outcome, total, passed, failed, executed } = this.parseSummary(file);
+            const elapsed = finish.getTime() - start.getTime();
+            const skipped = total - executed;
+            const success = failed === 0 && outcome === 'Completed';
+            return { success, elapsed, total, passed, failed, skipped };
+        });
+    }
+    parseElapsedTime(file) {
+        var _a;
+        const data = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.Times[0]['$'];
+        const start = new Date(data.start);
+        const finish = new Date(data.finish);
+        return { start, finish };
+    }
+}
+exports["default"] = TrxParser;
+
+
+/***/ }),
+
+/***/ 1530:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.processTestResults = void 0;
 const utils_1 = __nccwpck_require__(7782);
+const TrxParser_1 = __importDefault(__nccwpck_require__(8761));
 const processTestResults = (resultsPath) => __awaiter(void 0, void 0, void 0, function* () {
     const aggregatedResult = getDefaultTestResult();
     const filePaths = (0, utils_1.findFiles)(resultsPath, '.trx');
@@ -208,7 +268,8 @@ const processTestResults = (resultsPath) => __awaiter(void 0, void 0, void 0, fu
 });
 exports.processTestResults = processTestResults;
 const processResult = (path, aggregatedResult) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield (0, utils_1.parseTestResults)(path);
+    const parser = new TrxParser_1.default();
+    const result = yield parser.parse(path);
     if (!result) {
         throw Error(`Failed parsing ${path}`);
     }
@@ -481,7 +542,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(3451), exports);
 __exportStar(__nccwpck_require__(396), exports);
 __exportStar(__nccwpck_require__(120), exports);
-__exportStar(__nccwpck_require__(2780), exports);
 __exportStar(__nccwpck_require__(2216), exports);
 
 
@@ -533,59 +593,6 @@ const formatElapsedTime = (elapsed) => {
 };
 const getStatusIcon = (success) => (success ? '✔️' : '❌');
 const getStatusText = (success) => (success ? '**passed**' : '**failed**');
-
-
-/***/ }),
-
-/***/ 2780:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseTestResults = void 0;
-const files_1 = __nccwpck_require__(396);
-const parseTestResults = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
-    const file = yield (0, files_1.readXmlFile)(filePath);
-    if (!file) {
-        return null;
-    }
-    const { start, finish } = parseElapsedTime(file);
-    const { outcome, total, passed, failed, executed } = parseResultsSummary(file);
-    const elapsed = finish.getTime() - start.getTime();
-    const skipped = total - executed;
-    const success = failed === 0 && outcome === 'Completed';
-    return { success, elapsed, total, passed, failed, skipped };
-});
-exports.parseTestResults = parseTestResults;
-const parseElapsedTime = (file) => {
-    var _a;
-    const times = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.Times;
-    const data = parseNodeData(times[0]);
-    const start = new Date(data.start);
-    const finish = new Date(data.finish);
-    return { start, finish };
-};
-const parseResultsSummary = (file) => {
-    const summary = file.TestRun.ResultSummary[0];
-    const data = parseNodeData(summary);
-    const counters = parseNodeData(summary.Counters[0]);
-    const total = Number(counters.total);
-    const passed = Number(counters.passed);
-    const failed = Number(counters.failed);
-    const executed = Number(counters.executed);
-    return { outcome: data.outcome, total, passed, failed, executed };
-};
-const parseNodeData = (node) => node['$'];
 
 
 /***/ }),

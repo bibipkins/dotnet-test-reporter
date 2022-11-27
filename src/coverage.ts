@@ -1,7 +1,7 @@
 import { CoverageType, ICoverage, ICoverageParser } from './data';
+import { setActionFailed, setCoverageOutputs } from './utils';
 import CoberturaParser from './parsers/CoberturaParser';
 import OpencoverParser from './parsers/OpencoverParser';
-import { setActionFailed, setCoverageOutputs } from './utils';
 
 const parsers: { [K in CoverageType]: ICoverageParser } = {
   opencover: new OpencoverParser(),

@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Test Simple
+      - name: Test OpenCover
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -31,7 +31,7 @@ jobs:
           results-path: ./files/
           coverage-path: ./files/test_coverage_opencover.xml
           coverage-threshold: 46
-      - name: Test With Configs
+      - name: Test Cobertura
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
