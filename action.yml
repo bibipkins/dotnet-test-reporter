@@ -12,8 +12,12 @@ inputs:
     description: 'Path to the directory containing test result files'
     required: true
   coverage-path:
-    description: 'Path to the file containing test coverage file'
+    description: 'Path to the test coverage file'
     required: false
+  coverage-type:
+    description: 'Coverage file type'
+    required: false
+    default: 'opencover'
   coverage-threshold:
     description: 'Minimum allowed coverage (from 0.00 to 100.00)'
     required: false

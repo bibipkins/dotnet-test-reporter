@@ -1,7 +1,7 @@
-import { ITestResult } from './data';
-import { findFiles, parseTestResults, setActionFailed, setResultsOutputs } from './utils';
+import { IResult } from './data';
+import { findFiles, parseTestResults, setActionFailed, setResultOutputs } from './utils';
 
-export const processTestResults = async (resultsPath: string): Promise<ITestResult> => {
+export const processTestResults = async (resultsPath: string): Promise<IResult> => {
   const aggregatedResult = getDefaultTestResult();
   const filePaths = findFiles(resultsPath, '.trx');
 
@@ -13,7 +13,7 @@ export const processTestResults = async (resultsPath: string): Promise<ITestResu
     await processResult(path, aggregatedResult);
   }
 
-  setResultsOutputs(aggregatedResult);
+  setResultOutputs(aggregatedResult);
 
   if (!aggregatedResult.success) {
     setActionFailed('Tests Failed');
@@ -22,7 +22,7 @@ export const processTestResults = async (resultsPath: string): Promise<ITestResu
   return aggregatedResult;
 };
 
-const processResult = async (path: string, aggregatedResult: ITestResult): Promise<void> => {
+const processResult = async (path: string, aggregatedResult: IResult): Promise<void> => {
   const result = await parseTestResults(path);
 
   if (!result) {
@@ -33,7 +33,7 @@ const processResult = async (path: string, aggregatedResult: ITestResult): Promi
   mergeTestResults(aggregatedResult, result);
 };
 
-const mergeTestResults = (result1: ITestResult, result2: ITestResult): void => {
+const mergeTestResults = (result1: IResult, result2: IResult): void => {
   result1.success = result1.success && result2.success;
   result1.elapsed += result2.elapsed;
   result1.total += result2.total;
@@ -42,7 +42,7 @@ const mergeTestResults = (result1: ITestResult, result2: ITestResult): void => {
   result1.skipped += result2.skipped;
 };
 
-const getDefaultTestResult = (): ITestResult => ({
+const getDefaultTestResult = (): IResult => ({
   success: true,
   elapsed: 0,
   total: 0,

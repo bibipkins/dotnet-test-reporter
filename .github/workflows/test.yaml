@@ -27,7 +27,7 @@ jobs:
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-title: Test Simple
+          comment-title: Test OpenCover
           results-path: ./files/
           coverage-path: ./files/test_coverage_opencover.xml
           coverage-threshold: 46
@@ -35,7 +35,8 @@ jobs:
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-title: Test With Configs
+          comment-title: Test Cobertura
           results-path: ./files/
-          coverage-path: ./files/test_coverage_opencover.xml
+          coverage-path: ./files/test_coverage_cobertura.xml
+          coverage-type: cobertura
           coverage-threshold: 46

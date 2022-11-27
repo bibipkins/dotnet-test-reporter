@@ -1,4 +1,4 @@
-import { ITestCoverage, ITestResult } from '../data';
+import { ICoverage, IResult } from '../data';
 
 export const formatHeader = (header: string): string => `## ${header}\n`;
 
@@ -6,17 +6,17 @@ export const formatSubHeader = (header: string): string => `### ${header}\n`;
 
 export const formatFooter = (commit: string) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 
-export const formatTestResults = (results: ITestResult): string => {
-  const { total, passed, skipped, success } = results;
+export const formatTestResult = (result: IResult): string => {
+  const { total, passed, skipped, success } = result;
 
   const title = `${getStatusIcon(success)} Tests`;
   const info = `**${passed} / ${total}**${skipped ? ` (${skipped} skipped)` : ''}`;
-  const status = `- ${getStatusText(success)} in ${formatElapsedTime(results.elapsed)}`;
+  const status = `- ${getStatusText(success)} in ${formatElapsedTime(result.elapsed)}`;
 
   return `${title} ${info} ${status}\n`;
 };
 
-export const formatTestCoverage = (coverage: ITestCoverage, min: number): string => {
+export const formatTestCoverage = (coverage: ICoverage, min: number): string => {
   const { linesCovered, linesTotal, lineCoverage, branchesTotal, branchesCovered, success } = coverage;
 
   const title = `${min ? getStatusIcon(success) : '📝'} Coverage`;

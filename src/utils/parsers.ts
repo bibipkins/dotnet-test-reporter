@@ -1,8 +1,8 @@
-import { readFile } from './files';
-import { ITestCoverage, ITestResult } from '../data';
+import { readXmlFile } from './files';
+import { IResult } from '../data';
 
-export const parseTestResults = async (filePath: string): Promise<ITestResult | null> => {
-  const file = await readFile(filePath);
+export const parseTestResults = async (filePath: string): Promise<IResult | null> => {
+  const file = await readXmlFile(filePath);
 
   if (!file) {
     return null;
@@ -16,19 +16,6 @@ export const parseTestResults = async (filePath: string): Promise<ITestResult | 
   const success = failed === 0 && outcome === 'Completed';
 
   return { success, elapsed, total, passed, failed, skipped };
-};
-
-export const parseTestCoverage = async (filePath: string, min: number): Promise<ITestCoverage | null> => {
-  const file = await readFile(filePath);
-
-  if (!file) {
-    return null;
-  }
-
-  const summary = parseCoverageSummary(file);
-  const success = !min || summary.lineCoverage >= min;
-
-  return { success, ...summary };
 };
 
 const parseElapsedTime = (file: any) => {
@@ -52,21 +39,6 @@ const parseResultsSummary = (file: any) => {
   const executed = Number(counters.executed);
 
   return { outcome: data.outcome, total, passed, failed, executed };
-};
-
-const parseCoverageSummary = (file: any) => {
-  const summary = file.CoverageSession?.Summary[0];
-  const data = parseNodeData(summary);
-
-  const linesTotal = data.numSequencePoints;
-  const linesCovered = data.visitedSequencePoints;
-  const lineCoverage = data.sequenceCoverage;
-
-  const branchesTotal = data.numBranchPoints;
-  const branchesCovered = data.visitedBranchPoints;
-  const branchCoverage = data.branchCoverage;
-
-  return { linesTotal, linesCovered, lineCoverage, branchesTotal, branchesCovered, branchCoverage };
 };
 
 const parseNodeData = (node: any) => node['$'];

@@ -1,16 +1,17 @@
 import { processTestResults } from './results';
 import { processTestCoverage } from './coverage';
-import { getActionInputs, formatTestResults, formatTestCoverage, publishComment, setActionFailed } from './utils';
+import { getActionInputs, formatTestResult, formatTestCoverage, publishComment, setActionFailed } from './utils';
 
 const run = async (): Promise<void> => {
   try {
-    const { token, title, resultsPath, coveragePath, coverageThreshold, postNewComment } = getActionInputs();
+    const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment } =
+      getActionInputs();
 
     const testResults = await processTestResults(resultsPath);
-    let body = formatTestResults(testResults);
+    let body = formatTestResult(testResults);
 
     if (coveragePath) {
-      const testCoverage = await processTestCoverage(coveragePath, coverageThreshold);
+      const testCoverage = await processTestCoverage(coveragePath, coverageType, coverageThreshold);
       body += testCoverage ? formatTestCoverage(testCoverage, coverageThreshold) : '';
     }
 
