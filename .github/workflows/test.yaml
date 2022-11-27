@@ -27,7 +27,7 @@ jobs:
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          title: Test Simple
+          comment-title: Test Simple
           test-results: ./files/
           test-coverage: ./files/test_coverage_opencover.xml
           min-coverage: 46
@@ -35,7 +35,7 @@ jobs:
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          title: Test With Configs
+          comment-title: Test With Configs
           test-results: ./files/
           test-coverage: ./files/test_coverage_opencover.xml
           min-coverage: 46
