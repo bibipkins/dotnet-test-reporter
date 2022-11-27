@@ -4,7 +4,7 @@ A GitHub action to parse test results and post the summary as a PR comment.
 <br/>Optionally test coverage can be provided (a single opencover `.xml` file) as well as a minimum coverage percentage.
 If a minimum coverage is provided and the coverage is not sufficient the action will fail.
 #### Comment example
-![image](https://user-images.githubusercontent.com/16402446/204161831-5dcc2dd3-cb1c-448c-b175-16e9f4f43319.png)
+![image](https://user-images.githubusercontent.com/16402446/204162082-2ac245f5-5797-432e-8f88-1252de3aaa16.png)
 
 ## Inputs
 
