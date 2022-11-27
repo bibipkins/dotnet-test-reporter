@@ -4,14 +4,16 @@ import { getActionInputs, formatTestResults, formatTestCoverage, publishComment,
 
 const run = async (): Promise<void> => {
   try {
-    const { token, title, resultsPath, coveragePath, minCoverage, postNewComment } = getActionInputs();
+    const { token, title, resultsPath, coveragePath, coverageThreshold, postNewComment, configs } = getActionInputs();
+
+    console.log(configs);
 
     const testResults = await processTestResults(resultsPath);
     let body = formatTestResults(testResults);
 
     if (coveragePath) {
-      const testCoverage = await processTestCoverage(coveragePath, minCoverage);
-      body += testCoverage ? formatTestCoverage(testCoverage, minCoverage) : '';
+      const testCoverage = await processTestCoverage(coveragePath, coverageThreshold);
+      body += testCoverage ? formatTestCoverage(testCoverage, coverageThreshold) : '';
     }
 
     await publishComment(token, title, body, postNewComment);

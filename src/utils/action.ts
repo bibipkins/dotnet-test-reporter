@@ -3,17 +3,17 @@ import { IActionInputs, ITestCoverage, ITestResult } from '../data';
 
 export const getActionInputs = (): IActionInputs => {
   const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
+  const postNewComment = core.getBooleanInput('post-new-comment');
+
   const title = core.getInput('comment-title') || 'Test Results';
   const resultsPath = core.getInput('test-results');
   const coveragePath = core.getInput('test-coverage');
-  const minCoverage = Number(core.getInput('min-coverage'));
-  const postNewComment = core.getBooleanInput('post-new-comment');
+  const coverageThreshold = Number(core.getInput('min-coverage'));
 
-  const configJson = core.getInput('config');
-  const config = JSON.parse(configJson);
-  console.log(config);
+  const configsJson = core.getInput('test-configs');
+  const configs = JSON.parse(configsJson);
 
-  return { token, title, resultsPath, coveragePath, minCoverage, postNewComment };
+  return { token, title, resultsPath, coveragePath, coverageThreshold, postNewComment, configs };
 };
 
 export const setResultsOutputs = (results: ITestResult): void => {

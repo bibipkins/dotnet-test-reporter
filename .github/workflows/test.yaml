@@ -30,14 +30,14 @@ jobs:
           test-results: ./files/
           test-coverage: ./files/test_coverage_opencover.xml
           min-coverage: 46
-          config: '[{
-            "name": "OpenCover",
-            "test-results": "./files/",
-            "test-coverage": "./files/test_coverage_opencover.xml",
-            "min-coverage": 46
+          test-configs: '[{
+            "title": "OpenCover",
+            "resultsPath": "./files/",
+            "coveragePath": "./files/test_coverage_opencover.xml",
+            "coverageThreshold": 46
           }, {
-            "name": "OpenCover",
-            "test-results": "./files/",
-            "test-coverage": "./files/test_coverage_opencover.xml",
-            "min-coverage": 46
+            "title": "OpenCover",
+            "resultsPath": "./files/",
+            "coveragePath": "./files/test_coverage_opencover.xml",
+            "coverageThreshold": 46
           }]'

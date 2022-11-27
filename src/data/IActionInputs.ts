@@ -1,8 +1,7 @@
-export default interface IActionInputs {
+import ITestConfig from './ITestConfig';
+
+export default interface IActionInputs extends ITestConfig {
   token: string;
-  title: string;
-  resultsPath: string;
-  coveragePath: string;
-  minCoverage: number;
   postNewComment: boolean;
+  configs: ITestConfig[];
 }
