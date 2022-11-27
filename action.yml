@@ -24,7 +24,7 @@ inputs:
     description: 'Boolean flag. Set to true to post a new comment after each run'
     required: false
     default: false
-  config:
+  test-configs:
     description:
       'JSON string representing an array of test result. Each element has "name", "test-results", "test-coverage" and
       "min-coverage" properties'

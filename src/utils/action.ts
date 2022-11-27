@@ -11,7 +11,7 @@ export const getActionInputs = (): IActionInputs => {
   const coverageThreshold = Number(core.getInput('min-coverage'));
 
   const configsJson = core.getInput('test-configs');
-  const configs = JSON.parse(configsJson);
+  const configs = configsJson ? JSON.parse(configsJson) : [];
 
   return { token, title, resultsPath, coveragePath, coverageThreshold, postNewComment, configs };
 };
