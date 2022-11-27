@@ -1,19 +1,24 @@
 import * as core from '@actions/core';
 import { IActionInputs, ITestCoverage, ITestResult } from '../data';
 
+const inputs = {
+  token: 'github-token',
+  title: 'comment-title',
+  postNewComment: 'post-new-comment',
+  resultsPath: 'results-path',
+  coveragePath: 'coverage-path',
+  coverageThreshold: 'coverage-threshold'
+};
+
 export const getActionInputs = (): IActionInputs => {
-  const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
-  const postNewComment = core.getBooleanInput('post-new-comment');
+  const token = core.getInput(inputs.token) || process.env['GITHUB_TOKEN'] || '';
+  const title = core.getInput(inputs.title);
+  const postNewComment = core.getBooleanInput(inputs.postNewComment);
+  const resultsPath = core.getInput(inputs.resultsPath);
+  const coveragePath = core.getInput(inputs.coveragePath);
+  const coverageThreshold = Number(core.getInput(inputs.coverageThreshold));
 
-  const title = core.getInput('comment-title') || 'Test Results';
-  const resultsPath = core.getInput('test-results');
-  const coveragePath = core.getInput('test-coverage');
-  const coverageThreshold = Number(core.getInput('min-coverage'));
-
-  const configsJson = core.getInput('test-configs');
-  const configs = configsJson ? JSON.parse(configsJson) : [];
-
-  return { token, title, resultsPath, coveragePath, coverageThreshold, postNewComment, configs };
+  return { token, title, resultsPath, coveragePath, coverageThreshold, postNewComment };
 };
 
 export const setResultsOutputs = (results: ITestResult): void => {

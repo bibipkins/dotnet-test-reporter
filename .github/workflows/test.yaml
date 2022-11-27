@@ -28,25 +28,14 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-title: Test Simple
-          test-results: ./files/
-          test-coverage: ./files/test_coverage_opencover.xml
-          min-coverage: 46
+          results-path: ./files/
+          coverage-path: ./files/test_coverage_opencover.xml
+          coverage-threshold: 46
       - name: Test With Configs
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-title: Test With Configs
-          test-results: ./files/
-          test-coverage: ./files/test_coverage_opencover.xml
-          min-coverage: 46
-          test-configs: '[{
-            "title": "OpenCover",
-            "resultsPath": "./files/",
-            "coveragePath": "./files/test_coverage_opencover.xml",
-            "coverageThreshold": 46
-          }, {
-            "title": "OpenCover",
-            "resultsPath": "./files/",
-            "coveragePath": "./files/test_coverage_opencover.xml",
-            "coverageThreshold": 46
-          }]'
+          results-path: ./files/
+          coverage-path: ./files/test_coverage_opencover.xml
+          coverage-threshold: 46

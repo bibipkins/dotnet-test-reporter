@@ -56,8 +56,7 @@ const coverage_1 = __nccwpck_require__(3725);
 const utils_1 = __nccwpck_require__(7782);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, coverageThreshold, postNewComment, configs } = (0, utils_1.getActionInputs)();
-        console.log(configs);
+        const { token, title, resultsPath, coveragePath, coverageThreshold, postNewComment } = (0, utils_1.getActionInputs)();
         const testResults = yield (0, results_1.processTestResults)(resultsPath);
         let body = (0, utils_1.formatTestResults)(testResults);
         if (coveragePath) {
@@ -167,16 +166,22 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setActionFailed = exports.setCoverageOutputs = exports.setResultsOutputs = exports.getActionInputs = void 0;
 const core = __importStar(__nccwpck_require__(2186));
+const inputs = {
+    token: 'github-token',
+    title: 'comment-title',
+    postNewComment: 'post-new-comment',
+    resultsPath: 'results-path',
+    coveragePath: 'coverage-path',
+    coverageThreshold: 'coverage-threshold'
+};
 const getActionInputs = () => {
-    const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
-    const postNewComment = core.getBooleanInput('post-new-comment');
-    const title = core.getInput('comment-title') || 'Test Results';
-    const resultsPath = core.getInput('test-results');
-    const coveragePath = core.getInput('test-coverage');
-    const coverageThreshold = Number(core.getInput('min-coverage'));
-    const configsJson = core.getInput('test-configs');
-    const configs = configsJson ? JSON.parse(configsJson) : [];
-    return { token, title, resultsPath, coveragePath, coverageThreshold, postNewComment, configs };
+    const token = core.getInput(inputs.token) || process.env['GITHUB_TOKEN'] || '';
+    const title = core.getInput(inputs.title);
+    const postNewComment = core.getBooleanInput(inputs.postNewComment);
+    const resultsPath = core.getInput(inputs.resultsPath);
+    const coveragePath = core.getInput(inputs.coveragePath);
+    const coverageThreshold = Number(core.getInput(inputs.coverageThreshold));
+    return { token, title, resultsPath, coveragePath, coverageThreshold, postNewComment };
 };
 exports.getActionInputs = getActionInputs;
 const setResultsOutputs = (results) => {

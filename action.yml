@@ -8,27 +8,24 @@ inputs:
   github-token:
     description: 'GitHub repository token'
     required: true
-  test-results:
-    description: 'Path to the directory containing trx files'
+  results-path:
+    description: 'Path to the directory containing test result files'
     required: true
-  test-coverage:
-    description: 'Path to the file containing test coverage'
+  coverage-path:
+    description: 'Path to the file containing test coverage file'
     required: false
-  min-coverage:
+  coverage-threshold:
     description: 'Minimum allowed coverage (from 0.00 to 100.00)'
     required: false
   comment-title:
     description: 'Pull Request comment title'
     required: false
+    default: 'Test Results'
   post-new-comment:
-    description: 'Boolean flag. Set to true to post a new comment after each run'
+    description:
+      'Boolean flag. Set to true to post a new comment after each run. Set to false to update an existing comment'
     required: false
     default: false
-  test-configs:
-    description:
-      'JSON string representing an array of test result. Each element has "name", "test-results", "test-coverage" and
-      "min-coverage" properties'
-    required: false
 outputs:
   tests-total:
     description: 'Total number of tests'

@@ -4,9 +4,7 @@ import { getActionInputs, formatTestResults, formatTestCoverage, publishComment,
 
 const run = async (): Promise<void> => {
   try {
-    const { token, title, resultsPath, coveragePath, coverageThreshold, postNewComment, configs } = getActionInputs();
-
-    console.log(configs);
+    const { token, title, resultsPath, coveragePath, coverageThreshold, postNewComment } = getActionInputs();
 
     const testResults = await processTestResults(resultsPath);
     let body = formatTestResults(testResults);
