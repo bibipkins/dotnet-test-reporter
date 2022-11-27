@@ -1,20 +1,31 @@
-import { ITestCoverage } from './data';
-import { parseTestCoverage, setActionFailed, setCoverageOutputs } from './utils';
+import { CoverageType, ICoverage, ICoverageParser } from './data';
+import { setActionFailed, setCoverageOutputs } from './utils';
+import CoberturaParser from './parsers/CoberturaParser';
+import OpencoverParser from './parsers/OpencoverParser';
 
-export const processTestCoverage = async (coveragePath: string, minCoverage: number): Promise<ITestCoverage | null> => {
-  const testCoverage = await parseTestCoverage(coveragePath, minCoverage);
+const parsers: { [K in CoverageType]: ICoverageParser } = {
+  opencover: new OpencoverParser(),
+  cobertura: new CoberturaParser()
+};
 
-  if (!testCoverage) {
+export const processTestCoverage = async (
+  coveragePath: string,
+  coverageType: CoverageType,
+  coverageThreshold: number
+): Promise<ICoverage | null> => {
+  const coverage = await parsers[coverageType].parse(coveragePath, coverageThreshold);
+
+  if (!coverage) {
     console.log(`Failed parsing ${coveragePath}`);
     return null;
   }
 
   console.log(`Processed ${coveragePath}`);
-  setCoverageOutputs(testCoverage);
+  setCoverageOutputs(coverage);
 
-  if (!testCoverage.success) {
+  if (!coverage.success) {
     setActionFailed('Coverage Failed');
   }
 
-  return testCoverage;
+  return coverage;
 };

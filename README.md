@@ -1,31 +1,36 @@
 # Dotnet Test Reporter
 A GitHub action to parse test results and post the summary as a PR comment.
 <br/>The action can process dotnet test results (multiple `.trx` files), if there are any failing tests the action will fail.
-<br/>Optionally test coverage can be provided (a single opencover `.xml` file) as well as a minimum coverage percentage.
+<br/>Optionally test coverage can be provided (a single opencover or cobertura `.xml` file) as well as a minimum coverage percentage.
 If a minimum coverage is provided and the coverage is not sufficient the action will fail.
 #### Comment example
-![image](https://user-images.githubusercontent.com/16402446/174501239-c4029cad-c6fc-4158-91ad-892cb4170c69.png)
+![image](https://user-images.githubusercontent.com/16402446/204162082-2ac245f5-5797-432e-8f88-1252de3aaa16.png)
 
 ## Inputs
 
 #### `github-token`
 **Required** - GitHub repository token.
 
-#### `test-results`
+#### `results-path`
 **Required** - Path to the directory containing trx files.
 <br/>Example: `./TestResults/`
 
-#### `test-coverage`
-**Optional** - Path to the file containing test coverage. Coverage file should be an opencover report in xml format.
+#### `coverage-path`
+**Optional** - Path to the file containing test coverage.
 <br/>Example: `./TestResults/coverage.xml`
 
-#### `min-coverage`
+#### `coverage-type`
+**Optional** - Coverage file type. Supported types are `opencover` and `cobertura`.
+<br/>Default: `opencover`
+
+#### `coverage-threshold`
 **Optional** - Minimum allowed coverage. You can provide a coverage percentage ranging from `0.00` to `100.00`.
 <br/>Example: `80.42`
 
 #### `comment-title`
 **Optional** - Pull Request comment title.
 <br/>Example: `My Custom Title`
+<br/>Default: `Test Results`
 
 #### `post-new-comment`
 **Optional** - Boolean flag. 
@@ -50,11 +55,20 @@ Number of tests skipped
 #### `coverage-line`
 Line code coverage
 
+#### `coverage-lines-total`
+Total lines of code
+
+#### `coverage-lines-covered`
+Lines of code covered
+
 #### `coverage-branch`
 Branch code coverage
 
-#### `coverage-method`
-Method code coverage
+#### `coverage-branches-total`
+Total branches
+
+#### `coverage-branches-covered`
+Branches covered
 
 ## Example usage
 

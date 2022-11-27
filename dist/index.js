@@ -15,21 +15,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.processTestCoverage = void 0;
 const utils_1 = __nccwpck_require__(7782);
-const processTestCoverage = (coveragePath, minCoverage) => __awaiter(void 0, void 0, void 0, function* () {
-    const testCoverage = yield (0, utils_1.parseTestCoverage)(coveragePath, minCoverage);
-    if (!testCoverage) {
+const CoberturaParser_1 = __importDefault(__nccwpck_require__(4397));
+const OpencoverParser_1 = __importDefault(__nccwpck_require__(9594));
+const parsers = {
+    opencover: new OpencoverParser_1.default(),
+    cobertura: new CoberturaParser_1.default()
+};
+const processTestCoverage = (coveragePath, coverageType, coverageThreshold) => __awaiter(void 0, void 0, void 0, function* () {
+    const coverage = yield parsers[coverageType].parse(coveragePath, coverageThreshold);
+    if (!coverage) {
         console.log(`Failed parsing ${coveragePath}`);
         return null;
     }
     console.log(`Processed ${coveragePath}`);
-    (0, utils_1.setCoverageOutputs)(testCoverage);
-    if (!testCoverage.success) {
+    (0, utils_1.setCoverageOutputs)(coverage);
+    if (!coverage.success) {
         (0, utils_1.setActionFailed)('Coverage Failed');
     }
-    return testCoverage;
+    return coverage;
 });
 exports.processTestCoverage = processTestCoverage;
 
@@ -56,12 +65,12 @@ const coverage_1 = __nccwpck_require__(3725);
 const utils_1 = __nccwpck_require__(7782);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, minCoverage, postNewComment } = (0, utils_1.getActionInputs)();
+        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment } = (0, utils_1.getActionInputs)();
         const testResults = yield (0, results_1.processTestResults)(resultsPath);
-        let body = (0, utils_1.formatTestResults)(testResults);
+        let body = (0, utils_1.formatTestResult)(testResults);
         if (coveragePath) {
-            const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, minCoverage);
-            body += testCoverage ? (0, utils_1.formatTestCoverage)(testCoverage, minCoverage) : '';
+            const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold);
+            body += testCoverage ? (0, utils_1.formatTestCoverage)(testCoverage, coverageThreshold) : '';
         }
         yield (0, utils_1.publishComment)(token, title, body, postNewComment);
     }
@@ -70,6 +79,153 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 run();
+
+
+/***/ }),
+
+/***/ 4397:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const utils_1 = __nccwpck_require__(7782);
+class CoberturaParser {
+    parse(filePath, threshold) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const file = yield (0, utils_1.readXmlFile)(filePath);
+            if (!file) {
+                return null;
+            }
+            const summary = this.parseSummary(file);
+            const success = !threshold || summary.lineCoverage >= threshold;
+            return Object.assign({ success }, summary);
+        });
+    }
+    parseSummary(file) {
+        const data = file.coverage['$'];
+        return {
+            linesTotal: data['lines-valid'],
+            linesCovered: data['lines-covered'],
+            lineCoverage: Math.round(data['line-rate'] * 10000) / 100,
+            branchesTotal: data['branches-valid'],
+            branchesCovered: data['branches-covered'],
+            branchCoverage: Math.round(data['branch-rate'] * 10000) / 100
+        };
+    }
+}
+exports["default"] = CoberturaParser;
+
+
+/***/ }),
+
+/***/ 9594:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const utils_1 = __nccwpck_require__(7782);
+class OpencoverParser {
+    parse(filePath, threshold) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const file = yield (0, utils_1.readXmlFile)(filePath);
+            if (!file) {
+                return null;
+            }
+            const summary = this.parseSummary(file);
+            const success = !threshold || summary.lineCoverage >= threshold;
+            return Object.assign({ success }, summary);
+        });
+    }
+    parseSummary(file) {
+        var _a;
+        const data = (_a = file.CoverageSession) === null || _a === void 0 ? void 0 : _a.Summary[0]['$'];
+        return {
+            linesTotal: data.numSequencePoints,
+            linesCovered: data.visitedSequencePoints,
+            lineCoverage: data.sequenceCoverage,
+            branchesTotal: data.numBranchPoints,
+            branchesCovered: data.visitedBranchPoints,
+            branchCoverage: data.branchCoverage
+        };
+    }
+}
+exports["default"] = OpencoverParser;
+
+
+/***/ }),
+
+/***/ 8761:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const utils_1 = __nccwpck_require__(7782);
+class TrxParser {
+    constructor() {
+        this.parseSummary = (file) => {
+            const summary = file.TestRun.ResultSummary[0];
+            const data = summary['$'];
+            const counters = summary.Counters[0]['$'];
+            const total = Number(counters.total);
+            const passed = Number(counters.passed);
+            const failed = Number(counters.failed);
+            const executed = Number(counters.executed);
+            return { outcome: data.outcome, total, passed, failed, executed };
+        };
+    }
+    parse(filePath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const file = yield (0, utils_1.readXmlFile)(filePath);
+            if (!file) {
+                return null;
+            }
+            const { start, finish } = this.parseElapsedTime(file);
+            const { outcome, total, passed, failed, executed } = this.parseSummary(file);
+            const elapsed = finish.getTime() - start.getTime();
+            const skipped = total - executed;
+            const success = failed === 0 && outcome === 'Completed';
+            return { success, elapsed, total, passed, failed, skipped };
+        });
+    }
+    parseElapsedTime(file) {
+        var _a;
+        const data = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.Times[0]['$'];
+        const start = new Date(data.start);
+        const finish = new Date(data.finish);
+        return { start, finish };
+    }
+}
+exports["default"] = TrxParser;
 
 
 /***/ }),
@@ -88,9 +244,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.processTestResults = void 0;
 const utils_1 = __nccwpck_require__(7782);
+const TrxParser_1 = __importDefault(__nccwpck_require__(8761));
 const processTestResults = (resultsPath) => __awaiter(void 0, void 0, void 0, function* () {
     const aggregatedResult = getDefaultTestResult();
     const filePaths = (0, utils_1.findFiles)(resultsPath, '.trx');
@@ -100,7 +260,7 @@ const processTestResults = (resultsPath) => __awaiter(void 0, void 0, void 0, fu
     for (const path of filePaths) {
         yield processResult(path, aggregatedResult);
     }
-    (0, utils_1.setResultsOutputs)(aggregatedResult);
+    (0, utils_1.setResultOutputs)(aggregatedResult);
     if (!aggregatedResult.success) {
         (0, utils_1.setActionFailed)('Tests Failed');
     }
@@ -108,7 +268,8 @@ const processTestResults = (resultsPath) => __awaiter(void 0, void 0, void 0, fu
 });
 exports.processTestResults = processTestResults;
 const processResult = (path, aggregatedResult) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield (0, utils_1.parseTestResults)(path);
+    const parser = new TrxParser_1.default();
+    const result = yield parser.parse(path);
     if (!result) {
         throw Error(`Failed parsing ${path}`);
     }
@@ -164,28 +325,56 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.setActionFailed = exports.setCoverageOutputs = exports.setResultsOutputs = exports.getActionInputs = void 0;
+exports.setActionFailed = exports.setCoverageOutputs = exports.setResultOutputs = exports.getActionInputs = void 0;
 const core = __importStar(__nccwpck_require__(2186));
+const inputs = {
+    token: 'github-token',
+    title: 'comment-title',
+    postNewComment: 'post-new-comment',
+    resultsPath: 'results-path',
+    coveragePath: 'coverage-path',
+    coverageType: 'coverage-type',
+    coverageThreshold: 'coverage-threshold'
+};
+const outputs = {
+    total: 'tests-total',
+    passed: 'tests-passed',
+    failed: 'tests-failed',
+    skipped: 'tests-skipped',
+    lineCoverage: 'coverage-line',
+    linesTotal: 'coverage-lines-total',
+    linesCovered: 'coverage-lines-covered',
+    branchCoverage: 'coverage-branch',
+    branchesTotal: 'coverage-branches-total',
+    branchesCovered: 'coverage-branches-covered'
+};
 const getActionInputs = () => {
-    const token = core.getInput('github-token') || process.env['GITHUB_TOKEN'] || '';
-    const title = core.getInput('comment-title') || 'Test Results';
-    const resultsPath = core.getInput('test-results');
-    const coveragePath = core.getInput('test-coverage');
-    const minCoverage = Number(core.getInput('min-coverage'));
-    const postNewComment = core.getBooleanInput('post-new-comment');
-    return { token, title, resultsPath, coveragePath, minCoverage, postNewComment };
+    const token = core.getInput(inputs.token) || process.env['GITHUB_TOKEN'] || '';
+    return {
+        token,
+        title: core.getInput(inputs.title),
+        postNewComment: core.getBooleanInput(inputs.postNewComment),
+        resultsPath: core.getInput(inputs.resultsPath),
+        coveragePath: core.getInput(inputs.coveragePath),
+        coverageType: core.getInput(inputs.coverageType),
+        coverageThreshold: Number(core.getInput(inputs.coverageThreshold))
+    };
 };
 exports.getActionInputs = getActionInputs;
-const setResultsOutputs = (results) => {
-    core.setOutput('tests-total', results.total);
-    core.setOutput('tests-passed', results.passed);
-    core.setOutput('tests-failed', results.failed);
-    core.setOutput('tests-skipped', results.skipped);
+const setResultOutputs = (results) => {
+    core.setOutput(outputs.total, results.total);
+    core.setOutput(outputs.passed, results.passed);
+    core.setOutput(outputs.failed, results.failed);
+    core.setOutput(outputs.skipped, results.skipped);
 };
-exports.setResultsOutputs = setResultsOutputs;
+exports.setResultOutputs = setResultOutputs;
 const setCoverageOutputs = (coverage) => {
-    core.setOutput('coverage-line', coverage.lineCoverage);
-    core.setOutput('coverage-branch', coverage.branchCoverage);
+    core.setOutput(outputs.lineCoverage, coverage.lineCoverage);
+    core.setOutput(outputs.linesTotal, coverage.linesTotal);
+    core.setOutput(outputs.linesCovered, coverage.linesCovered);
+    core.setOutput(outputs.branchCoverage, coverage.branchCoverage);
+    core.setOutput(outputs.branchesTotal, coverage.branchesTotal);
+    core.setOutput(outputs.branchesCovered, coverage.branchesCovered);
 };
 exports.setCoverageOutputs = setCoverageOutputs;
 const setActionFailed = (message) => {
@@ -294,11 +483,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.findFiles = exports.readFile = void 0;
+exports.findFiles = exports.readXmlFile = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const path_1 = __importDefault(__nccwpck_require__(1017));
 const xml2js_1 = __importDefault(__nccwpck_require__(6189));
-const readFile = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
+const readXmlFile = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (!fs_1.default.existsSync(filePath)) {
             return null;
@@ -311,7 +500,7 @@ const readFile = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
         return null;
     }
 });
-exports.readFile = readFile;
+exports.readXmlFile = readXmlFile;
 const findFiles = (directoryPath, extension) => {
     try {
         if (!fs_1.default.existsSync(directoryPath)) {
@@ -353,7 +542,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(3451), exports);
 __exportStar(__nccwpck_require__(396), exports);
 __exportStar(__nccwpck_require__(120), exports);
-__exportStar(__nccwpck_require__(2780), exports);
 __exportStar(__nccwpck_require__(2216), exports);
 
 
@@ -365,21 +553,21 @@ __exportStar(__nccwpck_require__(2216), exports);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatTestCoverage = exports.formatTestResults = exports.formatFooter = exports.formatSubHeader = exports.formatHeader = void 0;
+exports.formatTestCoverage = exports.formatTestResult = exports.formatFooter = exports.formatSubHeader = exports.formatHeader = void 0;
 const formatHeader = (header) => `## ${header}\n`;
 exports.formatHeader = formatHeader;
 const formatSubHeader = (header) => `### ${header}\n`;
 exports.formatSubHeader = formatSubHeader;
 const formatFooter = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 exports.formatFooter = formatFooter;
-const formatTestResults = (results) => {
-    const { total, passed, skipped, success } = results;
+const formatTestResult = (result) => {
+    const { total, passed, skipped, success } = result;
     const title = `${getStatusIcon(success)} Tests`;
     const info = `**${passed} / ${total}**${skipped ? ` (${skipped} skipped)` : ''}`;
-    const status = `- ${getStatusText(success)} in ${formatElapsedTime(results.elapsed)}`;
+    const status = `- ${getStatusText(success)} in ${formatElapsedTime(result.elapsed)}`;
     return `${title} ${info} ${status}\n`;
 };
-exports.formatTestResults = formatTestResults;
+exports.formatTestResult = formatTestResult;
 const formatTestCoverage = (coverage, min) => {
     const { linesCovered, linesTotal, lineCoverage, branchesTotal, branchesCovered, success } = coverage;
     const title = `${min ? getStatusIcon(success) : '📝'} Coverage`;
@@ -405,81 +593,6 @@ const formatElapsedTime = (elapsed) => {
 };
 const getStatusIcon = (success) => (success ? '✔️' : '❌');
 const getStatusText = (success) => (success ? '**passed**' : '**failed**');
-
-
-/***/ }),
-
-/***/ 2780:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseTestCoverage = exports.parseTestResults = void 0;
-const files_1 = __nccwpck_require__(396);
-const parseTestResults = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
-    const file = yield (0, files_1.readFile)(filePath);
-    if (!file) {
-        return null;
-    }
-    const { start, finish } = parseElapsedTime(file);
-    const { outcome, total, passed, failed, executed } = parseResultsSummary(file);
-    const elapsed = finish.getTime() - start.getTime();
-    const skipped = total - executed;
-    const success = failed === 0 && outcome === 'Completed';
-    return { success, elapsed, total, passed, failed, skipped };
-});
-exports.parseTestResults = parseTestResults;
-const parseTestCoverage = (filePath, min) => __awaiter(void 0, void 0, void 0, function* () {
-    const file = yield (0, files_1.readFile)(filePath);
-    if (!file) {
-        return null;
-    }
-    const summary = parseCoverageSummary(file);
-    const success = !min || summary.lineCoverage >= min;
-    return Object.assign({ success }, summary);
-});
-exports.parseTestCoverage = parseTestCoverage;
-const parseElapsedTime = (file) => {
-    var _a;
-    const times = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.Times;
-    const data = parseNodeData(times[0]);
-    const start = new Date(data.start);
-    const finish = new Date(data.finish);
-    return { start, finish };
-};
-const parseResultsSummary = (file) => {
-    const summary = file.TestRun.ResultSummary[0];
-    const data = parseNodeData(summary);
-    const counters = parseNodeData(summary.Counters[0]);
-    const total = Number(counters.total);
-    const passed = Number(counters.passed);
-    const failed = Number(counters.failed);
-    const executed = Number(counters.executed);
-    return { outcome: data.outcome, total, passed, failed, executed };
-};
-const parseCoverageSummary = (file) => {
-    var _a;
-    const summary = (_a = file.CoverageSession) === null || _a === void 0 ? void 0 : _a.Summary[0];
-    const data = parseNodeData(summary);
-    const linesTotal = data.numSequencePoints;
-    const linesCovered = data.visitedSequencePoints;
-    const lineCoverage = data.sequenceCoverage;
-    const branchesTotal = data.numBranchPoints;
-    const branchesCovered = data.visitedBranchPoints;
-    const branchCoverage = data.branchCoverage;
-    return { linesTotal, linesCovered, lineCoverage, branchesTotal, branchesCovered, branchCoverage };
-};
-const parseNodeData = (node) => node['$'];
 
 
 /***/ }),

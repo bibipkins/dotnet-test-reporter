@@ -1,4 +1,4 @@
-export default interface ITestResult {
+export default interface IResult {
   success: boolean;
   elapsed: number;
   total: number;

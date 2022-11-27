@@ -1,4 +1,4 @@
-export default interface ITestCoverage {
+export default interface ICoverage {
   success: boolean;
   linesTotal: number;
   linesCovered: number;

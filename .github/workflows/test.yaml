@@ -1,4 +1,4 @@
-name: test
+name: Build and Test
 
 on:
   push:
@@ -23,10 +23,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ./
-        id: action_test
+      - name: Test OpenCover
+        uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          test-results: ./files/
-          test-coverage: ./files/test_coverage_opencover.xml
-          min-coverage: 46
+          comment-title: Test OpenCover
+          results-path: ./files/
+          coverage-path: ./files/test_coverage_opencover.xml
+          coverage-threshold: 46
+      - name: Test Cobertura
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Test Cobertura
+          results-path: ./files/
+          coverage-path: ./files/test_coverage_cobertura.xml
+          coverage-type: cobertura
+          coverage-threshold: 46
