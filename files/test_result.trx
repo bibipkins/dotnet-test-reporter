@@ -30,6 +30,7 @@
   </Results>
   <TestDefinitions>
     <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem.RemoveEmptyItems" storage="c:\users\testuser\source\repos\eshoponweb\tests\unittests\bin\debug\netcoreapp2.2\unittests.dll" id="243dd34f-6420-6cf2-f28a-833834b0f4d9">
+      <Description>Remove empty items from basket</Description>
       <Execution id="59e13305-84ff-47e9-b800-3941605d1cad" />
       <TestMethod codeBase="C:\Users\testuser\source\repos\eShopOnWeb\tests\UnitTests\bin\Debug\netcoreapp2.2\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem" name="RemoveEmptyItems" />
     </UnitTest>
