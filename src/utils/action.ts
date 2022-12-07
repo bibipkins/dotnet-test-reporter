@@ -58,17 +58,16 @@ export const setActionFailed = (message: string): void => {
   core.setFailed(message);
 };
 
-export const setSummary = (title: string): void => {
+export const setSummary = (title: string, result: IResult): void => {
   core.summary
     .addHeading(title)
     .addTable([
       [
         { data: 'File', header: true },
+        { data: 'Test', header: true },
         { data: 'Result', header: true }
       ],
-      ['foo.js', 'Pass '],
-      ['bar.js', 'Fail '],
-      ['test.js', 'Pass ']
+      ...result.tests.map(test => [test.className, test.name, test.outcome])
     ])
     .write();
 };

@@ -5,4 +5,9 @@ export default interface IResult {
   passed: number;
   failed: number;
   skipped: number;
+  tests: {
+    name: string;
+    className: string;
+    outcome: string;
+  }[];
 }

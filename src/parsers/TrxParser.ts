@@ -14,25 +14,28 @@ export default class TrxParser implements IResultParser {
     const results = this.parseResults(file);
     const definitions = this.parseDefinitions(file);
 
-    results.forEach(element => {
-      console.log(element);
-    });
-    definitions.forEach(element => {
-      console.log(element);
+    const tests = definitions.map(definition => {
+      const result = results.find(r => r.testId === definition.id);
+
+      return {
+        name: definition.testMethod.name,
+        className: definition.testMethod.className,
+        outcome: result?.outcome || ''
+      };
     });
 
     const elapsed = finish.getTime() - start.getTime();
     const skipped = total - executed;
     const success = failed === 0 && outcome === 'Completed';
 
-    return { success, elapsed, total, passed, failed, skipped };
+    return { success, elapsed, total, passed, failed, skipped, tests };
   }
 
   private parseElapsedTime(file: any) {
-    const data = file.TestRun.Times[0]['$'];
+    const times = file.TestRun.Times[0]['$'];
 
-    const start = new Date(data.start);
-    const finish = new Date(data.finish);
+    const start = new Date(times.start);
+    const finish = new Date(times.finish);
 
     return { start, finish };
   }
@@ -51,9 +54,9 @@ export default class TrxParser implements IResultParser {
   }
 
   private parseResults(file: any) {
-    const results = file.TestRun.Results[0].UnitTestResult;
+    const results = file.TestRun.Results[0].UnitTestResult as any[];
 
-    return results.map(result => ({
+    return results.map((result: any) => ({
       executionId: result['$'].executionId,
       testId: result['$'].testId,
       testName: result['$'].testName,
@@ -69,7 +72,7 @@ export default class TrxParser implements IResultParser {
   }
 
   private parseDefinitions(file: any) {
-    const definitions = file.TestRun.TestDefinitions[0].UnitTest;
+    const definitions = file.TestRun.TestDefinitions[0].UnitTest as any[];
 
     return definitions.map(definition => ({
       id: definition['$'].id,

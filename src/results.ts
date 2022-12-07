@@ -42,6 +42,7 @@ const mergeTestResults = (result1: IResult, result2: IResult): void => {
   result1.passed += result2.passed;
   result1.failed += result2.failed;
   result1.skipped += result2.skipped;
+  result1.tests.push(...result2.tests);
 };
 
 const getDefaultTestResult = (): IResult => ({
@@ -50,5 +51,6 @@ const getDefaultTestResult = (): IResult => ({
   total: 0,
   passed: 0,
   failed: 0,
-  skipped: 0
+  skipped: 0,
+  tests: []
 });
