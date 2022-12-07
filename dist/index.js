@@ -224,10 +224,10 @@ class TrxParser {
         return { outcome: data.outcome, total, passed, failed, executed };
     }
     parseResults(file) {
-        const results = file.TestRun.Results;
-        console.log('1', results.length);
-        console.log('2', results);
-        console.log('3', results[0]);
+        const results = file.TestRun.Results[0].UnitTestResult;
+        for (const result of results) {
+            console.log(result['$']);
+        }
     }
 }
 exports["default"] = TrxParser;
