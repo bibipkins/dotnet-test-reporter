@@ -1,6 +1,13 @@
 import { processTestResults } from './results';
 import { processTestCoverage } from './coverage';
-import { getActionInputs, formatTestResult, formatTestCoverage, publishComment, setActionFailed } from './utils';
+import {
+  getActionInputs,
+  formatTestResult,
+  formatTestCoverage,
+  publishComment,
+  setActionFailed,
+  setSummary
+} from './utils';
 
 const run = async (): Promise<void> => {
   try {
@@ -16,6 +23,7 @@ const run = async (): Promise<void> => {
     }
 
     await publishComment(token, title, body, postNewComment);
+    setSummary();
   } catch (error) {
     setActionFailed((error as Error).message);
   }

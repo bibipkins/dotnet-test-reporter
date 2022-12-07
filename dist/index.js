@@ -73,6 +73,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             body += testCoverage ? (0, utils_1.formatTestCoverage)(testCoverage, coverageThreshold) : '';
         }
         yield (0, utils_1.publishComment)(token, title, body, postNewComment);
+        (0, utils_1.setSummary)();
     }
     catch (error) {
         (0, utils_1.setActionFailed)(error.message);
@@ -325,7 +326,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.setActionFailed = exports.setCoverageOutputs = exports.setResultOutputs = exports.getActionInputs = void 0;
+exports.setSummary = exports.setActionFailed = exports.setCoverageOutputs = exports.setResultOutputs = exports.getActionInputs = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const inputs = {
     token: 'github-token',
@@ -361,11 +362,11 @@ const getActionInputs = () => {
     };
 };
 exports.getActionInputs = getActionInputs;
-const setResultOutputs = (results) => {
-    core.setOutput(outputs.total, results.total);
-    core.setOutput(outputs.passed, results.passed);
-    core.setOutput(outputs.failed, results.failed);
-    core.setOutput(outputs.skipped, results.skipped);
+const setResultOutputs = (result) => {
+    core.setOutput(outputs.total, result.total);
+    core.setOutput(outputs.passed, result.passed);
+    core.setOutput(outputs.failed, result.failed);
+    core.setOutput(outputs.skipped, result.skipped);
 };
 exports.setResultOutputs = setResultOutputs;
 const setCoverageOutputs = (coverage) => {
@@ -381,6 +382,21 @@ const setActionFailed = (message) => {
     core.setFailed(message);
 };
 exports.setActionFailed = setActionFailed;
+const setSummary = () => {
+    core.summary
+        .addHeading('Test Summary')
+        .addTable([
+        [
+            { data: 'File', header: true },
+            { data: 'Result', header: true }
+        ],
+        ['foo.js', 'Pass '],
+        ['bar.js', 'Fail '],
+        ['test.js', 'Pass ']
+    ])
+        .write();
+};
+exports.setSummary = setSummary;
 
 
 /***/ }),

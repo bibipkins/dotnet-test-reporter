@@ -38,11 +38,11 @@ export const getActionInputs = (): IActionInputs => {
   };
 };
 
-export const setResultOutputs = (results: IResult): void => {
-  core.setOutput(outputs.total, results.total);
-  core.setOutput(outputs.passed, results.passed);
-  core.setOutput(outputs.failed, results.failed);
-  core.setOutput(outputs.skipped, results.skipped);
+export const setResultOutputs = (result: IResult): void => {
+  core.setOutput(outputs.total, result.total);
+  core.setOutput(outputs.passed, result.passed);
+  core.setOutput(outputs.failed, result.failed);
+  core.setOutput(outputs.skipped, result.skipped);
 };
 
 export const setCoverageOutputs = (coverage: ICoverage): void => {
@@ -56,4 +56,19 @@ export const setCoverageOutputs = (coverage: ICoverage): void => {
 
 export const setActionFailed = (message: string): void => {
   core.setFailed(message);
+};
+
+export const setSummary = (): void => {
+  core.summary
+    .addHeading('Test Summary')
+    .addTable([
+      [
+        { data: 'File', header: true },
+        { data: 'Result', header: true }
+      ],
+      ['foo.js', 'Pass '],
+      ['bar.js', 'Fail '],
+      ['test.js', 'Pass ']
+    ])
+    .write();
 };
