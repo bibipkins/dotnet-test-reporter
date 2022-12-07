@@ -23,7 +23,7 @@ const run = async (): Promise<void> => {
     }
 
     await publishComment(token, title, body, postNewComment);
-    setSummary();
+    setSummary(title);
   } catch (error) {
     setActionFailed((error as Error).message);
   }

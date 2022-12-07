@@ -73,7 +73,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             body += testCoverage ? (0, utils_1.formatTestCoverage)(testCoverage, coverageThreshold) : '';
         }
         yield (0, utils_1.publishComment)(token, title, body, postNewComment);
-        (0, utils_1.setSummary)();
+        (0, utils_1.setSummary)(title);
     }
     catch (error) {
         (0, utils_1.setActionFailed)(error.message);
@@ -192,18 +192,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const utils_1 = __nccwpck_require__(7782);
 class TrxParser {
-    constructor() {
-        this.parseSummary = (file) => {
-            const summary = file.TestRun.ResultSummary[0];
-            const data = summary['$'];
-            const counters = summary.Counters[0]['$'];
-            const total = Number(counters.total);
-            const passed = Number(counters.passed);
-            const failed = Number(counters.failed);
-            const executed = Number(counters.executed);
-            return { outcome: data.outcome, total, passed, failed, executed };
-        };
-    }
     parse(filePath) {
         return __awaiter(this, void 0, void 0, function* () {
             const file = yield (0, utils_1.readXmlFile)(filePath);
@@ -212,6 +200,7 @@ class TrxParser {
             }
             const { start, finish } = this.parseElapsedTime(file);
             const { outcome, total, passed, failed, executed } = this.parseSummary(file);
+            this.parseResults(file);
             const elapsed = finish.getTime() - start.getTime();
             const skipped = total - executed;
             const success = failed === 0 && outcome === 'Completed';
@@ -219,11 +208,26 @@ class TrxParser {
         });
     }
     parseElapsedTime(file) {
-        var _a;
-        const data = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.Times[0]['$'];
+        const data = file.TestRun.Times[0]['$'];
         const start = new Date(data.start);
         const finish = new Date(data.finish);
         return { start, finish };
+    }
+    parseSummary(file) {
+        const summary = file.TestRun.ResultSummary[0];
+        const data = summary['$'];
+        const counters = summary.Counters[0]['$'];
+        const total = Number(counters.total);
+        const passed = Number(counters.passed);
+        const failed = Number(counters.failed);
+        const executed = Number(counters.executed);
+        return { outcome: data.outcome, total, passed, failed, executed };
+    }
+    parseResults(file) {
+        const results = file.TestRun.Results;
+        console.log('1', results.length);
+        console.log('2', results);
+        console.log('3', results[0]);
     }
 }
 exports["default"] = TrxParser;
@@ -382,9 +386,9 @@ const setActionFailed = (message) => {
     core.setFailed(message);
 };
 exports.setActionFailed = setActionFailed;
-const setSummary = () => {
+const setSummary = (title) => {
     core.summary
-        .addHeading('Test Summary')
+        .addHeading(title)
         .addTable([
         [
             { data: 'File', header: true },

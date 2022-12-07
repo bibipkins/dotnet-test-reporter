@@ -11,6 +11,7 @@ export default class TrxParser implements IResultParser {
 
     const { start, finish } = this.parseElapsedTime(file);
     const { outcome, total, passed, failed, executed } = this.parseSummary(file);
+    this.parseResults(file);
 
     const elapsed = finish.getTime() - start.getTime();
     const skipped = total - executed;
@@ -20,7 +21,7 @@ export default class TrxParser implements IResultParser {
   }
 
   private parseElapsedTime(file: any) {
-    const data = file.TestRun?.Times[0]['$'];
+    const data = file.TestRun.Times[0]['$'];
 
     const start = new Date(data.start);
     const finish = new Date(data.finish);
@@ -28,7 +29,7 @@ export default class TrxParser implements IResultParser {
     return { start, finish };
   }
 
-  private parseSummary = (file: any) => {
+  private parseSummary(file: any) {
     const summary = file.TestRun.ResultSummary[0];
     const data = summary['$'];
     const counters = summary.Counters[0]['$'];
@@ -39,5 +40,12 @@ export default class TrxParser implements IResultParser {
     const executed = Number(counters.executed);
 
     return { outcome: data.outcome, total, passed, failed, executed };
-  };
+  }
+
+  private parseResults(file: any) {
+    const results = file.TestRun.Results;
+    console.log('1', results.length);
+    console.log('2', results);
+    console.log('3', results[0]);
+  }
 }

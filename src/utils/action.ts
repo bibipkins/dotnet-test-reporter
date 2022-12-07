@@ -58,9 +58,9 @@ export const setActionFailed = (message: string): void => {
   core.setFailed(message);
 };
 
-export const setSummary = (): void => {
+export const setSummary = (title: string): void => {
   core.summary
-    .addHeading('Test Summary')
+    .addHeading(title)
     .addTable([
       [
         { data: 'File', header: true },
