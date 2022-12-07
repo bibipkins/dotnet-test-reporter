@@ -248,19 +248,22 @@ class TrxParser {
     }
     parseDefinitions(file) {
         const definitions = file.TestRun.TestDefinitions[0].UnitTest;
-        return definitions.map(definition => ({
-            id: definition['$'].id,
-            name: definition['$'].name,
-            storage: definition['$'].storage,
-            description: definition.Description[0],
-            executionId: definition.Execution[0]['$'].id,
-            testMethod: {
-                codeBase: definition.TestMethod[0]['$'].codeBase,
-                adapterTypeName: definition.TestMethod[0]['$'].adapterTypeName,
-                className: definition.TestMethod[0]['$'].className,
-                name: definition.TestMethod[0]['$'].name
-            }
-        }));
+        return definitions.map(definition => {
+            var _a;
+            return ({
+                id: definition['$'].id,
+                name: definition['$'].name,
+                storage: definition['$'].storage,
+                description: (_a = definition.Description) === null || _a === void 0 ? void 0 : _a[0],
+                executionId: definition.Execution[0]['$'].id,
+                testMethod: {
+                    codeBase: definition.TestMethod[0]['$'].codeBase,
+                    adapterTypeName: definition.TestMethod[0]['$'].adapterTypeName,
+                    className: definition.TestMethod[0]['$'].className,
+                    name: definition.TestMethod[0]['$'].name
+                }
+            });
+        });
     }
 }
 exports["default"] = TrxParser;

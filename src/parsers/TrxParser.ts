@@ -75,7 +75,7 @@ export default class TrxParser implements IResultParser {
       id: definition['$'].id,
       name: definition['$'].name,
       storage: definition['$'].storage,
-      description: definition.Description[0],
+      description: definition.Description?.[0],
       executionId: definition.Execution[0]['$'].id,
       testMethod: {
         codeBase: definition.TestMethod[0]['$'].codeBase,
