@@ -514,6 +514,9 @@ const getConfiguration = () => {
     const { job, runId, payload: { pull_request, repository, after } } = github.context;
     const issueNumber = pull_request === null || pull_request === void 0 ? void 0 : pull_request.number;
     const [owner, repo] = ((_a = repository === null || repository === void 0 ? void 0 : repository.full_name) === null || _a === void 0 ? void 0 : _a.split('/')) || [];
+    console.log('REPO FULL', repository === null || repository === void 0 ? void 0 : repository.full_name);
+    console.log('owner', owner);
+    console.log('repo', repo);
     return { owner, repo, issueNumber, commit: after, runId, job };
 };
 const findExistingComment = (comments, header) => {
@@ -616,15 +619,18 @@ __exportStar(__nccwpck_require__(2216), exports);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatTestCoverage = exports.formatTestResult = exports.formatFooter = exports.formatSummaryLink = exports.formatSubHeader = exports.formatHeader = void 0;
+exports.formatTestCoverage = exports.formatTestResult = exports.formatSummaryLink = exports.formatFooter = exports.formatSubHeader = exports.formatHeader = void 0;
 const formatHeader = (header) => `## ${header}\n`;
 exports.formatHeader = formatHeader;
 const formatSubHeader = (header) => `### ${header}\n`;
 exports.formatSubHeader = formatSubHeader;
-const formatSummaryLink = (runUrl, jobId) => `🔍 click [here](${runUrl}#summary-${jobId}) for more details`;
-exports.formatSummaryLink = formatSummaryLink;
 const formatFooter = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 exports.formatFooter = formatFooter;
+const formatSummaryLink = (runUrl, jobId) => {
+    const url = runUrl.replace('api.github.com/repos', 'github.com');
+    return `🔍 click [here](${url}#summary-${jobId}) for more details\n`;
+};
+exports.formatSummaryLink = formatSummaryLink;
 const formatTestResult = (result) => {
     const { total, passed, skipped, success } = result;
     const title = `${getStatusIcon(success)} Tests`;

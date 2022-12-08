@@ -47,6 +47,10 @@ const getConfiguration = () => {
   const issueNumber = pull_request?.number;
   const [owner, repo] = repository?.full_name?.split('/') || [];
 
+  console.log('REPO FULL', repository?.full_name);
+  console.log('owner', owner);
+  console.log('repo', repo);
+
   return { owner, repo, issueNumber, commit: after, runId, job };
 };
 

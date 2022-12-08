@@ -1,13 +1,15 @@
 import { ICoverage, IResult } from '../data';
 
-export const formatHeader = (header: string) => `## ${header}\n`;
+export const formatHeader = (header: string): string => `## ${header}\n`;
 
-export const formatSubHeader = (header: string) => `### ${header}\n`;
+export const formatSubHeader = (header: string): string => `### ${header}\n`;
 
-export const formatSummaryLink = (runUrl: string, jobId: number) =>
-  `🔍 click [here](${runUrl}#summary-${jobId}) for more details`;
+export const formatFooter = (commit: string): string => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 
-export const formatFooter = (commit: string) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
+export const formatSummaryLink = (runUrl: string, jobId: number): string => {
+  const url = runUrl.replace('api.github.com/repos', 'github.com');
+  return `🔍 click [here](${url}#summary-${jobId}) for more details\n`;
+};
 
 export const formatTestResult = (result: IResult): string => {
   const { total, passed, skipped, success } = result;
