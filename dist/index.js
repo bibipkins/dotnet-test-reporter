@@ -448,7 +448,6 @@ exports.setCoverageOutputs = setCoverageOutputs;
 const setSummary = (title, result) => __awaiter(void 0, void 0, void 0, function* () {
     core.summary.addHeading(title).addHeading('Tests', 3);
     const suits = (0, groupBy_1.default)((0, sortBy_1.default)(result.tests, ['className', 'name']), 'className');
-    console.log(suits);
     for (const suit in suits) {
         const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
         const table = `
@@ -457,10 +456,8 @@ const setSummary = (title, result) => __awaiter(void 0, void 0, void 0, function
         <tr><th>Test</th><th>Result</th></tr>
         ${suits[suit].map(test => `<tr><td>${test.name}</td><td>${outcomeIcons[test.outcome]}</td></tr>`).join()}
       </tbody>
-      </table>
-    `;
-        const details = `<details><summary></summary>${table}</details>`;
-        core.summary.addDetails(`${icon} ${suit}`, details);
+      </table>`;
+        core.summary.addDetails(`${icon} ${suit}`, table);
     }
     yield core.summary.write();
 });

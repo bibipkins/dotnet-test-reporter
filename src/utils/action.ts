@@ -70,7 +70,6 @@ export const setSummary = async (title: string, result: IResult): Promise<void> 
   core.summary.addHeading(title).addHeading('Tests', 3);
 
   const suits = groupBy(sortBy(result.tests, ['className', 'name']), 'className');
-  console.log(suits);
 
   for (const suit in suits) {
     const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
@@ -80,10 +79,8 @@ export const setSummary = async (title: string, result: IResult): Promise<void> 
         <tr><th>Test</th><th>Result</th></tr>
         ${suits[suit].map(test => `<tr><td>${test.name}</td><td>${outcomeIcons[test.outcome]}</td></tr>`).join()}
       </tbody>
-      </table>
-    `;
-    const details = `<details><summary></summary>${table}</details>`;
-    core.summary.addDetails(`${icon} ${suit}`, details);
+      </table>`;
+    core.summary.addDetails(`${icon} ${suit}`, table);
   }
 
   await core.summary.write();
