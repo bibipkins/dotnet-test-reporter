@@ -74,16 +74,16 @@ export const setSummary = async (title: string, result: IResult): Promise<void> 
 
   for (const suit in suits) {
     const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
-    core.summary
-      .addHeading(`${icon} ${suit}`, 4)
-      .addDetails('expand', 'lol')
-      .addTable([
-        [
-          { data: 'Test', header: true },
-          { data: 'Result', header: true }
-        ],
-        ...suits[suit].map(test => [test.name, outcomeIcons[test.outcome]])
-      ]);
+    const table = `
+      <table role="table">
+      <tbody>
+        <tr><th>Test</th><th>Result</th></tr>
+        ${suits[suit].map(test => `<tr><td>${test.name}</td><td>${outcomeIcons[test.outcome]}</td></tr>`).join()}
+      </tbody>
+      </table>
+    `;
+    const details = `<details><summary></summary>${table}</details>`;
+    core.summary.addDetails(`${icon} ${suit}`, details);
   }
 
   await core.summary.write();
