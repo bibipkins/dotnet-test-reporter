@@ -451,7 +451,10 @@ const setSummary = (title, result) => __awaiter(void 0, void 0, void 0, function
     console.log(suits);
     for (const suit in suits) {
         const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
-        core.summary.addHeading(`${icon} ${suit}`, 4).addTable([
+        core.summary
+            .addHeading(`${icon} ${suit}`, 4)
+            .addDetails('expand', 'lol')
+            .addTable([
             [
                 { data: 'Test', header: true },
                 { data: 'Result', header: true }
