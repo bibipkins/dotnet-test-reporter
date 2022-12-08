@@ -1,6 +1,6 @@
 import * as github from '@actions/github';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
-import { formatFooter, formatHeader } from './markdown';
+import { formatFooter, formatHeader, formatSummaryLink } from './markdown';
 
 type ListCommentsResponse = RestEndpointMethodTypes['issues']['listComments']['response'];
 
@@ -17,18 +17,18 @@ export const publishComment = async (
     return;
   }
 
+  const octokit = github.getOctokit(token);
+  const jobs = await octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
+  const currentJob = jobs.data.jobs.find(j => j.name === job);
+  const summaryLink = currentJob ? formatSummaryLink(currentJob.run_url, currentJob.id) : '';
+
   const header = formatHeader(title);
   const footer = commit ? formatFooter(commit) : '';
-  const body = `${header}${message}${footer}`;
+  const body = `${header}${message}${summaryLink}${footer}`;
 
-  const octokit = github.getOctokit(token);
   const issues = octokit.rest.issues;
   const comments = await issues.listComments({ owner, repo, issue_number: issueNumber });
   const existingComment = findExistingComment(comments, header);
-
-  const jobs = await octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
-  const currentJob = jobs.data.jobs.find(j => j.name === job);
-  console.log(currentJob);
 
   if (existingComment && !postNew) {
     await issues.updateComment({ owner, repo, comment_id: existingComment.id, body });

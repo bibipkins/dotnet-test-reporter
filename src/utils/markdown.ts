@@ -1,8 +1,11 @@
 import { ICoverage, IResult } from '../data';
 
-export const formatHeader = (header: string): string => `## ${header}\n`;
+export const formatHeader = (header: string) => `## ${header}\n`;
 
-export const formatSubHeader = (header: string): string => `### ${header}\n`;
+export const formatSubHeader = (header: string) => `### ${header}\n`;
+
+export const formatSummaryLink = (runUrl: string, jobId: number) =>
+  `🔍 click [here](${runUrl}#summary-${jobId}) for more details`;
 
 export const formatFooter = (commit: string) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 

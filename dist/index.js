@@ -491,16 +491,16 @@ const publishComment = (token, title, message, postNew) => __awaiter(void 0, voi
         console.log('Failed to post a comment');
         return;
     }
+    const octokit = github.getOctokit(token);
+    const jobs = yield octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
+    const currentJob = jobs.data.jobs.find(j => j.name === job);
+    const summaryLink = currentJob ? (0, markdown_1.formatSummaryLink)(currentJob.run_url, currentJob.id) : '';
     const header = (0, markdown_1.formatHeader)(title);
     const footer = commit ? (0, markdown_1.formatFooter)(commit) : '';
-    const body = `${header}${message}${footer}`;
-    const octokit = github.getOctokit(token);
+    const body = `${header}${message}${summaryLink}${footer}`;
     const issues = octokit.rest.issues;
     const comments = yield issues.listComments({ owner, repo, issue_number: issueNumber });
     const existingComment = findExistingComment(comments, header);
-    const jobs = yield octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
-    const currentJob = jobs.data.jobs.find(j => j.name === job);
-    console.log(currentJob);
     if (existingComment && !postNew) {
         yield issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
     }
@@ -616,11 +616,13 @@ __exportStar(__nccwpck_require__(2216), exports);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatTestCoverage = exports.formatTestResult = exports.formatFooter = exports.formatSubHeader = exports.formatHeader = void 0;
+exports.formatTestCoverage = exports.formatTestResult = exports.formatFooter = exports.formatSummaryLink = exports.formatSubHeader = exports.formatHeader = void 0;
 const formatHeader = (header) => `## ${header}\n`;
 exports.formatHeader = formatHeader;
 const formatSubHeader = (header) => `### ${header}\n`;
 exports.formatSubHeader = formatSubHeader;
+const formatSummaryLink = (runUrl, jobId) => `🔍 click [here](${runUrl}#summary-${jobId}) for more details`;
+exports.formatSummaryLink = formatSummaryLink;
 const formatFooter = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 exports.formatFooter = formatFooter;
 const formatTestResult = (result) => {
