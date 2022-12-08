@@ -1,4 +1,6 @@
 import * as core from '@actions/core';
+import groupBy from 'lodash/groupBy';
+import sortBy from 'lodash/sortBy';
 import { CoverageType, IActionInputs, ICoverage, IResult } from '../data';
 
 const inputs = {
@@ -22,6 +24,10 @@ const outputs = {
   branchCoverage: 'coverage-branch',
   branchesTotal: 'coverage-branches-total',
   branchesCovered: 'coverage-branches-covered'
+};
+
+export const setActionFailed = (message: string): void => {
+  core.setFailed(message);
 };
 
 export const getActionInputs = (): IActionInputs => {
@@ -54,20 +60,21 @@ export const setCoverageOutputs = (coverage: ICoverage): void => {
   core.setOutput(outputs.branchesCovered, coverage.branchesCovered);
 };
 
-export const setSummary = (title: string, result: IResult): void => {
-  core.summary
-    .addHeading(title)
-    .addTable([
+export const setSummary = async (title: string, result: IResult): Promise<void> => {
+  core.summary.addHeading(title).addHeading('Tests', 3);
+
+  const suits = groupBy(sortBy(result.tests, ['className', 'name']), 'className');
+  console.log(suits);
+
+  for (const suit in suits) {
+    core.summary.addRaw(suit).addTable([
       [
-        { data: 'File', header: true },
         { data: 'Test', header: true },
         { data: 'Result', header: true }
       ],
-      ...result.tests.map(test => [test.className, test.name, test.outcome])
-    ])
-    .write();
-};
+      ...suits[suit].map(test => [test.name, test.outcome])
+    ]);
+  }
 
-export const setActionFailed = (message: string): void => {
-  core.setFailed(message);
+  await core.summary.write();
 };
