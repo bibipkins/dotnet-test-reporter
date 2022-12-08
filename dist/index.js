@@ -205,7 +205,7 @@ class TrxParser {
             const tests = definitions.map(definition => {
                 const result = results.find(r => r.testId === definition.id);
                 return {
-                    name: result === null || result === void 0 ? void 0 : result.testName.replace(definition.testMethod.className, ''),
+                    name: result === null || result === void 0 ? void 0 : result.testName.replace(`${definition.testMethod.className}.`, ''),
                     suit: definition.testMethod.className,
                     outcome: (result === null || result === void 0 ? void 0 : result.outcome) || ''
                 };
