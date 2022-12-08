@@ -72,15 +72,17 @@ export const setSummary = async (title: string, result: IResult): Promise<void> 
   const suits = groupBy(sortBy(result.tests, ['className', 'name']), 'className');
 
   for (const suit in suits) {
-    const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
     const rows = suits[suit]
       .map(test => `<tr><td>${test.name}</td><td>${outcomeIcons[test.outcome]}</td></tr>`)
       .join('');
-    console.log(rows);
+
     const header = '<tr><th>Test</th><th>Result</th></tr>';
     const body = `<tbody>${header}${rows}</tbody>`;
     const table = `<table role="table">${body}</table>`;
-    const details = `<details><summary>${icon} ${suit}</summary>${table}</details>`;
+    const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
+    const passed = suits[suit].filter(test => test.outcome === 'Passed');
+    const summary = `${icon} ${suit} - ${passed.length}/${suits[suit].length}`;
+    const details = `<details><summary>${summary}</summary>${table}</details>`;
     core.summary.addRaw(details);
   }
 

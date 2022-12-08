@@ -449,15 +449,16 @@ const setSummary = (title, result) => __awaiter(void 0, void 0, void 0, function
     core.summary.addHeading(title).addHeading('Tests', 3);
     const suits = (0, groupBy_1.default)((0, sortBy_1.default)(result.tests, ['className', 'name']), 'className');
     for (const suit in suits) {
-        const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
         const rows = suits[suit]
             .map(test => `<tr><td>${test.name}</td><td>${outcomeIcons[test.outcome]}</td></tr>`)
             .join('');
-        console.log(rows);
         const header = '<tr><th>Test</th><th>Result</th></tr>';
         const body = `<tbody>${header}${rows}</tbody>`;
         const table = `<table role="table">${body}</table>`;
-        const details = `<details><summary>${icon} ${suit}</summary>${table}</details>`;
+        const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
+        const passed = suits[suit].filter(test => test.outcome === 'Passed');
+        const summary = `${icon} ${suit} - ${passed.length}/${suits[suit].length}`;
+        const details = `<details><summary>${summary}</summary>${table}</details>`;
         core.summary.addRaw(details);
     }
     yield core.summary.write();
