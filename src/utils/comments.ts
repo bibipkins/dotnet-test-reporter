@@ -10,7 +10,7 @@ export const publishComment = async (
   message: string,
   postNew: boolean
 ): Promise<void> => {
-  const { owner, repo, issueNumber, commit, runId } = getConfiguration();
+  const { owner, repo, issueNumber, commit, runId, job } = getConfiguration();
 
   if (!token || !owner || !repo || !issueNumber) {
     console.log('Failed to post a comment');
@@ -27,7 +27,8 @@ export const publishComment = async (
   const existingComment = findExistingComment(comments, header);
 
   const jobs = await octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
-  console.table(jobs.data.jobs);
+  const currentJob = jobs.data.jobs.find(j => j.name === job);
+  console.log(currentJob);
 
   if (existingComment && !postNew) {
     await issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
@@ -38,6 +39,7 @@ export const publishComment = async (
 
 const getConfiguration = () => {
   const {
+    job,
     runId,
     payload: { pull_request, repository, after }
   } = github.context;
@@ -45,7 +47,7 @@ const getConfiguration = () => {
   const issueNumber = pull_request?.number;
   const [owner, repo] = repository?.full_name?.split('/') || [];
 
-  return { owner, repo, issueNumber, commit: after, runId };
+  return { owner, repo, issueNumber, commit: after, runId, job };
 };
 
 const findExistingComment = (comments: ListCommentsResponse, header: string) => {
