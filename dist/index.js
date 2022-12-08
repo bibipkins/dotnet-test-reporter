@@ -205,8 +205,8 @@ class TrxParser {
             const tests = definitions.map(definition => {
                 const result = results.find(r => r.testId === definition.id);
                 return {
-                    name: definition.testMethod.name,
-                    className: definition.testMethod.className,
+                    name: result === null || result === void 0 ? void 0 : result.testName.replace(definition.testMethod.className, ''),
+                    suit: definition.testMethod.className,
                     outcome: (result === null || result === void 0 ? void 0 : result.outcome) || ''
                 };
             });
@@ -447,7 +447,7 @@ const setCoverageOutputs = (coverage) => {
 exports.setCoverageOutputs = setCoverageOutputs;
 const setSummary = (title, result) => __awaiter(void 0, void 0, void 0, function* () {
     core.summary.addHeading(title).addHeading('Tests', 3);
-    const suits = (0, groupBy_1.default)((0, sortBy_1.default)(result.tests, ['className', 'name']), 'className');
+    const suits = (0, groupBy_1.default)((0, sortBy_1.default)(result.tests, ['suit', 'name']), 'suit');
     for (const suit in suits) {
         const rows = suits[suit]
             .map(test => `<tr><td>${test.name}</td><td>${outcomeIcons[test.outcome]}</td></tr>`)

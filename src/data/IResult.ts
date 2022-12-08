@@ -7,7 +7,7 @@ export default interface IResult {
   skipped: number;
   tests: {
     name: string;
-    className: string;
+    suit: string;
     outcome: string;
   }[];
 }

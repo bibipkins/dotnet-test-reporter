@@ -69,7 +69,7 @@ export const setCoverageOutputs = (coverage: ICoverage): void => {
 export const setSummary = async (title: string, result: IResult): Promise<void> => {
   core.summary.addHeading(title).addHeading('Tests', 3);
 
-  const suits = groupBy(sortBy(result.tests, ['className', 'name']), 'className');
+  const suits = groupBy(sortBy(result.tests, ['suit', 'name']), 'suit');
 
   for (const suit in suits) {
     const rows = suits[suit]

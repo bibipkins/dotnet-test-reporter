@@ -18,8 +18,8 @@ export default class TrxParser implements IResultParser {
       const result = results.find(r => r.testId === definition.id);
 
       return {
-        name: definition.testMethod.name,
-        className: definition.testMethod.className,
+        name: result?.testName.replace(definition.testMethod.className, ''),
+        suit: definition.testMethod.className,
         outcome: result?.outcome || ''
       };
     });
