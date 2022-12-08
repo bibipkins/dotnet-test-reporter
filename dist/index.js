@@ -451,6 +451,7 @@ const setSummary = (title, result) => __awaiter(void 0, void 0, void 0, function
     for (const suit in suits) {
         const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
         const rows = suits[suit].map(test => `<tr><td>${test.name}</td><td>lol</td></tr>`).join();
+        console.log(rows);
         const header = '<tr><th>Test</th><th>Result</th></tr>';
         const body = `<tbody>${header}${rows}</tbody>`;
         const table = `<table role="table">${body}</table>`;
