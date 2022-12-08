@@ -77,7 +77,8 @@ export const setSummary = async (title: string, result: IResult): Promise<void> 
     const header = '<tr><th>Test</th><th>Result</th></tr>';
     const body = `<tbody>${header}${rows}</tbody>`;
     const table = `<table role="table">${body}</table>`;
-    core.summary.addDetails(`${icon} ${suit}`, table);
+    const details = `<details><summary>${icon} ${suit}</summary>${table}</details>`;
+    core.summary.addRaw(details);
   }
 
   await core.summary.write();
