@@ -26,11 +26,11 @@ const outputs = {
   branchesCovered: 'coverage-branches-covered'
 };
 
-// const outcomeIcons = {
-//   Passed: '✔️',
-//   Failed: '❌',
-//   NotExecuted: '⚠️'
-// };
+const outcomeIcons = {
+  Passed: '✔️',
+  Failed: '❌',
+  NotExecuted: '⚠️'
+};
 
 export const setActionFailed = (message: string): void => {
   core.setFailed(message);
@@ -73,7 +73,9 @@ export const setSummary = async (title: string, result: IResult): Promise<void> 
 
   for (const suit in suits) {
     const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
-    const rows = suits[suit].map(test => `<tr><td>${test.name}</td><td>lol</td></tr>`).join();
+    const rows = suits[suit]
+      .map(test => `<tr><td>${test.name}</td><td>${outcomeIcons[test.outcome]}</td></tr>`)
+      .join('');
     console.log(rows);
     const header = '<tr><th>Test</th><th>Result</th></tr>';
     const body = `<tbody>${header}${rows}</tbody>`;
