@@ -454,7 +454,7 @@ const setSummary = (title, result) => __awaiter(void 0, void 0, void 0, function
         // const header = '<tr><th>Test</th><th>Result</th></tr>';
         // const body = `<tbody>${header}${rows}</tbody>`;
         // const table = `<table role="table">${body}</table>`;
-        const details = `<details><summary>${icon} ${suit}</summary>lol</details>`;
+        const details = `<details><summary>${icon} ${suit}</summary><table role="table"><tbody><tr><th>Test</th><th>Result</th></tr></tbody></table></details>`;
         core.summary.addRaw(details);
     }
     yield core.summary.write();
