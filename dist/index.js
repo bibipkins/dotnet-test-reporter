@@ -407,6 +407,11 @@ const outputs = {
     branchesTotal: 'coverage-branches-total',
     branchesCovered: 'coverage-branches-covered'
 };
+const outcomeIcons = {
+    Passed: '✔️',
+    Failed: '❌',
+    NotExecuted: '⚠️'
+};
 const setActionFailed = (message) => {
     core.setFailed(message);
 };
@@ -445,12 +450,13 @@ const setSummary = (title, result) => __awaiter(void 0, void 0, void 0, function
     const suits = (0, groupBy_1.default)((0, sortBy_1.default)(result.tests, ['className', 'name']), 'className');
     console.log(suits);
     for (const suit in suits) {
-        core.summary.addRaw(suit).addTable([
+        const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
+        core.summary.addHeading(`${icon} ${suit}`, 4).addTable([
             [
                 { data: 'Test', header: true },
                 { data: 'Result', header: true }
             ],
-            ...suits[suit].map(test => [test.name, test.outcome])
+            ...suits[suit].map(test => [test.name, outcomeIcons[test.outcome]])
         ]);
     }
     yield core.summary.write();

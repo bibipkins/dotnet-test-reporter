@@ -26,6 +26,12 @@ const outputs = {
   branchesCovered: 'coverage-branches-covered'
 };
 
+const outcomeIcons = {
+  Passed: '✔️',
+  Failed: '❌',
+  NotExecuted: '⚠️'
+};
+
 export const setActionFailed = (message: string): void => {
   core.setFailed(message);
 };
@@ -67,12 +73,13 @@ export const setSummary = async (title: string, result: IResult): Promise<void> 
   console.log(suits);
 
   for (const suit in suits) {
-    core.summary.addRaw(suit).addTable([
+    const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
+    core.summary.addHeading(`${icon} ${suit}`, 4).addTable([
       [
         { data: 'Test', header: true },
         { data: 'Result', header: true }
       ],
-      ...suits[suit].map(test => [test.name, test.outcome])
+      ...suits[suit].map(test => [test.name, outcomeIcons[test.outcome]])
     ]);
   }
 
