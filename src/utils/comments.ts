@@ -10,7 +10,7 @@ export const publishComment = async (
   message: string,
   postNew: boolean
 ): Promise<void> => {
-  const { owner, repo, issueNumber, commit } = getConfiguration();
+  const { owner, repo, issueNumber, commit, runId } = getConfiguration();
 
   if (!token || !owner || !repo || !issueNumber) {
     console.log('Failed to post a comment');
@@ -21,9 +21,13 @@ export const publishComment = async (
   const footer = commit ? formatFooter(commit) : '';
   const body = `${header}${message}${footer}`;
 
-  const issues = github.getOctokit(token).rest.issues;
+  const octokit = github.getOctokit(token);
+  const issues = octokit.rest.issues;
   const comments = await issues.listComments({ owner, repo, issue_number: issueNumber });
   const existingComment = findExistingComment(comments, header);
+
+  const jobs = await octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
+  console.table(jobs.data.jobs);
 
   if (existingComment && !postNew) {
     await issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
@@ -34,18 +38,14 @@ export const publishComment = async (
 
 const getConfiguration = () => {
   const {
+    runId,
     payload: { pull_request, repository, after }
   } = github.context;
-
-  console.log('RUN ID', github.context.runId);
-  console.log('RUN #', github.context.runNumber);
-  console.log('JOB', github.context.job);
-  console.log('WORKFLOW', github.context.workflow);
 
   const issueNumber = pull_request?.number;
   const [owner, repo] = repository?.full_name?.split('/') || [];
 
-  return { owner, repo, issueNumber, commit: after };
+  return { owner, repo, issueNumber, commit: after, runId };
 };
 
 const findExistingComment = (comments: ListCommentsResponse, header: string) => {

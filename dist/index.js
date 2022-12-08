@@ -486,7 +486,7 @@ exports.publishComment = void 0;
 const github = __importStar(__nccwpck_require__(5438));
 const markdown_1 = __nccwpck_require__(120);
 const publishComment = (token, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
-    const { owner, repo, issueNumber, commit } = getConfiguration();
+    const { owner, repo, issueNumber, commit, runId } = getConfiguration();
     if (!token || !owner || !repo || !issueNumber) {
         console.log('Failed to post a comment');
         return;
@@ -494,9 +494,12 @@ const publishComment = (token, title, message, postNew) => __awaiter(void 0, voi
     const header = (0, markdown_1.formatHeader)(title);
     const footer = commit ? (0, markdown_1.formatFooter)(commit) : '';
     const body = `${header}${message}${footer}`;
-    const issues = github.getOctokit(token).rest.issues;
+    const octokit = github.getOctokit(token);
+    const issues = octokit.rest.issues;
     const comments = yield issues.listComments({ owner, repo, issue_number: issueNumber });
     const existingComment = findExistingComment(comments, header);
+    const jobs = yield octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
+    console.table(jobs.data.jobs);
     if (existingComment && !postNew) {
         yield issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
     }
@@ -507,14 +510,10 @@ const publishComment = (token, title, message, postNew) => __awaiter(void 0, voi
 exports.publishComment = publishComment;
 const getConfiguration = () => {
     var _a;
-    const { payload: { pull_request, repository, after } } = github.context;
-    console.log('RUN ID', github.context.runId);
-    console.log('RUN #', github.context.runNumber);
-    console.log('JOB', github.context.job);
-    console.log('WORKFLOW', github.context.workflow);
+    const { runId, payload: { pull_request, repository, after } } = github.context;
     const issueNumber = pull_request === null || pull_request === void 0 ? void 0 : pull_request.number;
     const [owner, repo] = ((_a = repository === null || repository === void 0 ? void 0 : repository.full_name) === null || _a === void 0 ? void 0 : _a.split('/')) || [];
-    return { owner, repo, issueNumber, commit: after };
+    return { owner, repo, issueNumber, commit: after, runId };
 };
 const findExistingComment = (comments, header) => {
     return comments.data.find(comment => {
