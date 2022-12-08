@@ -6,9 +6,9 @@ export const formatSubHeader = (header: string): string => `### ${header}\n`;
 
 export const formatFooter = (commit: string): string => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 
-export const formatSummaryLink = (runUrl: string, jobId: number): string => {
-  const url = runUrl.replace('api.github.com/repos', 'github.com');
-  return `🔍 click [here](${url}#summary-${jobId}) for more details\n`;
+export const formatSummaryLink = (owner: string, repo: string, runId: number, jobId: number): string => {
+  const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#summary-${jobId}`;
+  return `🔍 click [here](${url}) for more details\n`;
 };
 
 export const formatTestResult = (result: IResult): string => {

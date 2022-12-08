@@ -486,15 +486,15 @@ exports.publishComment = void 0;
 const github = __importStar(__nccwpck_require__(5438));
 const markdown_1 = __nccwpck_require__(120);
 const publishComment = (token, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
-    const { owner, repo, issueNumber, commit, runId, job } = getConfiguration();
+    const { owner, repo, issueNumber, commit, runId, jobName } = getConfiguration();
     if (!token || !owner || !repo || !issueNumber) {
         console.log('Failed to post a comment');
         return;
     }
     const octokit = github.getOctokit(token);
     const jobs = yield octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
-    const currentJob = jobs.data.jobs.find(j => j.name === job);
-    const summaryLink = currentJob ? (0, markdown_1.formatSummaryLink)(currentJob.run_url, currentJob.id) : '';
+    const currentJob = jobs.data.jobs.find(job => job.name === jobName);
+    const summaryLink = currentJob ? (0, markdown_1.formatSummaryLink)(owner, repo, runId, currentJob.id) : '';
     const header = (0, markdown_1.formatHeader)(title);
     const footer = commit ? (0, markdown_1.formatFooter)(commit) : '';
     const body = `${header}${message}${summaryLink}${footer}`;
@@ -514,10 +514,7 @@ const getConfiguration = () => {
     const { job, runId, payload: { pull_request, repository, after } } = github.context;
     const issueNumber = pull_request === null || pull_request === void 0 ? void 0 : pull_request.number;
     const [owner, repo] = ((_a = repository === null || repository === void 0 ? void 0 : repository.full_name) === null || _a === void 0 ? void 0 : _a.split('/')) || [];
-    console.log('REPO FULL', repository === null || repository === void 0 ? void 0 : repository.full_name);
-    console.log('owner', owner);
-    console.log('repo', repo);
-    return { owner, repo, issueNumber, commit: after, runId, job };
+    return { owner, repo, issueNumber, commit: after, runId, jobName: job };
 };
 const findExistingComment = (comments, header) => {
     return comments.data.find(comment => {
@@ -626,9 +623,9 @@ const formatSubHeader = (header) => `### ${header}\n`;
 exports.formatSubHeader = formatSubHeader;
 const formatFooter = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 exports.formatFooter = formatFooter;
-const formatSummaryLink = (runUrl, jobId) => {
-    const url = runUrl.replace('api.github.com/repos', 'github.com');
-    return `🔍 click [here](${url}#summary-${jobId}) for more details\n`;
+const formatSummaryLink = (owner, repo, runId, jobId) => {
+    const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#summary-${jobId}`;
+    return `🔍 click [here](${url}) for more details\n`;
 };
 exports.formatSummaryLink = formatSummaryLink;
 const formatTestResult = (result) => {
