@@ -54,10 +54,6 @@ export const setCoverageOutputs = (coverage: ICoverage): void => {
   core.setOutput(outputs.branchesCovered, coverage.branchesCovered);
 };
 
-export const setActionFailed = (message: string): void => {
-  core.setFailed(message);
-};
-
 export const setSummary = (title: string, result: IResult): void => {
   core.summary
     .addHeading(title)
@@ -70,4 +66,8 @@ export const setSummary = (title: string, result: IResult): void => {
       ...result.tests.map(test => [test.className, test.name, test.outcome])
     ])
     .write();
+};
+
+export const setActionFailed = (message: string): void => {
+  core.setFailed(message);
 };

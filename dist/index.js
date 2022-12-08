@@ -370,7 +370,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.setSummary = exports.setActionFailed = exports.setCoverageOutputs = exports.setResultOutputs = exports.getActionInputs = void 0;
+exports.setActionFailed = exports.setSummary = exports.setCoverageOutputs = exports.setResultOutputs = exports.getActionInputs = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const inputs = {
     token: 'github-token',
@@ -422,10 +422,6 @@ const setCoverageOutputs = (coverage) => {
     core.setOutput(outputs.branchesCovered, coverage.branchesCovered);
 };
 exports.setCoverageOutputs = setCoverageOutputs;
-const setActionFailed = (message) => {
-    core.setFailed(message);
-};
-exports.setActionFailed = setActionFailed;
 const setSummary = (title, result) => {
     core.summary
         .addHeading(title)
@@ -440,6 +436,10 @@ const setSummary = (title, result) => {
         .write();
 };
 exports.setSummary = setSummary;
+const setActionFailed = (message) => {
+    core.setFailed(message);
+};
+exports.setActionFailed = setActionFailed;
 
 
 /***/ }),
@@ -508,6 +508,10 @@ exports.publishComment = publishComment;
 const getConfiguration = () => {
     var _a;
     const { payload: { pull_request, repository, after } } = github.context;
+    console.log('RUN ID', github.context.runId);
+    console.log('RUN #', github.context.runNumber);
+    console.log('JOB', github.context.job);
+    console.log('WORKFLOW', github.context.workflow);
     const issueNumber = pull_request === null || pull_request === void 0 ? void 0 : pull_request.number;
     const [owner, repo] = ((_a = repository === null || repository === void 0 ? void 0 : repository.full_name) === null || _a === void 0 ? void 0 : _a.split('/')) || [];
     return { owner, repo, issueNumber, commit: after };

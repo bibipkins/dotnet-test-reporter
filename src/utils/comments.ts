@@ -37,6 +37,11 @@ const getConfiguration = () => {
     payload: { pull_request, repository, after }
   } = github.context;
 
+  console.log('RUN ID', github.context.runId);
+  console.log('RUN #', github.context.runNumber);
+  console.log('JOB', github.context.job);
+  console.log('WORKFLOW', github.context.workflow);
+
   const issueNumber = pull_request?.number;
   const [owner, repo] = repository?.full_name?.split('/') || [];
 
