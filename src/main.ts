@@ -1,31 +1,36 @@
 import { processTestResults } from './results';
 import { processTestCoverage } from './coverage';
 import {
-  getActionInputs,
-  formatTestResult,
-  formatTestCoverage,
+  getInputs,
+  formatSummaryTitle,
+  formatResult,
+  formatResultSummary,
+  formatCoverage,
   publishComment,
-  setActionFailed,
+  setFailed,
   setSummary
 } from './utils';
 
 const run = async (): Promise<void> => {
   try {
-    const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment } =
-      getActionInputs();
+    const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment } = getInputs();
 
-    const testResults = await processTestResults(resultsPath);
-    let body = formatTestResult(testResults);
+    let comment = '';
+    let summary = formatSummaryTitle(title);
+
+    const testResult = await processTestResults(resultsPath);
+    comment += formatResult(testResult);
+    summary += formatResultSummary(testResult);
 
     if (coveragePath) {
       const testCoverage = await processTestCoverage(coveragePath, coverageType, coverageThreshold);
-      body += testCoverage ? formatTestCoverage(testCoverage, coverageThreshold) : '';
+      comment += testCoverage ? formatCoverage(testCoverage, coverageThreshold) : '';
     }
 
-    await publishComment(token, title, body, postNewComment);
-    setSummary(title, testResults);
+    await setSummary(summary);
+    await publishComment(token, title, comment, postNewComment);
   } catch (error) {
-    setActionFailed((error as Error).message);
+    setFailed((error as Error).message);
   }
 };
 

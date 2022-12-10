@@ -36,7 +36,7 @@ const processTestCoverage = (coveragePath, coverageType, coverageThreshold) => _
     console.log(`Processed ${coveragePath}`);
     (0, utils_1.setCoverageOutputs)(coverage);
     if (!coverage.success) {
-        (0, utils_1.setActionFailed)('Coverage Failed');
+        (0, utils_1.setFailed)('Coverage Failed');
     }
     return coverage;
 });
@@ -65,18 +65,21 @@ const coverage_1 = __nccwpck_require__(3725);
 const utils_1 = __nccwpck_require__(7782);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment } = (0, utils_1.getActionInputs)();
-        const testResults = yield (0, results_1.processTestResults)(resultsPath);
-        let body = (0, utils_1.formatTestResult)(testResults);
+        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment } = (0, utils_1.getInputs)();
+        let comment = '';
+        let summary = (0, utils_1.formatSummaryTitle)(title);
+        const testResult = yield (0, results_1.processTestResults)(resultsPath);
+        comment += (0, utils_1.formatResult)(testResult);
+        summary += (0, utils_1.formatResultSummary)(testResult);
         if (coveragePath) {
             const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold);
-            body += testCoverage ? (0, utils_1.formatTestCoverage)(testCoverage, coverageThreshold) : '';
+            comment += testCoverage ? (0, utils_1.formatCoverage)(testCoverage, coverageThreshold) : '';
         }
-        yield (0, utils_1.publishComment)(token, title, body, postNewComment);
-        (0, utils_1.setSummary)(title, testResults);
+        yield (0, utils_1.setSummary)(summary);
+        yield (0, utils_1.publishComment)(token, title, comment, postNewComment);
     }
     catch (error) {
-        (0, utils_1.setActionFailed)(error.message);
+        (0, utils_1.setFailed)(error.message);
     }
 });
 run();
@@ -189,7 +192,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+const sortBy_1 = __importDefault(__nccwpck_require__(9774));
 const utils_1 = __nccwpck_require__(7782);
 class TrxParser {
     parse(filePath) {
@@ -198,22 +205,13 @@ class TrxParser {
             if (!file) {
                 return null;
             }
+            const suits = this.parseSuits(file);
             const { start, finish } = this.parseElapsedTime(file);
             const { outcome, total, passed, failed, executed } = this.parseSummary(file);
-            const results = this.parseResults(file);
-            const definitions = this.parseDefinitions(file);
-            const tests = definitions.map(definition => {
-                const result = results.find(r => r.testId === definition.id);
-                return {
-                    name: result === null || result === void 0 ? void 0 : result.testName.replace(`${definition.testMethod.className}.`, ''),
-                    suit: definition.testMethod.className,
-                    outcome: (result === null || result === void 0 ? void 0 : result.outcome) || ''
-                };
-            });
             const elapsed = finish.getTime() - start.getTime();
             const skipped = total - executed;
             const success = failed === 0 && outcome === 'Completed';
-            return { success, elapsed, total, passed, failed, skipped, tests };
+            return { success, elapsed, total, passed, failed, skipped, suits };
         });
     }
     parseElapsedTime(file) {
@@ -235,17 +233,17 @@ class TrxParser {
     parseResults(file) {
         const results = file.TestRun.Results[0].UnitTestResult;
         return results.map((result) => ({
-            executionId: result['$'].executionId,
-            testId: result['$'].testId,
-            testName: result['$'].testName,
-            testType: result['$'].testType,
-            testListId: result['$'].testListId,
-            computerName: result['$'].computerName,
-            duration: result['$'].duration,
-            startTime: result['$'].startTime,
-            endTime: result['$'].endTime,
-            outcome: result['$'].outcome,
-            relativeResultsDirectory: result['$'].relativeResultsDirectory
+            executionId: String(result['$'].executionId),
+            testId: String(result['$'].testId),
+            testName: String(result['$'].testName),
+            testType: String(result['$'].testType),
+            testListId: String(result['$'].testListId),
+            computerName: String(result['$'].computerName),
+            duration: String(result['$'].duration),
+            startTime: new Date(result['$'].startTime),
+            endTime: new Date(result['$'].endTime),
+            outcome: String(result['$'].outcome),
+            relativeResultsDirectory: String(result['$'].relativeResultsDirectory)
         }));
     }
     parseDefinitions(file) {
@@ -253,19 +251,42 @@ class TrxParser {
         return definitions.map(definition => {
             var _a;
             return ({
-                id: definition['$'].id,
-                name: definition['$'].name,
-                storage: definition['$'].storage,
-                description: (_a = definition.Description) === null || _a === void 0 ? void 0 : _a[0],
-                executionId: definition.Execution[0]['$'].id,
+                id: String(definition['$'].id),
+                name: String(definition['$'].name),
+                storage: String(definition['$'].storage),
+                description: String((_a = definition.Description) === null || _a === void 0 ? void 0 : _a[0]),
+                executionId: String(definition.Execution[0]['$'].id),
                 testMethod: {
-                    codeBase: definition.TestMethod[0]['$'].codeBase,
-                    adapterTypeName: definition.TestMethod[0]['$'].adapterTypeName,
-                    className: definition.TestMethod[0]['$'].className,
-                    name: definition.TestMethod[0]['$'].name
+                    codeBase: String(definition.TestMethod[0]['$'].codeBase),
+                    adapterTypeName: String(definition.TestMethod[0]['$'].adapterTypeName),
+                    className: String(definition.TestMethod[0]['$'].className),
+                    name: String(definition.TestMethod[0]['$'].name)
                 }
             });
         });
+    }
+    parseSuits(file) {
+        const suits = [];
+        const results = this.parseResults(file);
+        const definitions = this.parseDefinitions(file);
+        for (const definition of (0, sortBy_1.default)(definitions, ['name'])) {
+            const result = results.find(r => r.testId === definition.id);
+            const suit = suits.find(s => s.name === definition.testMethod.className) || {
+                name: definition.testMethod.className,
+                success: false,
+                passed: 0,
+                tests: []
+            };
+            suit.tests.push({
+                name: definition.name.replace(`${definition.testMethod.className}.`, ''),
+                outcome: (result === null || result === void 0 ? void 0 : result.outcome) || 'NotExecuted'
+            });
+        }
+        suits.forEach(suit => {
+            suit.success = suit.tests.every(test => test.outcome !== 'Failed');
+            suit.passed = suit.tests.filter(test => test.outcome === 'Passed').length;
+        });
+        return suits;
     }
 }
 exports["default"] = TrxParser;
@@ -305,7 +326,7 @@ const processTestResults = (resultsPath) => __awaiter(void 0, void 0, void 0, fu
     }
     (0, utils_1.setResultOutputs)(aggregatedResult);
     if (!aggregatedResult.success) {
-        (0, utils_1.setActionFailed)('Tests Failed');
+        (0, utils_1.setFailed)('Tests Failed');
     }
     return aggregatedResult;
 });
@@ -326,7 +347,7 @@ const mergeTestResults = (result1, result2) => {
     result1.passed += result2.passed;
     result1.failed += result2.failed;
     result1.skipped += result2.skipped;
-    result1.tests.push(...result2.tests);
+    result1.suits.push(...result2.suits);
 };
 const getDefaultTestResult = () => ({
     success: true,
@@ -335,7 +356,7 @@ const getDefaultTestResult = () => ({
     passed: 0,
     failed: 0,
     skipped: 0,
-    tests: []
+    suits: []
 });
 
 
@@ -378,14 +399,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.setSummary = exports.setCoverageOutputs = exports.setResultOutputs = exports.getActionInputs = exports.setActionFailed = void 0;
+exports.setSummary = exports.setFailed = exports.setCoverageOutputs = exports.setResultOutputs = exports.getInputs = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-const groupBy_1 = __importDefault(__nccwpck_require__(611));
-const sortBy_1 = __importDefault(__nccwpck_require__(9774));
 const inputs = {
     token: 'github-token',
     title: 'comment-title',
@@ -407,16 +423,7 @@ const outputs = {
     branchesTotal: 'coverage-branches-total',
     branchesCovered: 'coverage-branches-covered'
 };
-const outcomeIcons = {
-    Passed: '✔️',
-    Failed: '❌',
-    NotExecuted: '⚠️'
-};
-const setActionFailed = (message) => {
-    core.setFailed(message);
-};
-exports.setActionFailed = setActionFailed;
-const getActionInputs = () => {
+const getInputs = () => {
     const token = core.getInput(inputs.token) || process.env['GITHUB_TOKEN'] || '';
     return {
         token,
@@ -428,7 +435,7 @@ const getActionInputs = () => {
         coverageThreshold: Number(core.getInput(inputs.coverageThreshold))
     };
 };
-exports.getActionInputs = getActionInputs;
+exports.getInputs = getInputs;
 const setResultOutputs = (result) => {
     core.setOutput(outputs.total, result.total);
     core.setOutput(outputs.passed, result.passed);
@@ -445,23 +452,12 @@ const setCoverageOutputs = (coverage) => {
     core.setOutput(outputs.branchesCovered, coverage.branchesCovered);
 };
 exports.setCoverageOutputs = setCoverageOutputs;
-const setSummary = (title, result) => __awaiter(void 0, void 0, void 0, function* () {
-    core.summary.addHeading(title).addHeading('Tests', 3);
-    const suits = (0, groupBy_1.default)((0, sortBy_1.default)(result.tests, ['suit', 'name']), 'suit');
-    for (const suit in suits) {
-        const rows = suits[suit]
-            .map(test => `<tr><td>${test.name}</td><td>${outcomeIcons[test.outcome]}</td></tr>`)
-            .join('');
-        const header = '<tr><th>Test</th><th>Result</th></tr>';
-        const body = `<tbody>${header}${rows}</tbody>`;
-        const table = `<table role="table">${body}</table>`;
-        const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
-        const passed = suits[suit].filter(test => test.outcome === 'Passed');
-        const summary = `${icon} ${suit} - ${passed.length}/${suits[suit].length}`;
-        const details = `<details><summary>${summary}</summary>${table}</details>`;
-        core.summary.addRaw(details);
-    }
-    yield core.summary.write();
+const setFailed = (message) => {
+    core.setFailed(message);
+};
+exports.setFailed = setFailed;
+const setSummary = (text) => __awaiter(void 0, void 0, void 0, function* () {
+    yield core.summary.addRaw(text).write();
 });
 exports.setSummary = setSummary;
 
@@ -510,6 +506,7 @@ exports.publishComment = void 0;
 const github = __importStar(__nccwpck_require__(5438));
 const markdown_1 = __nccwpck_require__(120);
 const publishComment = (token, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     const { owner, repo, issueNumber, commit, runId, jobName } = getConfiguration();
     if (!token || !owner || !repo || !issueNumber) {
         console.log('Failed to post a comment');
@@ -517,9 +514,9 @@ const publishComment = (token, title, message, postNew) => __awaiter(void 0, voi
     }
     const octokit = github.getOctokit(token);
     const jobs = yield octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
-    const currentJob = jobs.data.jobs.find(job => job.name === jobName);
-    const summaryLink = currentJob ? (0, markdown_1.formatSummaryLink)(owner, repo, runId, currentJob.id) : '';
+    const currentJob = (_b = (_a = jobs.data) === null || _a === void 0 ? void 0 : _a.jobs) === null || _b === void 0 ? void 0 : _b.find(job => job.name === jobName);
     const header = (0, markdown_1.formatHeader)(title);
+    const summaryLink = currentJob ? (0, markdown_1.formatSummaryLink)(owner, repo, runId, currentJob.id) : '';
     const footer = commit ? (0, markdown_1.formatFooter)(commit) : '';
     const body = `${header}${message}${summaryLink}${footer}`;
     const issues = octokit.rest.issues;
@@ -606,6 +603,45 @@ exports.findFiles = findFiles;
 
 /***/ }),
 
+/***/ 1229:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.formatResultSummary = exports.formatSummaryTitle = void 0;
+const outcomeIcons = {
+    Passed: '✔️',
+    Failed: '❌',
+    NotExecuted: '⚠️'
+};
+const formatSummaryTitle = (title) => wrap(title, 'h1');
+exports.formatSummaryTitle = formatSummaryTitle;
+const formatResultSummary = (result) => {
+    let html = wrap('Tests', 'h3');
+    for (const suit of result.suits) {
+        const icon = suit.success ? '✔️' : '❌';
+        const summary = `${icon} ${suit} - ${suit.passed}/${suit.tests.length}`;
+        const table = formatTable(['Test', 'Result'], suit.tests.map(test => [test.name, outcomeIcons[test.outcome]]));
+        html += formatDetails(summary, table);
+    }
+    return html;
+};
+exports.formatResultSummary = formatResultSummary;
+const wrap = (item, element) => `<${element}>${item}</${element}>`;
+const wrapMany = (items, element) => items.map(i => wrap(i, element)).join('');
+const formatDetails = (summary, details) => wrap(wrap(summary, 'summary') + details, 'details');
+const formatTable = (headers, rows) => {
+    const data = rows.map(row => wrapMany(row, 'td'));
+    const rowsHtml = wrapMany(data, 'tr');
+    const headerHtml = wrap(wrapMany(headers, 'th'), 'tr');
+    const bodyHtml = wrap(`${headerHtml}${rowsHtml}`, 'tbody');
+    return `<table role="table">${bodyHtml}</table>`;
+};
+
+
+/***/ }),
+
 /***/ 7782:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -628,6 +664,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(3451), exports);
 __exportStar(__nccwpck_require__(396), exports);
+__exportStar(__nccwpck_require__(1229), exports);
 __exportStar(__nccwpck_require__(120), exports);
 __exportStar(__nccwpck_require__(2216), exports);
 
@@ -640,7 +677,7 @@ __exportStar(__nccwpck_require__(2216), exports);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatTestCoverage = exports.formatTestResult = exports.formatSummaryLink = exports.formatFooter = exports.formatSubHeader = exports.formatHeader = void 0;
+exports.formatCoverage = exports.formatResult = exports.formatSummaryLink = exports.formatFooter = exports.formatSubHeader = exports.formatHeader = void 0;
 const formatHeader = (header) => `## ${header}\n`;
 exports.formatHeader = formatHeader;
 const formatSubHeader = (header) => `### ${header}\n`;
@@ -652,15 +689,15 @@ const formatSummaryLink = (owner, repo, runId, jobId) => {
     return `🔍 click [here](${url}) for more details\n`;
 };
 exports.formatSummaryLink = formatSummaryLink;
-const formatTestResult = (result) => {
+const formatResult = (result) => {
     const { total, passed, skipped, success } = result;
     const title = `${getStatusIcon(success)} Tests`;
     const info = `**${passed} / ${total}**${skipped ? ` (${skipped} skipped)` : ''}`;
     const status = `- ${getStatusText(success)} in ${formatElapsedTime(result.elapsed)}`;
     return `${title} ${info} ${status}\n`;
 };
-exports.formatTestResult = formatTestResult;
-const formatTestCoverage = (coverage, min) => {
+exports.formatResult = formatResult;
+const formatCoverage = (coverage, min) => {
     const { linesCovered, linesTotal, lineCoverage, branchesTotal, branchesCovered, success } = coverage;
     const title = `${min ? getStatusIcon(success) : '📝'} Coverage`;
     const info = `**${lineCoverage}%**`;
@@ -669,7 +706,7 @@ const formatTestCoverage = (coverage, min) => {
     const branches = `🌿 ${branchesCovered} / ${branchesTotal} branches covered`;
     return `${title} ${info} ${status}\n${lines} ${branches}\n`;
 };
-exports.formatTestCoverage = formatTestCoverage;
+exports.formatCoverage = formatCoverage;
 const formatElapsedTime = (elapsed) => {
     const secondsDelimiter = 1000;
     const minutesDelimiter = 120000;
@@ -5596,35 +5633,6 @@ module.exports = apply;
 
 /***/ }),
 
-/***/ 9173:
-/***/ ((module) => {
-
-/**
- * A specialized version of `baseAggregator` for arrays.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} setter The function to set `accumulator` values.
- * @param {Function} iteratee The iteratee to transform keys.
- * @param {Object} accumulator The initial aggregated object.
- * @returns {Function} Returns `accumulator`.
- */
-function arrayAggregator(array, setter, iteratee, accumulator) {
-  var index = -1,
-      length = array == null ? 0 : array.length;
-
-  while (++index < length) {
-    var value = array[index];
-    setter(accumulator, value, iteratee(value), array);
-  }
-  return accumulator;
-}
-
-module.exports = arrayAggregator;
-
-
-/***/ }),
-
 /***/ 8388:
 /***/ ((module) => {
 
@@ -5822,66 +5830,6 @@ function assocIndexOf(array, key) {
 }
 
 module.exports = assocIndexOf;
-
-
-/***/ }),
-
-/***/ 4524:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var baseEach = __nccwpck_require__(3236);
-
-/**
- * Aggregates elements of `collection` on `accumulator` with keys transformed
- * by `iteratee` and values set by `setter`.
- *
- * @private
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} setter The function to set `accumulator` values.
- * @param {Function} iteratee The iteratee to transform keys.
- * @param {Object} accumulator The initial aggregated object.
- * @returns {Function} Returns `accumulator`.
- */
-function baseAggregator(collection, setter, iteratee, accumulator) {
-  baseEach(collection, function(value, key, collection) {
-    setter(accumulator, value, iteratee(value), collection);
-  });
-  return accumulator;
-}
-
-module.exports = baseAggregator;
-
-
-/***/ }),
-
-/***/ 3868:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var defineProperty = __nccwpck_require__(416);
-
-/**
- * The base implementation of `assignValue` and `assignMergeValue` without
- * value checks.
- *
- * @private
- * @param {Object} object The object to modify.
- * @param {string} key The key of the property to assign.
- * @param {*} value The value to assign.
- */
-function baseAssignValue(object, key, value) {
-  if (key == '__proto__' && defineProperty) {
-    defineProperty(object, key, {
-      'configurable': true,
-      'enumerable': true,
-      'value': value,
-      'writable': true
-    });
-  } else {
-    object[key] = value;
-  }
-}
-
-module.exports = baseAssignValue;
 
 
 /***/ }),
@@ -7053,36 +7001,6 @@ var root = __nccwpck_require__(9882);
 var coreJsData = root['__core-js_shared__'];
 
 module.exports = coreJsData;
-
-
-/***/ }),
-
-/***/ 2327:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var arrayAggregator = __nccwpck_require__(9173),
-    baseAggregator = __nccwpck_require__(4524),
-    baseIteratee = __nccwpck_require__(427),
-    isArray = __nccwpck_require__(4869);
-
-/**
- * Creates a function like `_.groupBy`.
- *
- * @private
- * @param {Function} setter The function to set accumulator values.
- * @param {Function} [initializer] The accumulator object initializer.
- * @returns {Function} Returns the new aggregator function.
- */
-function createAggregator(setter, initializer) {
-  return function(collection, iteratee) {
-    var func = isArray(collection) ? arrayAggregator : baseAggregator,
-        accumulator = initializer ? initializer() : {};
-
-    return func(collection, setter, baseIteratee(iteratee, 2), accumulator);
-  };
-}
-
-module.exports = createAggregator;
 
 
 /***/ }),
@@ -9195,54 +9113,6 @@ function get(object, path, defaultValue) {
 }
 
 module.exports = get;
-
-
-/***/ }),
-
-/***/ 611:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var baseAssignValue = __nccwpck_require__(3868),
-    createAggregator = __nccwpck_require__(2327);
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/**
- * Creates an object composed of keys generated from the results of running
- * each element of `collection` thru `iteratee`. The order of grouped values
- * is determined by the order they occur in `collection`. The corresponding
- * value of each key is an array of elements responsible for generating the
- * key. The iteratee is invoked with one argument: (value).
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Collection
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} [iteratee=_.identity] The iteratee to transform keys.
- * @returns {Object} Returns the composed aggregate object.
- * @example
- *
- * _.groupBy([6.1, 4.2, 6.3], Math.floor);
- * // => { '4': [4.2], '6': [6.1, 6.3] }
- *
- * // The `_.property` iteratee shorthand.
- * _.groupBy(['one', 'two', 'three'], 'length');
- * // => { '3': ['one', 'two'], '5': ['three'] }
- */
-var groupBy = createAggregator(function(result, value, key) {
-  if (hasOwnProperty.call(result, key)) {
-    result[key].push(value);
-  } else {
-    baseAssignValue(result, key, [value]);
-  }
-});
-
-module.exports = groupBy;
 
 
 /***/ }),

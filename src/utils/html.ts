@@ -6,8 +6,10 @@ const outcomeIcons: { [key in TestOutcome]: string } = {
   NotExecuted: '⚠️'
 };
 
-export const formatResultSummary = (title: string, result: IResult): string => {
-  let html = wrap(title, 'h1') + wrap('Tests', 'h3');
+export const formatSummaryTitle = (title: string): string => wrap(title, 'h1');
+
+export const formatResultSummary = (result: IResult): string => {
+  let html = wrap('Tests', 'h3');
 
   for (const suit of result.suits) {
     const icon = suit.success ? '✔️' : '❌';

@@ -11,7 +11,7 @@ export const formatSummaryLink = (owner: string, repo: string, runId: number, jo
   return `🔍 click [here](${url}) for more details\n`;
 };
 
-export const formatTestResult = (result: IResult): string => {
+export const formatResult = (result: IResult): string => {
   const { total, passed, skipped, success } = result;
 
   const title = `${getStatusIcon(success)} Tests`;
@@ -21,7 +21,7 @@ export const formatTestResult = (result: IResult): string => {
   return `${title} ${info} ${status}\n`;
 };
 
-export const formatTestCoverage = (coverage: ICoverage, min: number): string => {
+export const formatCoverage = (coverage: ICoverage, min: number): string => {
   const { linesCovered, linesTotal, lineCoverage, branchesTotal, branchesCovered, success } = coverage;
 
   const title = `${min ? getStatusIcon(success) : '📝'} Coverage`;

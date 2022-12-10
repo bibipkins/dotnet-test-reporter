@@ -58,6 +58,6 @@ export const setFailed = (message: string): void => {
   core.setFailed(message);
 };
 
-export const setSummary = async (html: string): Promise<void> => {
-  await core.summary.addRaw(html).write();
+export const setSummary = async (text: string): Promise<void> => {
+  await core.summary.addRaw(text).write();
 };
