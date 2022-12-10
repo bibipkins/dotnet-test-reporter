@@ -29,7 +29,8 @@ const wrap = (item: string, element: string): string => `<${element}>${item}</${
 
 const wrapMany = (items: string[], element: string): string => items.map(i => wrap(i, element)).join('');
 
-const formatDetails = (summary: string, details: string): string => wrap(wrap(summary, 'summary') + details, 'details');
+const formatDetails = (summary: string, details: string): string =>
+  wrap(`${wrap(summary, 'summary')}<br/>${details}`, 'details');
 
 const formatTable = (headers: string[], rows: string[][]): string => {
   const data = rows.map(row => wrapMany(row, 'td'));

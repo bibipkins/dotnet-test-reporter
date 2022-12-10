@@ -634,7 +634,7 @@ const formatResultSummary = (result) => {
 exports.formatResultSummary = formatResultSummary;
 const wrap = (item, element) => `<${element}>${item}</${element}>`;
 const wrapMany = (items, element) => items.map(i => wrap(i, element)).join('');
-const formatDetails = (summary, details) => wrap(wrap(summary, 'summary') + details, 'details');
+const formatDetails = (summary, details) => wrap(`${wrap(summary, 'summary')}<br/>${details}`, 'details');
 const formatTable = (headers, rows) => {
     const data = rows.map(row => wrapMany(row, 'td'));
     const rowsHtml = wrapMany(data, 'tr');
