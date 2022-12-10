@@ -1,6 +1,4 @@
 import * as core from '@actions/core';
-import groupBy from 'lodash/groupBy';
-import sortBy from 'lodash/sortBy';
 import { CoverageType, IActionInputs, ICoverage, IResult } from '../data';
 
 const inputs = {
@@ -26,17 +24,7 @@ const outputs = {
   branchesCovered: 'coverage-branches-covered'
 };
 
-const outcomeIcons = {
-  Passed: '✔️',
-  Failed: '❌',
-  NotExecuted: '⚠️'
-};
-
-export const setActionFailed = (message: string): void => {
-  core.setFailed(message);
-};
-
-export const getActionInputs = (): IActionInputs => {
+export const getInputs = (): IActionInputs => {
   const token = core.getInput(inputs.token) || process.env['GITHUB_TOKEN'] || '';
 
   return {
@@ -66,25 +54,10 @@ export const setCoverageOutputs = (coverage: ICoverage): void => {
   core.setOutput(outputs.branchesCovered, coverage.branchesCovered);
 };
 
-export const setSummary = async (title: string, result: IResult): Promise<void> => {
-  core.summary.addHeading(title).addHeading('Tests', 3);
+export const setFailed = (message: string): void => {
+  core.setFailed(message);
+};
 
-  const suits = groupBy(sortBy(result.tests, ['suit', 'name']), 'suit');
-
-  for (const suit in suits) {
-    const rows = suits[suit]
-      .map(test => `<tr><td>${test.name}</td><td>${outcomeIcons[test.outcome]}</td></tr>`)
-      .join('');
-
-    const header = '<tr><th>Test</th><th>Result</th></tr>';
-    const body = `<tbody>${header}${rows}</tbody>`;
-    const table = `<table role="table">${body}</table>`;
-    const icon = suits[suit].every(test => test.outcome !== 'Failed') ? '✔️' : '❌';
-    const passed = suits[suit].filter(test => test.outcome === 'Passed');
-    const summary = `${icon} ${suit} - ${passed.length}/${suits[suit].length}`;
-    const details = `<details><summary>${summary}</summary>${table}</details>`;
-    core.summary.addRaw(details);
-  }
-
-  await core.summary.write();
+export const setSummary = async (html: string): Promise<void> => {
+  await core.summary.addRaw(html).write();
 };

@@ -19,10 +19,10 @@ export const publishComment = async (
 
   const octokit = github.getOctokit(token);
   const jobs = await octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
-  const currentJob = jobs.data.jobs.find(job => job.name === jobName);
-  const summaryLink = currentJob ? formatSummaryLink(owner, repo, runId, currentJob.id) : '';
+  const currentJob = jobs.data?.jobs?.find(job => job.name === jobName);
 
   const header = formatHeader(title);
+  const summaryLink = currentJob ? formatSummaryLink(owner, repo, runId, currentJob.id) : '';
   const footer = commit ? formatFooter(commit) : '';
   const body = `${header}${message}${summaryLink}${footer}`;
 

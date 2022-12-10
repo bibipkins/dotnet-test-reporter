@@ -1,4 +1,5 @@
-import { IResult, IResultParser } from '../data';
+import sortBy from 'lodash/sortBy';
+import { IResult, IResultParser, ITestSuit, TestOutcome } from '../data';
 import { readXmlFile } from '../utils';
 
 export default class TrxParser implements IResultParser {
@@ -9,26 +10,15 @@ export default class TrxParser implements IResultParser {
       return null;
     }
 
+    const suits = this.parseSuits(file);
     const { start, finish } = this.parseElapsedTime(file);
     const { outcome, total, passed, failed, executed } = this.parseSummary(file);
-    const results = this.parseResults(file);
-    const definitions = this.parseDefinitions(file);
-
-    const tests = definitions.map(definition => {
-      const result = results.find(r => r.testId === definition.id);
-
-      return {
-        name: result?.testName.replace(`${definition.testMethod.className}.`, ''),
-        suit: definition.testMethod.className,
-        outcome: result?.outcome || ''
-      };
-    });
 
     const elapsed = finish.getTime() - start.getTime();
     const skipped = total - executed;
     const success = failed === 0 && outcome === 'Completed';
 
-    return { success, elapsed, total, passed, failed, skipped, tests };
+    return { success, elapsed, total, passed, failed, skipped, suits };
   }
 
   private parseElapsedTime(file: any) {
@@ -57,17 +47,17 @@ export default class TrxParser implements IResultParser {
     const results = file.TestRun.Results[0].UnitTestResult as any[];
 
     return results.map((result: any) => ({
-      executionId: result['$'].executionId,
-      testId: result['$'].testId,
-      testName: result['$'].testName,
-      testType: result['$'].testType,
-      testListId: result['$'].testListId,
-      computerName: result['$'].computerName,
-      duration: result['$'].duration,
-      startTime: result['$'].startTime,
-      endTime: result['$'].endTime,
-      outcome: result['$'].outcome,
-      relativeResultsDirectory: result['$'].relativeResultsDirectory
+      executionId: String(result['$'].executionId),
+      testId: String(result['$'].testId),
+      testName: String(result['$'].testName),
+      testType: String(result['$'].testType),
+      testListId: String(result['$'].testListId),
+      computerName: String(result['$'].computerName),
+      duration: String(result['$'].duration),
+      startTime: new Date(result['$'].startTime),
+      endTime: new Date(result['$'].endTime),
+      outcome: String(result['$'].outcome) as TestOutcome,
+      relativeResultsDirectory: String(result['$'].relativeResultsDirectory)
     }));
   }
 
@@ -75,17 +65,45 @@ export default class TrxParser implements IResultParser {
     const definitions = file.TestRun.TestDefinitions[0].UnitTest as any[];
 
     return definitions.map(definition => ({
-      id: definition['$'].id,
-      name: definition['$'].name,
-      storage: definition['$'].storage,
-      description: definition.Description?.[0],
-      executionId: definition.Execution[0]['$'].id,
+      id: String(definition['$'].id),
+      name: String(definition['$'].name),
+      storage: String(definition['$'].storage),
+      description: String(definition.Description?.[0]),
+      executionId: String(definition.Execution[0]['$'].id),
       testMethod: {
-        codeBase: definition.TestMethod[0]['$'].codeBase,
-        adapterTypeName: definition.TestMethod[0]['$'].adapterTypeName,
-        className: definition.TestMethod[0]['$'].className,
-        name: definition.TestMethod[0]['$'].name
+        codeBase: String(definition.TestMethod[0]['$'].codeBase),
+        adapterTypeName: String(definition.TestMethod[0]['$'].adapterTypeName),
+        className: String(definition.TestMethod[0]['$'].className),
+        name: String(definition.TestMethod[0]['$'].name)
       }
     }));
+  }
+
+  private parseSuits(file: any) {
+    const suits: ITestSuit[] = [];
+    const results = this.parseResults(file);
+    const definitions = this.parseDefinitions(file);
+
+    for (const definition of sortBy(definitions, ['name'])) {
+      const result = results.find(r => r.testId === definition.id);
+      const suit = suits.find(s => s.name === definition.testMethod.className) || {
+        name: definition.testMethod.className,
+        success: false,
+        passed: 0,
+        tests: []
+      };
+
+      suit.tests.push({
+        name: definition.name.replace(`${definition.testMethod.className}.`, ''),
+        outcome: result?.outcome || 'NotExecuted'
+      });
+    }
+
+    suits.forEach(suit => {
+      suit.success = suit.tests.every(test => test.outcome !== 'Failed');
+      suit.passed = suit.tests.filter(test => test.outcome === 'Passed').length;
+    });
+
+    return suits;
   }
 }

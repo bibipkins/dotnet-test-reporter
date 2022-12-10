@@ -1,3 +1,5 @@
+import ITestSuit from './ITestSuit';
+
 export default interface IResult {
   success: boolean;
   elapsed: number;
@@ -5,9 +7,5 @@ export default interface IResult {
   passed: number;
   failed: number;
   skipped: number;
-  tests: {
-    name: string;
-    suit: string;
-    outcome: string;
-  }[];
+  suits: ITestSuit[];
 }
