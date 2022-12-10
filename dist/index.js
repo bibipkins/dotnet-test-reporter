@@ -272,7 +272,8 @@ class TrxParser {
         const definitions = this.parseDefinitions(file);
         for (const definition of (0, sortBy_1.default)(definitions, ['name'])) {
             const result = results.find(r => r.testId === definition.id);
-            const suit = suits.find(s => s.name === definition.testMethod.className) || {
+            const existingSuit = suits.find(s => s.name === definition.testMethod.className);
+            const suit = existingSuit || {
                 name: definition.testMethod.className,
                 success: false,
                 passed: 0,
@@ -282,6 +283,9 @@ class TrxParser {
                 name: definition.name.replace(`${definition.testMethod.className}.`, ''),
                 outcome: (result === null || result === void 0 ? void 0 : result.outcome) || 'NotExecuted'
             });
+            if (!existingSuit) {
+                suits.push(suit);
+            }
         }
         suits.forEach(suit => {
             suit.success = suit.tests.every(test => test.outcome !== 'Failed');

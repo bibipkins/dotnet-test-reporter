@@ -86,7 +86,8 @@ export default class TrxParser implements IResultParser {
 
     for (const definition of sortBy(definitions, ['name'])) {
       const result = results.find(r => r.testId === definition.id);
-      const suit = suits.find(s => s.name === definition.testMethod.className) || {
+      const existingSuit = suits.find(s => s.name === definition.testMethod.className);
+      const suit = existingSuit || {
         name: definition.testMethod.className,
         success: false,
         passed: 0,
@@ -97,6 +98,10 @@ export default class TrxParser implements IResultParser {
         name: definition.name.replace(`${definition.testMethod.className}.`, ''),
         outcome: result?.outcome || 'NotExecuted'
       });
+
+      if (!existingSuit) {
+        suits.push(suit);
+      }
     }
 
     suits.forEach(suit => {
