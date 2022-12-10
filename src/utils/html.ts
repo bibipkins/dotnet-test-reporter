@@ -13,7 +13,7 @@ export const formatResultSummary = (result: IResult): string => {
 
   for (const suit of result.suits) {
     const icon = suit.success ? '✔️' : '❌';
-    const summary = `${icon} ${suit} - ${suit.passed}/${suit.tests.length}`;
+    const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
     const table = formatTable(
       ['Test', 'Result'],
       suit.tests.map(test => [test.name, outcomeIcons[test.outcome]])

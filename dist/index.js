@@ -69,7 +69,6 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         let comment = '';
         let summary = (0, utils_1.formatSummaryTitle)(title);
         const testResult = yield (0, results_1.processTestResults)(resultsPath);
-        console.log(testResult);
         comment += (0, utils_1.formatResult)(testResult);
         summary += (0, utils_1.formatResultSummary)(testResult);
         if (coveragePath) {
@@ -626,7 +625,7 @@ const formatResultSummary = (result) => {
     let html = wrap('Tests', 'h3');
     for (const suit of result.suits) {
         const icon = suit.success ? '✔️' : '❌';
-        const summary = `${icon} ${suit} - ${suit.passed}/${suit.tests.length}`;
+        const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
         const table = formatTable(['Test', 'Result'], suit.tests.map(test => [test.name, outcomeIcons[test.outcome]]));
         html += formatDetails(summary, table);
     }

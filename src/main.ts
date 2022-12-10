@@ -19,7 +19,6 @@ const run = async (): Promise<void> => {
     let summary = formatSummaryTitle(title);
 
     const testResult = await processTestResults(resultsPath);
-    console.log(testResult);
     comment += formatResult(testResult);
     summary += formatResultSummary(testResult);
 
