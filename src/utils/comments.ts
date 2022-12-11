@@ -22,7 +22,7 @@ export const publishComment = async (
   const context = getContext();
   const { owner, repo, runId, issueNumber, commit } = context;
 
-  if (!token || !owner || !repo || issueNumber !== -1) {
+  if (!token || !owner || !repo || issueNumber === -1) {
     console.log('Failed to post a comment');
     return;
   }

@@ -486,7 +486,7 @@ const markdown_1 = __nccwpck_require__(120);
 const publishComment = (token, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
     const context = getContext();
     const { owner, repo, runId, issueNumber, commit } = context;
-    if (!token || !owner || !repo || issueNumber !== -1) {
+    if (!token || !owner || !repo || issueNumber === -1) {
         console.log('Failed to post a comment');
         return;
     }
