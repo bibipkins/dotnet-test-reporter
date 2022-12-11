@@ -1,4 +1,3 @@
-import sortBy from 'lodash/sortBy';
 import { IResult, IResultParser, ITestSuit, TestOutcome } from '../data';
 import { readXmlFile } from '../utils';
 
@@ -83,8 +82,9 @@ export default class TrxParser implements IResultParser {
     const suits: ITestSuit[] = [];
     const results = this.parseResults(file);
     const definitions = this.parseDefinitions(file);
+    const sortedDefinitions = definitions.sort((a, b) => a.name.localeCompare(b.name));
 
-    for (const definition of sortBy(definitions, ['name'])) {
+    for (const definition of sortedDefinitions) {
       const result = results.find(r => r.testId === definition.id);
       const existingSuit = suits.find(s => s.name === definition.testMethod.className);
       const suit = existingSuit || {

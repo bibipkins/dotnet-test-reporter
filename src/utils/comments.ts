@@ -1,8 +1,17 @@
-import * as github from '@actions/github';
-import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
+import { GitHub } from '@actions/github/lib/utils';
+import { getOctokit, context } from '@actions/github/lib/github';
 import { formatFooter, formatHeader, formatSummaryLink } from './markdown';
 
-type ListCommentsResponse = RestEndpointMethodTypes['issues']['listComments']['response'];
+type Octokit = InstanceType<typeof GitHub>;
+
+interface IContext {
+  owner: string;
+  repo: string;
+  commit: string;
+  issueNumber: number;
+  runId: number;
+  jobName: string;
+}
 
 export const publishComment = async (
   token: string,
@@ -10,48 +19,55 @@ export const publishComment = async (
   message: string,
   postNew: boolean
 ): Promise<void> => {
-  const { owner, repo, issueNumber, commit, runId, jobName } = getConfiguration();
+  const context = getContext();
+  const { owner, repo, runId, issueNumber, commit } = context;
 
-  if (!token || !owner || !repo || !issueNumber) {
+  if (!token || !owner || !repo || issueNumber !== -1) {
     console.log('Failed to post a comment');
     return;
   }
 
-  const octokit = github.getOctokit(token);
-  const jobs = await octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
-  const currentJob = jobs.data?.jobs?.find(job => job.name === jobName);
-
   const header = formatHeader(title);
+  const octokit = getOctokit(token);
+  const currentJob = await getCurrentJob(octokit, context);
+  const existingComment = await getExistingComment(octokit, context, header);
+
   const summaryLink = currentJob ? formatSummaryLink(owner, repo, runId, currentJob.id) : '';
   const footer = commit ? formatFooter(commit) : '';
   const body = `${header}${message}${summaryLink}${footer}`;
 
-  const issues = octokit.rest.issues;
-  const comments = await issues.listComments({ owner, repo, issue_number: issueNumber });
-  const existingComment = findExistingComment(comments, header);
-
   if (existingComment && !postNew) {
-    await issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
+    await octokit.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
   } else {
-    await issues.createComment({ owner, repo, issue_number: issueNumber, body });
+    await octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
   }
 };
 
-const getConfiguration = () => {
+const getContext = (): IContext => {
   const {
     job,
     runId,
     payload: { pull_request, repository, after }
-  } = github.context;
+  } = context;
 
-  const issueNumber = pull_request?.number;
+  const issueNumber = pull_request?.number ?? -1;
   const [owner, repo] = repository?.full_name?.split('/') || [];
 
   return { owner, repo, issueNumber, commit: after, runId, jobName: job };
 };
 
-const findExistingComment = (comments: ListCommentsResponse, header: string) => {
-  return comments.data.find(comment => {
+const getCurrentJob = async (octokit: Octokit, context: IContext) => {
+  const { owner, repo, runId, jobName } = context;
+  const jobs = await octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
+
+  return jobs.data?.jobs?.find(job => job.name === jobName);
+};
+
+const getExistingComment = async (octokit: Octokit, context: IContext, header: string) => {
+  const { owner, repo, issueNumber } = context;
+  const comments = await octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber });
+
+  return comments.data?.find(comment => {
     const isBotUserType = comment.user?.type === 'Bot';
     const startsWithHeader = comment.body?.startsWith(header);
 
