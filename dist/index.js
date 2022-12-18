@@ -606,22 +606,31 @@ const formatResultSummary = (result) => {
     for (const suit of result.suits) {
         const icon = suit.success ? '✔️' : '❌';
         const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
-        const table = formatTable(['Test', 'Result'], suit.tests.map(test => [test.name, outcomeIcons[test.outcome]]));
+        const table = formatTable([{ name: 'Test' }, { name: 'Result', style: 'text-align: center;' }], suit.tests.map(test => [test.name, outcomeIcons[test.outcome]]));
         html += formatDetails(summary, table);
     }
     return html;
 };
 exports.formatResultSummary = formatResultSummary;
-const wrap = (item, element) => `<${element}>${item}</${element}>`;
-const wrapMany = (items, element) => items.map(i => wrap(i, element)).join('');
+const wrap = (item, element, props) => {
+    let attributes = [];
+    for (const attribute in props) {
+        attributes.push(`${attribute}="${props[attribute]}"`);
+    }
+    return `<${element} ${attributes.join(' ')}>${item}</${element}>`;
+};
+const wrapMany = (items, element, props) => items.map(i => wrap(i, element, props)).join('');
 const formatDetails = (summary, details) => wrap(`${wrap(summary, 'summary')}<br/>${details}`, 'details');
 const formatTable = (headers, rows) => {
-    const data = rows.map(row => wrapMany(row, 'td'));
-    const rowsHtml = wrapMany(data, 'tr');
-    const headerHtml = wrap(wrapMany(headers, 'th'), 'tr');
-    const bodyHtml = wrap(`${headerHtml}${rowsHtml}`, 'tbody');
-    return `<table role="table">${bodyHtml}</table>`;
+    const headerNames = headers.map(h => h.name);
+    const headersData = wrapMany(headerNames, 'th');
+    const headersHtml = wrap(headersData, 'tr');
+    const rowsData = rows.map(row => row.map((column, i) => formatColumn(column, headers[i])).join(''));
+    const rowsHtml = wrapMany(rowsData, 'tr');
+    const bodyHtml = wrap(`${headersHtml}${rowsHtml}`, 'tbody');
+    return wrap(bodyHtml, 'table', { role: 'table' });
 };
+const formatColumn = (column, header) => { var _a; return wrap(column, 'td', header.style ? { style: (_a = header.style) !== null && _a !== void 0 ? _a : '' } : undefined); };
 
 
 /***/ }),

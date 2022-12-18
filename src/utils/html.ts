@@ -1,5 +1,10 @@
 import { IResult, TestOutcome } from '../data';
 
+interface Header {
+  name: string;
+  style?: string;
+}
+
 const outcomeIcons: { [key in TestOutcome]: string } = {
   Passed: '✔️',
   Failed: '❌',
@@ -15,7 +20,7 @@ export const formatResultSummary = (result: IResult): string => {
     const icon = suit.success ? '✔️' : '❌';
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
     const table = formatTable(
-      ['Test', 'Result'],
+      [{ name: 'Test' }, { name: 'Result', style: 'text-align: center;' }],
       suit.tests.map(test => [test.name, outcomeIcons[test.outcome]])
     );
 
@@ -25,18 +30,33 @@ export const formatResultSummary = (result: IResult): string => {
   return html;
 };
 
-const wrap = (item: string, element: string): string => `<${element}>${item}</${element}>`;
+const wrap = (item: string, element: string, props?: { [index: string]: string }): string => {
+  let attributes: string[] = [];
 
-const wrapMany = (items: string[], element: string): string => items.map(i => wrap(i, element)).join('');
+  for (const attribute in props) {
+    attributes.push(`${attribute}="${props[attribute]}"`);
+  }
+
+  return `<${element} ${attributes.join(' ')}>${item}</${element}>`;
+};
+
+const wrapMany = (items: string[], element: string, props?: { [index: string]: string }): string =>
+  items.map(i => wrap(i, element, props)).join('');
 
 const formatDetails = (summary: string, details: string): string =>
   wrap(`${wrap(summary, 'summary')}<br/>${details}`, 'details');
 
-const formatTable = (headers: string[], rows: string[][]): string => {
-  const data = rows.map(row => wrapMany(row, 'td'));
-  const rowsHtml = wrapMany(data, 'tr');
-  const headerHtml = wrap(wrapMany(headers, 'th'), 'tr');
-  const bodyHtml = wrap(`${headerHtml}${rowsHtml}`, 'tbody');
+const formatTable = (headers: Header[], rows: string[][]): string => {
+  const headerNames = headers.map(h => h.name);
+  const headersData = wrapMany(headerNames, 'th');
+  const headersHtml = wrap(headersData, 'tr');
 
-  return `<table role="table">${bodyHtml}</table>`;
+  const rowsData = rows.map(row => row.map((column, i) => formatColumn(column, headers[i])).join(''));
+  const rowsHtml = wrapMany(rowsData, 'tr');
+  const bodyHtml = wrap(`${headersHtml}${rowsHtml}`, 'tbody');
+
+  return wrap(bodyHtml, 'table', { role: 'table' });
 };
+
+const formatColumn = (column: string, header: Header): string =>
+  wrap(column, 'td', header.style ? { style: header.style ?? '' } : undefined);
