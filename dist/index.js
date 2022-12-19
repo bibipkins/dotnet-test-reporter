@@ -45,6 +45,132 @@ exports.processTestCoverage = processTestCoverage;
 
 /***/ }),
 
+/***/ 9759:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.formatElapsedTime = exports.getStatusIcon = void 0;
+const getStatusIcon = (success) => (success ? '✔️' : '❌');
+exports.getStatusIcon = getStatusIcon;
+const formatElapsedTime = (elapsed) => {
+    const secondsDelimiter = 1000;
+    const minutesDelimiter = 120000;
+    if (elapsed >= minutesDelimiter) {
+        return `${Math.round(elapsed / 6000) / 10}min`;
+    }
+    else if (elapsed >= secondsDelimiter) {
+        return `${Math.round(elapsed / 100) / 10}s`;
+    }
+    else {
+        return `${elapsed}ms`;
+    }
+};
+exports.formatElapsedTime = formatElapsedTime;
+
+
+/***/ }),
+
+/***/ 9339:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.formatResultSummary = exports.formatSummaryTitle = void 0;
+const common_1 = __nccwpck_require__(9759);
+const outcomeIcons = {
+    Passed: '✔️',
+    Failed: '❌',
+    NotExecuted: '⚠️'
+};
+const formatSummaryTitle = (title) => wrap(title, 'h1');
+exports.formatSummaryTitle = formatSummaryTitle;
+const formatResultSummary = (result) => {
+    let html = wrap('Tests', 'h3');
+    html += formatTable([{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }, { name: '⏱️ Time' }], [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, (0, common_1.formatElapsedTime)(result.elapsed)]]);
+    for (const suit of result.suits) {
+        const icon = (0, common_1.getStatusIcon)(suit.success);
+        const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
+        const table = formatTable([{ name: 'Test' }, { name: 'Result', align: 'center' }], suit.tests.map(test => [test.name, outcomeIcons[test.outcome]]));
+        html += formatDetails(summary, table);
+    }
+    return html;
+};
+exports.formatResultSummary = formatResultSummary;
+const wrap = (item, element) => {
+    let tag = '';
+    let attributes = '';
+    if (typeof element === 'string') {
+        tag = element;
+    }
+    else {
+        tag = element.tag;
+        attributes = element.attributes
+            ? Object.keys(element.attributes)
+                .map(a => { var _a; return `${a}="${(_a = element.attributes) === null || _a === void 0 ? void 0 : _a[a]}"`; })
+                .join(' ')
+            : '';
+    }
+    return `<${tag} ${attributes}>${item}</${tag}>`;
+};
+const wrapMany = (items, element) => items.map(item => wrap(item, element)).join('');
+const formatDetails = (summary, details) => wrap(`${wrap(summary, 'summary')}<br/>${details}`, 'details');
+const formatColumn = (column, header) => wrap(column, { tag: 'td', attributes: header.align ? { align: header.align } : undefined });
+const formatTable = (headers, rows) => {
+    const headerNames = headers.map(h => h.name);
+    const headersData = wrapMany(headerNames, 'th');
+    const headersHtml = wrap(headersData, 'tr');
+    const rowsData = rows.map(row => row.map((column, i) => formatColumn(column, headers[i])).join(''));
+    const rowsHtml = wrapMany(rowsData, 'tr');
+    const bodyHtml = wrap(`${headersHtml}${rowsHtml}`, 'tbody');
+    return wrap(bodyHtml, { tag: 'table', attributes: { role: 'table' } });
+};
+
+
+/***/ }),
+
+/***/ 2519:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.formatCoverage = exports.formatResult = exports.formatSummaryLink = exports.formatFooter = exports.formatHeader = void 0;
+const common_1 = __nccwpck_require__(9759);
+const formatHeader = (header) => `## ${header}\n`;
+exports.formatHeader = formatHeader;
+const formatFooter = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
+exports.formatFooter = formatFooter;
+const formatSummaryLink = (owner, repo, runId, jobId) => {
+    const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#summary-${jobId}`;
+    return `🔍 click [here](${url}) for more details\n`;
+};
+exports.formatSummaryLink = formatSummaryLink;
+const formatResult = (result) => {
+    const { total, passed, skipped, success } = result;
+    const title = `${(0, common_1.getStatusIcon)(success)} Tests`;
+    const info = `**${passed} / ${total}**${skipped ? ` (${skipped} skipped)` : ''}`;
+    const status = `- ${getStatusText(success)} in ${(0, common_1.formatElapsedTime)(result.elapsed)}`;
+    return `${title} ${info} ${status}\n`;
+};
+exports.formatResult = formatResult;
+const formatCoverage = (coverage, min) => {
+    const { linesCovered, linesTotal, lineCoverage, branchesTotal, branchesCovered, success } = coverage;
+    const title = `${min ? (0, common_1.getStatusIcon)(success) : '📝'} Coverage`;
+    const info = `**${lineCoverage}%**`;
+    const status = min ? `- ${getStatusText(success)} with ${min}% threshold` : '';
+    const lines = `📏 ${linesCovered} / ${linesTotal} lines covered`;
+    const branches = `🌿 ${branchesCovered} / ${branchesTotal} branches covered`;
+    return `${title} ${info} ${status}\n${lines} ${branches}\n`;
+};
+exports.formatCoverage = formatCoverage;
+const getStatusText = (success) => (success ? '**passed**' : '**failed**');
+
+
+/***/ }),
+
 /***/ 9538:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -63,17 +189,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const results_1 = __nccwpck_require__(1530);
 const coverage_1 = __nccwpck_require__(3725);
 const utils_1 = __nccwpck_require__(7782);
+const html_1 = __nccwpck_require__(9339);
+const markdown_1 = __nccwpck_require__(2519);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment } = (0, utils_1.getInputs)();
         let comment = '';
-        let summary = (0, utils_1.formatSummaryTitle)(title);
+        let summary = (0, html_1.formatSummaryTitle)(title);
         const testResult = yield (0, results_1.processTestResults)(resultsPath);
-        comment += (0, utils_1.formatResult)(testResult);
-        summary += (0, utils_1.formatResultSummary)(testResult);
+        comment += (0, markdown_1.formatResult)(testResult);
+        summary += (0, html_1.formatResultSummary)(testResult);
         if (coveragePath) {
             const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold);
-            comment += testCoverage ? (0, utils_1.formatCoverage)(testCoverage, coverageThreshold) : '';
+            comment += testCoverage ? (0, markdown_1.formatCoverage)(testCoverage, coverageThreshold) : '';
         }
         yield (0, utils_1.setSummary)(summary);
         yield (0, utils_1.publishComment)(token, title, comment, postNewComment);
@@ -482,7 +610,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.publishComment = void 0;
 const github_1 = __nccwpck_require__(5438);
-const markdown_1 = __nccwpck_require__(120);
+const markdown_1 = __nccwpck_require__(2519);
 const publishComment = (token, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
     const context = getContext();
     const { owner, repo, runId, issueNumber, commit } = context;
@@ -587,64 +715,6 @@ exports.findFiles = findFiles;
 
 /***/ }),
 
-/***/ 1229:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatResultSummary = exports.formatSummaryTitle = void 0;
-const outcomeIcons = {
-    Passed: '✔️',
-    Failed: '❌',
-    NotExecuted: '⚠️'
-};
-const formatSummaryTitle = (title) => wrap(title, 'h1');
-exports.formatSummaryTitle = formatSummaryTitle;
-const formatResultSummary = (result) => {
-    let html = wrap('Tests', 'h3');
-    html += formatTable([{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }], [[`${result.passed}`, `${result.failed}`, `${result.skipped}`]]);
-    for (const suit of result.suits) {
-        const icon = suit.success ? '✔️' : '❌';
-        const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
-        const table = formatTable([{ name: 'Test' }, { name: 'Result', align: 'center' }], suit.tests.map(test => [test.name, outcomeIcons[test.outcome]]));
-        html += formatDetails(summary, table);
-    }
-    return html;
-};
-exports.formatResultSummary = formatResultSummary;
-const wrap = (item, element) => {
-    let tag = '';
-    let attributes = '';
-    if (typeof element === 'string') {
-        tag = element;
-    }
-    else {
-        tag = element.tag;
-        attributes = element.attributes
-            ? Object.keys(element.attributes)
-                .map(a => { var _a; return `${a}="${(_a = element.attributes) === null || _a === void 0 ? void 0 : _a[a]}"`; })
-                .join(' ')
-            : '';
-    }
-    return `<${tag} ${attributes}>${item}</${tag}>`;
-};
-const wrapMany = (items, element) => items.map(item => wrap(item, element)).join('');
-const formatDetails = (summary, details) => wrap(`${wrap(summary, 'summary')}<br/>${details}`, 'details');
-const formatColumn = (column, header) => wrap(column, { tag: 'td', attributes: header.align ? { align: header.align } : undefined });
-const formatTable = (headers, rows) => {
-    const headerNames = headers.map(h => h.name);
-    const headersData = wrapMany(headerNames, 'th');
-    const headersHtml = wrap(headersData, 'tr');
-    const rowsData = rows.map(row => row.map((column, i) => formatColumn(column, headers[i])).join(''));
-    const rowsHtml = wrapMany(rowsData, 'tr');
-    const bodyHtml = wrap(`${headersHtml}${rowsHtml}`, 'tbody');
-    return wrap(bodyHtml, { tag: 'table', attributes: { role: 'table' } });
-};
-
-
-/***/ }),
-
 /***/ 7782:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -667,62 +737,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(3451), exports);
 __exportStar(__nccwpck_require__(396), exports);
-__exportStar(__nccwpck_require__(1229), exports);
-__exportStar(__nccwpck_require__(120), exports);
 __exportStar(__nccwpck_require__(2216), exports);
-
-
-/***/ }),
-
-/***/ 120:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatCoverage = exports.formatResult = exports.formatSummaryLink = exports.formatFooter = exports.formatHeader = void 0;
-const formatHeader = (header) => `## ${header}\n`;
-exports.formatHeader = formatHeader;
-const formatFooter = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
-exports.formatFooter = formatFooter;
-const formatSummaryLink = (owner, repo, runId, jobId) => {
-    const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#summary-${jobId}`;
-    return `🔍 click [here](${url}) for more details\n`;
-};
-exports.formatSummaryLink = formatSummaryLink;
-const formatResult = (result) => {
-    const { total, passed, skipped, success } = result;
-    const title = `${getStatusIcon(success)} Tests`;
-    const info = `**${passed} / ${total}**${skipped ? ` (${skipped} skipped)` : ''}`;
-    const status = `- ${getStatusText(success)} in ${formatElapsedTime(result.elapsed)}`;
-    return `${title} ${info} ${status}\n`;
-};
-exports.formatResult = formatResult;
-const formatCoverage = (coverage, min) => {
-    const { linesCovered, linesTotal, lineCoverage, branchesTotal, branchesCovered, success } = coverage;
-    const title = `${min ? getStatusIcon(success) : '📝'} Coverage`;
-    const info = `**${lineCoverage}%**`;
-    const status = min ? `- ${getStatusText(success)} with ${min}% threshold` : '';
-    const lines = `📏 ${linesCovered} / ${linesTotal} lines covered`;
-    const branches = `🌿 ${branchesCovered} / ${branchesTotal} branches covered`;
-    return `${title} ${info} ${status}\n${lines} ${branches}\n`;
-};
-exports.formatCoverage = formatCoverage;
-const formatElapsedTime = (elapsed) => {
-    const secondsDelimiter = 1000;
-    const minutesDelimiter = 120000;
-    if (elapsed >= minutesDelimiter) {
-        return `${Math.round(elapsed / 6000) / 10}min`;
-    }
-    else if (elapsed >= secondsDelimiter) {
-        return `${Math.round(elapsed / 100) / 10}s`;
-    }
-    else {
-        return `${elapsed}ms`;
-    }
-};
-const getStatusIcon = (success) => (success ? '✔️' : '❌');
-const getStatusText = (success) => (success ? '**passed**' : '**failed**');
 
 
 /***/ }),

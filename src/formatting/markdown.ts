@@ -1,4 +1,5 @@
 import { ICoverage, IResult } from '../data';
+import { formatElapsedTime, getStatusIcon } from './common';
 
 export const formatHeader = (header: string): string => `## ${header}\n`;
 
@@ -31,20 +32,5 @@ export const formatCoverage = (coverage: ICoverage, min: number): string => {
 
   return `${title} ${info} ${status}\n${lines} ${branches}\n`;
 };
-
-const formatElapsedTime = (elapsed: number): string => {
-  const secondsDelimiter = 1000;
-  const minutesDelimiter = 120000;
-
-  if (elapsed >= minutesDelimiter) {
-    return `${Math.round(elapsed / 6000) / 10}min`;
-  } else if (elapsed >= secondsDelimiter) {
-    return `${Math.round(elapsed / 100) / 10}s`;
-  } else {
-    return `${elapsed}ms`;
-  }
-};
-
-const getStatusIcon = (success: boolean) => (success ? '✔️' : '❌');
 
 const getStatusText = (success: boolean) => (success ? '**passed**' : '**failed**');

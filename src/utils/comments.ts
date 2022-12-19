@@ -1,6 +1,6 @@
 import { GitHub } from '@actions/github/lib/utils';
 import { getOctokit, context } from '@actions/github/lib/github';
-import { formatFooter, formatHeader, formatSummaryLink } from './markdown';
+import { formatFooter, formatHeader, formatSummaryLink } from '../formatting/markdown';
 
 type Octokit = InstanceType<typeof GitHub>;
 

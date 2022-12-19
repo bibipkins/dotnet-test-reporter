@@ -1,4 +1,5 @@
 import { IResult, TestOutcome } from '../data';
+import { formatElapsedTime, getStatusIcon } from './common';
 
 interface Element {
   tag: string;
@@ -22,12 +23,12 @@ export const formatResultSummary = (result: IResult): string => {
   let html = wrap('Tests', 'h3');
 
   html += formatTable(
-    [{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }],
-    [[`${result.passed}`, `${result.failed}`, `${result.skipped}`]]
+    [{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }, { name: '⏱️ Time' }],
+    [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, formatElapsedTime(result.elapsed)]]
   );
 
   for (const suit of result.suits) {
-    const icon = suit.success ? '✔️' : '❌';
+    const icon = getStatusIcon(suit.success);
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
     const table = formatTable(
       [{ name: 'Test' }, { name: 'Result', align: 'center' }],

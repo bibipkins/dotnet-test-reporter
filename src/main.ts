@@ -1,15 +1,8 @@
 import { processTestResults } from './results';
 import { processTestCoverage } from './coverage';
-import {
-  getInputs,
-  formatSummaryTitle,
-  formatResult,
-  formatResultSummary,
-  formatCoverage,
-  publishComment,
-  setFailed,
-  setSummary
-} from './utils';
+import { getInputs, publishComment, setFailed, setSummary } from './utils';
+import { formatResultSummary, formatSummaryTitle } from './formatting/html';
+import { formatCoverage, formatResult } from './formatting/markdown';
 
 const run = async (): Promise<void> => {
   try {
