@@ -42,7 +42,7 @@ const wrap = (item: string, element: string | Element): string => {
   try {
     if (typeof element === 'string') {
       tag = element;
-    } else if (element instanceof Element) {
+    } else {
       tag = element.tag;
       attributes = element.attributes
         ? Object.keys(element.attributes)
