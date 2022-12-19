@@ -21,6 +21,11 @@ export const formatSummaryTitle = (title: string): string => wrap(title, 'h1');
 export const formatResultSummary = (result: IResult): string => {
   let html = wrap('Tests', 'h3');
 
+  html += formatTable(
+    [{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }],
+    [[`${result.passed}`, `${result.failed}`, `${result.skipped}`]]
+  );
+
   for (const suit of result.suits) {
     const icon = suit.success ? '✔️' : '❌';
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
@@ -39,20 +44,15 @@ const wrap = (item: string, element: string | Element): string => {
   let tag: string = '';
   let attributes: string = '';
 
-  try {
-    if (typeof element === 'string') {
-      tag = element;
-    } else {
-      tag = element.tag;
-      attributes = element.attributes
-        ? Object.keys(element.attributes)
-            .map(a => `${a}="${element.attributes?.[a]}"`)
-            .join(' ')
-        : '';
-    }
-  } catch (error) {
-    console.log(element);
-    throw error;
+  if (typeof element === 'string') {
+    tag = element;
+  } else {
+    tag = element.tag;
+    attributes = element.attributes
+      ? Object.keys(element.attributes)
+          .map(a => `${a}="${element.attributes?.[a]}"`)
+          .join(' ')
+      : '';
   }
 
   return `<${tag} ${attributes}>${item}</${tag}>`;

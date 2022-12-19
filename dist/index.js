@@ -603,6 +603,7 @@ const formatSummaryTitle = (title) => wrap(title, 'h1');
 exports.formatSummaryTitle = formatSummaryTitle;
 const formatResultSummary = (result) => {
     let html = wrap('Tests', 'h3');
+    html += formatTable([{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }], [[`${result.passed}`, `${result.failed}`, `${result.skipped}`]]);
     for (const suit of result.suits) {
         const icon = suit.success ? '✔️' : '❌';
         const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
@@ -615,22 +616,16 @@ exports.formatResultSummary = formatResultSummary;
 const wrap = (item, element) => {
     let tag = '';
     let attributes = '';
-    try {
-        if (typeof element === 'string') {
-            tag = element;
-        }
-        else {
-            tag = element.tag;
-            attributes = element.attributes
-                ? Object.keys(element.attributes)
-                    .map(a => { var _a; return `${a}="${(_a = element.attributes) === null || _a === void 0 ? void 0 : _a[a]}"`; })
-                    .join(' ')
-                : '';
-        }
+    if (typeof element === 'string') {
+        tag = element;
     }
-    catch (error) {
-        console.log(element);
-        throw error;
+    else {
+        tag = element.tag;
+        attributes = element.attributes
+            ? Object.keys(element.attributes)
+                .map(a => { var _a; return `${a}="${(_a = element.attributes) === null || _a === void 0 ? void 0 : _a[a]}"`; })
+                .join(' ')
+            : '';
     }
     return `<${tag} ${attributes}>${item}</${tag}>`;
 };
