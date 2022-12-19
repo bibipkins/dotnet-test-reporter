@@ -39,15 +39,20 @@ const wrap = (item: string, element: string | Element): string => {
   let tag: string = '';
   let attributes: string = '';
 
-  if (typeof element === 'string') {
-    tag = element;
-  } else if (element instanceof Element) {
-    tag = element.tag;
-    attributes = element.attributes
-      ? Object.keys(element.attributes)
-          .map(a => `${a}="${element.attributes?.[a]}"`)
-          .join(' ')
-      : '';
+  try {
+    if (typeof element === 'string') {
+      tag = element;
+    } else if (element instanceof Element) {
+      tag = element.tag;
+      attributes = element.attributes
+        ? Object.keys(element.attributes)
+            .map(a => `${a}="${element.attributes?.[a]}"`)
+            .join(' ')
+        : '';
+    }
+  } catch (error) {
+    console.log(element);
+    throw error;
   }
 
   return `<${tag} ${attributes}>${item}</${tag}>`;

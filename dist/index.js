@@ -615,16 +615,22 @@ exports.formatResultSummary = formatResultSummary;
 const wrap = (item, element) => {
     let tag = '';
     let attributes = '';
-    if (typeof element === 'string') {
-        tag = element;
+    try {
+        if (typeof element === 'string') {
+            tag = element;
+        }
+        else if (element instanceof Element) {
+            tag = element.tag;
+            attributes = element.attributes
+                ? Object.keys(element.attributes)
+                    .map(a => { var _a; return `${a}="${(_a = element.attributes) === null || _a === void 0 ? void 0 : _a[a]}"`; })
+                    .join(' ')
+                : '';
+        }
     }
-    else if (element instanceof Element) {
-        tag = element.tag;
-        attributes = element.attributes
-            ? Object.keys(element.attributes)
-                .map(a => { var _a; return `${a}="${(_a = element.attributes) === null || _a === void 0 ? void 0 : _a[a]}"`; })
-                .join(' ')
-            : '';
+    catch (error) {
+        console.log(element);
+        throw error;
     }
     return `<${tag} ${attributes}>${item}</${tag}>`;
 };
