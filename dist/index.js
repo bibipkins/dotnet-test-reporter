@@ -606,21 +606,31 @@ const formatResultSummary = (result) => {
     for (const suit of result.suits) {
         const icon = suit.success ? '✔️' : '❌';
         const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
-        const table = formatTable([{ name: 'Test' }, { name: 'Result', style: 'text-align: center;' }], suit.tests.map(test => [test.name, outcomeIcons[test.outcome]]));
+        const table = formatTable([{ name: 'Test' }, { name: 'Result', align: 'center' }], suit.tests.map(test => [test.name, outcomeIcons[test.outcome]]));
         html += formatDetails(summary, table);
     }
     return html;
 };
 exports.formatResultSummary = formatResultSummary;
-const wrap = (item, element, props) => {
-    let attributes = [];
-    for (const attribute in props) {
-        attributes.push(`${attribute}="${props[attribute]}"`);
+const wrap = (item, element) => {
+    let tag = '';
+    let attributes = '';
+    if (typeof element === 'string') {
+        tag = element;
     }
-    return `<${element} ${attributes.join(' ')}>${item}</${element}>`;
+    else if (element instanceof Element) {
+        tag = element.tag;
+        attributes = element.attributes
+            ? Object.keys(element.attributes)
+                .map(a => { var _a; return `${a}="${(_a = element.attributes) === null || _a === void 0 ? void 0 : _a[a]}"`; })
+                .join(' ')
+            : '';
+    }
+    return `<${tag} ${attributes}>${item}</${tag}>`;
 };
-const wrapMany = (items, element, props) => items.map(i => wrap(i, element, props)).join('');
+const wrapMany = (items, element) => items.map(item => wrap(item, element)).join('');
 const formatDetails = (summary, details) => wrap(`${wrap(summary, 'summary')}<br/>${details}`, 'details');
+const formatColumn = (column, header) => wrap(column, { tag: 'td', attributes: header.align ? { align: header.align } : undefined });
 const formatTable = (headers, rows) => {
     const headerNames = headers.map(h => h.name);
     const headersData = wrapMany(headerNames, 'th');
@@ -628,9 +638,8 @@ const formatTable = (headers, rows) => {
     const rowsData = rows.map(row => row.map((column, i) => formatColumn(column, headers[i])).join(''));
     const rowsHtml = wrapMany(rowsData, 'tr');
     const bodyHtml = wrap(`${headersHtml}${rowsHtml}`, 'tbody');
-    return wrap(bodyHtml, 'table', { role: 'table' });
+    return wrap(bodyHtml, { tag: 'table', attributes: { role: 'table' } });
 };
-const formatColumn = (column, header) => { var _a; return wrap(column, 'td', header.style ? { style: (_a = header.style) !== null && _a !== void 0 ? _a : '' } : undefined); };
 
 
 /***/ }),

@@ -1,8 +1,13 @@
 import { IResult, TestOutcome } from '../data';
 
+interface Element {
+  tag: string;
+  attributes?: { [index: string]: string };
+}
+
 interface Header {
   name: string;
-  style?: string;
+  align?: 'left' | 'right' | 'center';
 }
 
 const outcomeIcons: { [key in TestOutcome]: string } = {
@@ -20,7 +25,7 @@ export const formatResultSummary = (result: IResult): string => {
     const icon = suit.success ? '✔️' : '❌';
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
     const table = formatTable(
-      [{ name: 'Test' }, { name: 'Result', style: 'text-align: center;' }],
+      [{ name: 'Test' }, { name: 'Result', align: 'center' }],
       suit.tests.map(test => [test.name, outcomeIcons[test.outcome]])
     );
 
@@ -30,21 +35,32 @@ export const formatResultSummary = (result: IResult): string => {
   return html;
 };
 
-const wrap = (item: string, element: string, props?: { [index: string]: string }): string => {
-  let attributes: string[] = [];
+const wrap = (item: string, element: string | Element): string => {
+  let tag: string = '';
+  let attributes: string = '';
 
-  for (const attribute in props) {
-    attributes.push(`${attribute}="${props[attribute]}"`);
+  if (typeof element === 'string') {
+    tag = element;
+  } else if (element instanceof Element) {
+    tag = element.tag;
+    attributes = element.attributes
+      ? Object.keys(element.attributes)
+          .map(a => `${a}="${element.attributes?.[a]}"`)
+          .join(' ')
+      : '';
   }
 
-  return `<${element} ${attributes.join(' ')}>${item}</${element}>`;
+  return `<${tag} ${attributes}>${item}</${tag}>`;
 };
 
-const wrapMany = (items: string[], element: string, props?: { [index: string]: string }): string =>
-  items.map(i => wrap(i, element, props)).join('');
+const wrapMany = (items: string[], element: string | Element): string =>
+  items.map(item => wrap(item, element)).join('');
 
 const formatDetails = (summary: string, details: string): string =>
   wrap(`${wrap(summary, 'summary')}<br/>${details}`, 'details');
+
+const formatColumn = (column: string, header: Header): string =>
+  wrap(column, { tag: 'td', attributes: header.align ? { align: header.align } : undefined });
 
 const formatTable = (headers: Header[], rows: string[][]): string => {
   const headerNames = headers.map(h => h.name);
@@ -55,8 +71,5 @@ const formatTable = (headers: Header[], rows: string[][]): string => {
   const rowsHtml = wrapMany(rowsData, 'tr');
   const bodyHtml = wrap(`${headersHtml}${rowsHtml}`, 'tbody');
 
-  return wrap(bodyHtml, 'table', { role: 'table' });
+  return wrap(bodyHtml, { tag: 'table', attributes: { role: 'table' } });
 };
-
-const formatColumn = (column: string, header: Header): string =>
-  wrap(column, 'td', header.style ? { style: header.style ?? '' } : undefined);
