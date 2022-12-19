@@ -78,16 +78,16 @@ exports.formatElapsedTime = formatElapsedTime;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatResultSummary = exports.formatSummaryTitle = void 0;
+exports.formatResultHtml = exports.formatTitleHtml = void 0;
 const common_1 = __nccwpck_require__(9759);
 const outcomeIcons = {
     Passed: '✔️',
     Failed: '❌',
     NotExecuted: '⚠️'
 };
-const formatSummaryTitle = (title) => wrap(title, 'h1');
-exports.formatSummaryTitle = formatSummaryTitle;
-const formatResultSummary = (result) => {
+const formatTitleHtml = (title) => wrap(title, 'h1');
+exports.formatTitleHtml = formatTitleHtml;
+const formatResultHtml = (result) => {
     let html = wrap('Tests', 'h3');
     html += formatTable([{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }, { name: '⏱️ Time' }], [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, (0, common_1.formatElapsedTime)(result.elapsed)]]);
     for (const suit of result.suits) {
@@ -98,7 +98,7 @@ const formatResultSummary = (result) => {
     }
     return html;
 };
-exports.formatResultSummary = formatResultSummary;
+exports.formatResultHtml = formatResultHtml;
 const wrap = (item, element) => {
     let tag = '';
     let attributes = '';
@@ -137,26 +137,26 @@ const formatTable = (headers, rows) => {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatCoverage = exports.formatResult = exports.formatSummaryLink = exports.formatFooter = exports.formatHeader = void 0;
+exports.formatCoverageMarkdown = exports.formatResultMarkdown = exports.formatSummaryLinkMarkdown = exports.formatFooterMarkdown = exports.formatHeaderMarkdown = void 0;
 const common_1 = __nccwpck_require__(9759);
-const formatHeader = (header) => `## ${header}\n`;
-exports.formatHeader = formatHeader;
-const formatFooter = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
-exports.formatFooter = formatFooter;
-const formatSummaryLink = (owner, repo, runId, jobId) => {
+const formatHeaderMarkdown = (header) => `## ${header}\n`;
+exports.formatHeaderMarkdown = formatHeaderMarkdown;
+const formatFooterMarkdown = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
+exports.formatFooterMarkdown = formatFooterMarkdown;
+const formatSummaryLinkMarkdown = (owner, repo, runId, jobId) => {
     const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#summary-${jobId}`;
     return `🔍 click [here](${url}) for more details\n`;
 };
-exports.formatSummaryLink = formatSummaryLink;
-const formatResult = (result) => {
+exports.formatSummaryLinkMarkdown = formatSummaryLinkMarkdown;
+const formatResultMarkdown = (result) => {
     const { total, passed, skipped, success } = result;
     const title = `${(0, common_1.getStatusIcon)(success)} Tests`;
     const info = `**${passed} / ${total}**${skipped ? ` (${skipped} skipped)` : ''}`;
     const status = `- ${getStatusText(success)} in ${(0, common_1.formatElapsedTime)(result.elapsed)}`;
     return `${title} ${info} ${status}\n`;
 };
-exports.formatResult = formatResult;
-const formatCoverage = (coverage, min) => {
+exports.formatResultMarkdown = formatResultMarkdown;
+const formatCoverageMarkdown = (coverage, min) => {
     const { linesCovered, linesTotal, lineCoverage, branchesTotal, branchesCovered, success } = coverage;
     const title = `${min ? (0, common_1.getStatusIcon)(success) : '📝'} Coverage`;
     const info = `**${lineCoverage}%**`;
@@ -165,7 +165,7 @@ const formatCoverage = (coverage, min) => {
     const branches = `🌿 ${branchesCovered} / ${branchesTotal} branches covered`;
     return `${title} ${info} ${status}\n${lines} ${branches}\n`;
 };
-exports.formatCoverage = formatCoverage;
+exports.formatCoverageMarkdown = formatCoverageMarkdown;
 const getStatusText = (success) => (success ? '**passed**' : '**failed**');
 
 
@@ -189,19 +189,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const results_1 = __nccwpck_require__(1530);
 const coverage_1 = __nccwpck_require__(3725);
 const utils_1 = __nccwpck_require__(7782);
-const html_1 = __nccwpck_require__(9339);
 const markdown_1 = __nccwpck_require__(2519);
+const html_1 = __nccwpck_require__(9339);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment } = (0, utils_1.getInputs)();
         let comment = '';
-        let summary = (0, html_1.formatSummaryTitle)(title);
+        let summary = (0, html_1.formatTitleHtml)(title);
         const testResult = yield (0, results_1.processTestResults)(resultsPath);
-        comment += (0, markdown_1.formatResult)(testResult);
-        summary += (0, html_1.formatResultSummary)(testResult);
+        comment += (0, markdown_1.formatResultMarkdown)(testResult);
+        summary += (0, html_1.formatResultHtml)(testResult);
         if (coveragePath) {
             const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold);
-            comment += testCoverage ? (0, markdown_1.formatCoverage)(testCoverage, coverageThreshold) : '';
+            comment += testCoverage ? (0, markdown_1.formatCoverageMarkdown)(testCoverage, coverageThreshold) : '';
         }
         yield (0, utils_1.setSummary)(summary);
         yield (0, utils_1.publishComment)(token, title, comment, postNewComment);
@@ -618,12 +618,12 @@ const publishComment = (token, title, message, postNew) => __awaiter(void 0, voi
         console.log('Failed to post a comment');
         return;
     }
-    const header = (0, markdown_1.formatHeader)(title);
+    const header = (0, markdown_1.formatHeaderMarkdown)(title);
     const octokit = (0, github_1.getOctokit)(token);
     const currentJob = yield getCurrentJob(octokit, context);
     const existingComment = yield getExistingComment(octokit, context, header);
-    const summaryLink = currentJob ? (0, markdown_1.formatSummaryLink)(owner, repo, runId, currentJob.id) : '';
-    const footer = commit ? (0, markdown_1.formatFooter)(commit) : '';
+    const summaryLink = currentJob ? (0, markdown_1.formatSummaryLinkMarkdown)(owner, repo, runId, currentJob.id) : '';
+    const footer = commit ? (0, markdown_1.formatFooterMarkdown)(commit) : '';
     const body = `${header}${message}${summaryLink}${footer}`;
     if (existingComment && !postNew) {
         yield octokit.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body });

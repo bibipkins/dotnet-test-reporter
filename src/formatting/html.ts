@@ -17,9 +17,9 @@ const outcomeIcons: { [key in TestOutcome]: string } = {
   NotExecuted: '⚠️'
 };
 
-export const formatSummaryTitle = (title: string): string => wrap(title, 'h1');
+export const formatTitleHtml = (title: string): string => wrap(title, 'h1');
 
-export const formatResultSummary = (result: IResult): string => {
+export const formatResultHtml = (result: IResult): string => {
   let html = wrap('Tests', 'h3');
 
   html += formatTable(

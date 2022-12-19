@@ -1,6 +1,6 @@
 import { GitHub } from '@actions/github/lib/utils';
 import { getOctokit, context } from '@actions/github/lib/github';
-import { formatFooter, formatHeader, formatSummaryLink } from '../formatting/markdown';
+import { formatFooterMarkdown, formatHeaderMarkdown, formatSummaryLinkMarkdown } from '../formatting/markdown';
 
 type Octokit = InstanceType<typeof GitHub>;
 
@@ -27,13 +27,13 @@ export const publishComment = async (
     return;
   }
 
-  const header = formatHeader(title);
+  const header = formatHeaderMarkdown(title);
   const octokit = getOctokit(token);
   const currentJob = await getCurrentJob(octokit, context);
   const existingComment = await getExistingComment(octokit, context, header);
 
-  const summaryLink = currentJob ? formatSummaryLink(owner, repo, runId, currentJob.id) : '';
-  const footer = commit ? formatFooter(commit) : '';
+  const summaryLink = currentJob ? formatSummaryLinkMarkdown(owner, repo, runId, currentJob.id) : '';
+  const footer = commit ? formatFooterMarkdown(commit) : '';
   const body = `${header}${message}${summaryLink}${footer}`;
 
   if (existingComment && !postNew) {
