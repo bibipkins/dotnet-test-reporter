@@ -1,10 +1,11 @@
 # Dotnet Test Reporter
 A GitHub action to parse test results and post the summary as a PR comment.
 <br/>The action can process dotnet test results (multiple `.trx` files), if there are any failing tests the action will fail.
-<br/>Optionally test coverage can be provided (a single opencover or cobertura `.xml` file) as well as a minimum coverage percentage.
+<br/>Optionally, test coverage can be provided (a single opencover or cobertura `.xml` file) as well as a minimum coverage percentage.
 If a minimum coverage is provided and the coverage is not sufficient the action will fail.
+<br/>The action also generates a test summary - a more detailed overview of processed tests. You can review the summary by following the link in the PR comment.
 #### Comment example
-![image](https://user-images.githubusercontent.com/16402446/204162082-2ac245f5-5797-432e-8f88-1252de3aaa16.png)
+![image](https://user-images.githubusercontent.com/16402446/209407574-97feb149-6def-4e80-bd9e-c8b1af722262.png)
 
 ## Inputs
 
