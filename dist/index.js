@@ -161,9 +161,10 @@ const formatSummaryLinkMarkdown = (owner, repo, runId, jobId) => {
 };
 exports.formatSummaryLinkMarkdown = formatSummaryLinkMarkdown;
 const formatResultMarkdown = (result) => {
-    const { total, passed, skipped, success } = result;
+    const { total, passed, failed, skipped, success } = result;
     const title = `${(0, common_1.getStatusIcon)(success)} Tests`;
-    const info = `**${passed} / ${total}**${skipped ? ` (${skipped} skipped)` : ''}`;
+    const details = failed || skipped ? ` (${failed} failed, ${skipped} skipped)` : '';
+    const info = `**${passed} / ${total}**${details}`;
     const status = `- ${getStatusText(success)} in ${(0, common_1.formatElapsedTime)(result.elapsed)}`;
     return `${title} ${info} ${status}\n`;
 };

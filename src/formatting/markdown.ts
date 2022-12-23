@@ -12,10 +12,11 @@ export const formatSummaryLinkMarkdown = (owner: string, repo: string, runId: nu
 };
 
 export const formatResultMarkdown = (result: IResult): string => {
-  const { total, passed, skipped, success } = result;
+  const { total, passed, failed, skipped, success } = result;
 
   const title = `${getStatusIcon(success)} Tests`;
-  const info = `**${passed} / ${total}**${skipped ? ` (${skipped} skipped)` : ''}`;
+  const details = failed || skipped ? ` (${failed} failed, ${skipped} skipped)` : '';
+  const info = `**${passed} / ${total}**${details}`;
   const status = `- ${getStatusText(success)} in ${formatElapsedTime(result.elapsed)}`;
 
   return `${title} ${info} ${status}\n`;
