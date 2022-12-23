@@ -23,20 +23,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Test OpenCover
+      - name: Test Results Success
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-title: Test OpenCover
-          results-path: ./files/
-          coverage-path: ./files/test_coverage_opencover.xml
+          comment-title: Test Results Success
+          results-path: ./files/success/
+      - name: Test Results Fail
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Test Results Fail
+          results-path: ./files/fail/
+      - name: Test Coverage OpenCover
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Test Coverage OpenCover
+          results-path: ./files/success/
+          coverage-path: ./files/success/test_coverage_opencover.xml
           coverage-threshold: 46
-      - name: Test Cobertura
+      - name: Test Coverage Cobertura
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-title: Test Cobertura
-          results-path: ./files/
-          coverage-path: ./files/test_coverage_cobertura.xml
+          comment-title: Test Coverage Cobertura
+          results-path: ./files/success
+          coverage-path: ./files/success/test_coverage_cobertura.xml
           coverage-type: cobertura
           coverage-threshold: 46
