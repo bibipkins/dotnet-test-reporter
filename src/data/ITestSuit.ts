@@ -8,6 +8,7 @@ export default interface ITestSuit {
     name: string;
     output: string;
     error: string;
+    trace: string;
     outcome: TestOutcome;
   }[];
 }

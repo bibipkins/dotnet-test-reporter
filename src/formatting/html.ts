@@ -31,8 +31,8 @@ export const formatResultHtml = (result: IResult): string => {
     const icon = getStatusIcon(suit.success);
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
     const table = formatTable(
-      [{ name: 'Test' }, { name: 'Result', align: 'center' }, { name: 'Output' }],
-      suit.tests.map(test => [test.name, outcomeIcons[test.outcome], `${test.output}\n${test.error}`])
+      [{ name: 'Result', align: 'center' }, { name: 'Test' }, { name: 'Output' }],
+      suit.tests.map(test => [outcomeIcons[test.outcome], test.name, `${test.output}\n${test.error}\n${test.trace}`])
     );
 
     html += formatDetails(summary, table);

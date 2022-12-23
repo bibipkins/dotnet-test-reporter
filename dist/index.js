@@ -93,7 +93,7 @@ const formatResultHtml = (result) => {
     for (const suit of result.suits) {
         const icon = (0, common_1.getStatusIcon)(suit.success);
         const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
-        const table = formatTable([{ name: 'Test' }, { name: 'Result', align: 'center' }, { name: 'Output' }], suit.tests.map(test => [test.name, outcomeIcons[test.outcome], `${test.output}\n${test.error}`]));
+        const table = formatTable([{ name: 'Result', align: 'center' }, { name: 'Test' }, { name: 'Output' }], suit.tests.map(test => [outcomeIcons[test.outcome], test.name, `${test.output}\n${test.error}\n${test.trace}`]));
         html += formatDetails(summary, table);
     }
     return html;
@@ -357,7 +357,7 @@ class TrxParser {
     parseResults(file) {
         const results = file.TestRun.Results[0].UnitTestResult;
         return results.map((result) => {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
             return ({
                 executionId: String(result['$'].executionId),
                 testId: String(result['$'].testId),
@@ -371,6 +371,7 @@ class TrxParser {
                 outcome: String(result['$'].outcome),
                 output: String((_d = (_c = (_b = (_a = result.Output) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.StdOut) === null || _c === void 0 ? void 0 : _c[0]) !== null && _d !== void 0 ? _d : ''),
                 error: String((_k = (_j = (_h = (_g = (_f = (_e = result.Output) === null || _e === void 0 ? void 0 : _e[0]) === null || _f === void 0 ? void 0 : _f.ErrorInfo) === null || _g === void 0 ? void 0 : _g[0]) === null || _h === void 0 ? void 0 : _h.Message) === null || _j === void 0 ? void 0 : _j[0]) !== null && _k !== void 0 ? _k : ''),
+                trace: String((_r = (_q = (_p = (_o = (_m = (_l = result.Output) === null || _l === void 0 ? void 0 : _l[0]) === null || _m === void 0 ? void 0 : _m.ErrorInfo) === null || _o === void 0 ? void 0 : _o[0]) === null || _p === void 0 ? void 0 : _p.StackTrace) === null || _q === void 0 ? void 0 : _q[0]) !== null && _r !== void 0 ? _r : ''),
                 relativeResultsDirectory: String(result['$'].relativeResultsDirectory)
             });
         });
@@ -395,7 +396,7 @@ class TrxParser {
         });
     }
     parseSuits(file) {
-        var _a, _b;
+        var _a, _b, _c;
         const suits = [];
         const results = this.parseResults(file);
         const definitions = this.parseDefinitions(file);
@@ -413,6 +414,7 @@ class TrxParser {
                 name: definition.name.replace(`${definition.testMethod.className}.`, ''),
                 output: (_a = result === null || result === void 0 ? void 0 : result.output) !== null && _a !== void 0 ? _a : '',
                 error: (_b = result === null || result === void 0 ? void 0 : result.error) !== null && _b !== void 0 ? _b : '',
+                trace: (_c = result === null || result === void 0 ? void 0 : result.trace) !== null && _c !== void 0 ? _c : '',
                 outcome: (result === null || result === void 0 ? void 0 : result.outcome) || 'NotExecuted'
             });
             if (!existingSuit) {

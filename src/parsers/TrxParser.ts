@@ -58,6 +58,7 @@ export default class TrxParser implements IResultParser {
       outcome: String(result['$'].outcome) as TestOutcome,
       output: String(result.Output?.[0]?.StdOut?.[0] ?? ''),
       error: String(result.Output?.[0]?.ErrorInfo?.[0]?.Message?.[0] ?? ''),
+      trace: String(result.Output?.[0]?.ErrorInfo?.[0]?.StackTrace?.[0] ?? ''),
       relativeResultsDirectory: String(result['$'].relativeResultsDirectory)
     }));
   }
@@ -100,6 +101,7 @@ export default class TrxParser implements IResultParser {
         name: definition.name.replace(`${definition.testMethod.className}.`, ''),
         output: result?.output ?? '',
         error: result?.error ?? '',
+        trace: result?.trace ?? '',
         outcome: result?.outcome || 'NotExecuted'
       });
 
