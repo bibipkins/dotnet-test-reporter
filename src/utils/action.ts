@@ -5,6 +5,7 @@ const inputs = {
   token: 'github-token',
   title: 'comment-title',
   postNewComment: 'post-new-comment',
+  allowFailedTests: 'allow-failed-tests',
   resultsPath: 'results-path',
   coveragePath: 'coverage-path',
   coverageType: 'coverage-type',
@@ -31,6 +32,7 @@ export const getInputs = (): IActionInputs => {
     token,
     title: core.getInput(inputs.title),
     postNewComment: core.getBooleanInput(inputs.postNewComment),
+    allowFailedTests: core.getBooleanInput(inputs.allowFailedTests),
     resultsPath: core.getInput(inputs.resultsPath),
     coveragePath: core.getInput(inputs.coveragePath),
     coverageType: core.getInput(inputs.coverageType) as CoverageType,
@@ -60,4 +62,8 @@ export const setFailed = (message: string): void => {
 
 export const setSummary = async (text: string): Promise<void> => {
   await core.summary.addRaw(text).write();
+};
+
+export const log = (message: string): void => {
+  core.info(message);
 };

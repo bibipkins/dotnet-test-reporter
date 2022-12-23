@@ -30,10 +30,10 @@ const parsers = {
 const processTestCoverage = (coveragePath, coverageType, coverageThreshold) => __awaiter(void 0, void 0, void 0, function* () {
     const coverage = yield parsers[coverageType].parse(coveragePath, coverageThreshold);
     if (!coverage) {
-        console.log(`Failed parsing ${coveragePath}`);
+        (0, utils_1.log)(`Failed parsing ${coveragePath}`);
         return null;
     }
-    console.log(`Processed ${coveragePath}`);
+    (0, utils_1.log)(`Processed ${coveragePath}`);
     (0, utils_1.setCoverageOutputs)(coverage);
     if (!coverage.success) {
         (0, utils_1.setFailed)('Coverage Failed');
@@ -193,10 +193,10 @@ const markdown_1 = __nccwpck_require__(2519);
 const html_1 = __nccwpck_require__(9339);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment } = (0, utils_1.getInputs)();
+        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests } = (0, utils_1.getInputs)();
         let comment = '';
         let summary = (0, html_1.formatTitleHtml)(title);
-        const testResult = yield (0, results_1.processTestResults)(resultsPath);
+        const testResult = yield (0, results_1.processTestResults)(resultsPath, allowFailedTests);
         comment += (0, markdown_1.formatResultMarkdown)(testResult);
         summary += (0, html_1.formatResultHtml)(testResult);
         if (coveragePath) {
@@ -444,7 +444,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.processTestResults = void 0;
 const utils_1 = __nccwpck_require__(7782);
 const TrxParser_1 = __importDefault(__nccwpck_require__(8761));
-const processTestResults = (resultsPath) => __awaiter(void 0, void 0, void 0, function* () {
+const processTestResults = (resultsPath, allowFailedTests) => __awaiter(void 0, void 0, void 0, function* () {
     const aggregatedResult = getDefaultTestResult();
     const filePaths = (0, utils_1.findFiles)(resultsPath, '.trx');
     if (!filePaths.length) {
@@ -455,7 +455,7 @@ const processTestResults = (resultsPath) => __awaiter(void 0, void 0, void 0, fu
     }
     (0, utils_1.setResultOutputs)(aggregatedResult);
     if (!aggregatedResult.success) {
-        (0, utils_1.setFailed)('Tests Failed');
+        allowFailedTests ? (0, utils_1.log)('Tests Failed') : (0, utils_1.setFailed)('Tests Failed');
     }
     return aggregatedResult;
 });
@@ -466,7 +466,7 @@ const processResult = (path, aggregatedResult) => __awaiter(void 0, void 0, void
     if (!result) {
         throw Error(`Failed parsing ${path}`);
     }
-    console.log(`Processed ${path}`);
+    (0, utils_1.log)(`Processed ${path}`);
     mergeTestResults(aggregatedResult, result);
 });
 const mergeTestResults = (result1, result2) => {
@@ -529,12 +529,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.setSummary = exports.setFailed = exports.setCoverageOutputs = exports.setResultOutputs = exports.getInputs = void 0;
+exports.log = exports.setSummary = exports.setFailed = exports.setCoverageOutputs = exports.setResultOutputs = exports.getInputs = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const inputs = {
     token: 'github-token',
     title: 'comment-title',
     postNewComment: 'post-new-comment',
+    allowFailedTests: 'allow-failed-tests',
     resultsPath: 'results-path',
     coveragePath: 'coverage-path',
     coverageType: 'coverage-type',
@@ -558,6 +559,7 @@ const getInputs = () => {
         token,
         title: core.getInput(inputs.title),
         postNewComment: core.getBooleanInput(inputs.postNewComment),
+        allowFailedTests: core.getBooleanInput(inputs.allowFailedTests),
         resultsPath: core.getInput(inputs.resultsPath),
         coveragePath: core.getInput(inputs.coveragePath),
         coverageType: core.getInput(inputs.coverageType),
@@ -589,6 +591,10 @@ const setSummary = (text) => __awaiter(void 0, void 0, void 0, function* () {
     yield core.summary.addRaw(text).write();
 });
 exports.setSummary = setSummary;
+const log = (message) => {
+    core.info(message);
+};
+exports.log = log;
 
 
 /***/ }),
@@ -611,11 +617,12 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.publishComment = void 0;
 const github_1 = __nccwpck_require__(5438);
 const markdown_1 = __nccwpck_require__(2519);
+const action_1 = __nccwpck_require__(2216);
 const publishComment = (token, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
     const context = getContext();
     const { owner, repo, runId, issueNumber, commit } = context;
     if (!token || !owner || !repo || issueNumber === -1) {
-        console.log('Failed to post a comment');
+        (0, action_1.log)('Failed to post a comment');
         return;
     }
     const header = (0, markdown_1.formatHeaderMarkdown)(title);

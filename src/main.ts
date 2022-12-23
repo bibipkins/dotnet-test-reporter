@@ -6,12 +6,21 @@ import { formatResultHtml, formatTitleHtml } from './formatting/html';
 
 const run = async (): Promise<void> => {
   try {
-    const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment } = getInputs();
+    const {
+      token,
+      title,
+      resultsPath,
+      coveragePath,
+      coverageType,
+      coverageThreshold,
+      postNewComment,
+      allowFailedTests
+    } = getInputs();
 
     let comment = '';
     let summary = formatTitleHtml(title);
 
-    const testResult = await processTestResults(resultsPath);
+    const testResult = await processTestResults(resultsPath, allowFailedTests);
     comment += formatResultMarkdown(testResult);
     summary += formatResultHtml(testResult);
 
