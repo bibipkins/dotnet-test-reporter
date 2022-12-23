@@ -90,15 +90,29 @@ exports.formatTitleHtml = formatTitleHtml;
 const formatResultHtml = (result) => {
     let html = wrap('Tests', 'h3');
     html += formatTable([{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }, { name: '⏱️ Time' }], [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, (0, common_1.formatElapsedTime)(result.elapsed)]]);
-    for (const suit of result.suits) {
-        const icon = (0, common_1.getStatusIcon)(suit.success);
-        const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
-        const table = formatTable([{ name: 'Result', align: 'center' }, { name: 'Test' }, { name: 'Output' }], suit.tests.map(test => [outcomeIcons[test.outcome], test.name, `${test.output}\n${test.error}\n${test.trace}`]));
-        html += formatDetails(summary, table);
-    }
+    html += result.suits.map(suit => formatTestSuit(suit)).join('');
     return html;
 };
 exports.formatResultHtml = formatResultHtml;
+const formatTestSuit = (suit) => {
+    const icon = (0, common_1.getStatusIcon)(suit.success);
+    const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
+    const table = formatTable([{ name: 'Result', align: 'center' }, { name: 'Test' }, { name: 'Output' }], suit.tests.map(test => [outcomeIcons[test.outcome], test.name, formatTestOutput(test)]));
+    return formatDetails(summary, table);
+};
+const formatTestOutput = (test) => {
+    let output = '';
+    if (test.output) {
+        output += test.output;
+    }
+    if (test.error) {
+        output += `${output ? '<br/>' : ''}<b>Error Message</b><br/>${test.error}`;
+    }
+    if (test.trace) {
+        output += `${output ? '<br/>' : ''}<b>Stack Trace</b><br/>${test.trace}`;
+    }
+    return output;
+};
 const wrap = (item, element) => {
     let tag = '';
     let attributes = '';
