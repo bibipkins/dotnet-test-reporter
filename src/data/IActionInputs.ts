@@ -8,4 +8,5 @@ export default interface IActionInputs {
   coverageType: CoverageType;
   coverageThreshold: number;
   postNewComment: boolean;
+  allowFailedTests: boolean;
 }

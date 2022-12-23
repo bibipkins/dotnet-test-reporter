@@ -1,5 +1,5 @@
 import { CoverageType, ICoverage, ICoverageParser } from './data';
-import { setActionFailed, setCoverageOutputs } from './utils';
+import { setFailed, setCoverageOutputs, log } from './utils';
 import CoberturaParser from './parsers/CoberturaParser';
 import OpencoverParser from './parsers/OpencoverParser';
 
@@ -16,15 +16,15 @@ export const processTestCoverage = async (
   const coverage = await parsers[coverageType].parse(coveragePath, coverageThreshold);
 
   if (!coverage) {
-    console.log(`Failed parsing ${coveragePath}`);
+    log(`Failed parsing ${coveragePath}`);
     return null;
   }
 
-  console.log(`Processed ${coveragePath}`);
+  log(`Processed ${coveragePath}`);
   setCoverageOutputs(coverage);
 
   if (!coverage.success) {
-    setActionFailed('Coverage Failed');
+    setFailed('Coverage Failed');
   }
 
   return coverage;

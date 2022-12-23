@@ -1,0 +1,362 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="7c0efa5f-8a9d-4968-a189-6156696262e3" name="testuser@DESKTOP-QRVC9QF 2022-12-23 15:51:20" runUser="DESKTOP-QRVC9QF\testuser" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2022-12-23T15:51:20.6765381+02:00" queuing="2022-12-23T15:51:20.6765384+02:00" start="2022-12-23T15:51:12.6644722+02:00" finish="2022-12-23T15:51:20.8646107+02:00" />
+  <TestSettings name="default" id="9700080d-f1c2-4fd3-86c9-57d1463ea6bb">
+    <Deployment runDeploymentRoot="testuser_DESKTOP-QRVC9QF_2022-12-23_15_51_20" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="630c2a75-3f8f-4f8e-8372-52acdfddad6c" testId="17322f1e-a1bc-972a-b134-e4feba609614" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem.IncrementsQuantityOfItemIfPresent" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0001710" startTime="2022-12-23T15:51:20.6523040+02:00" endTime="2022-12-23T15:51:20.6523041+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="630c2a75-3f8f-4f8e-8372-52acdfddad6c" />
+    <UnitTestResult executionId="698b8d5e-21c1-48ac-aabc-9c4e96d0d191" testId="9b0da45c-854e-e694-b852-ec17be2ae643" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketRemoveEmptyItems.RemovesEmptyBasketItems" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0004353" startTime="2022-12-23T15:51:20.6523659+02:00" endTime="2022-12-23T15:51:20.6523660+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="698b8d5e-21c1-48ac-aabc-9c4e96d0d191" />
+    <UnitTestResult executionId="f63cb724-2160-4070-87e5-0c9a8cbe8b3d" testId="79979c84-840c-c42e-5fdf-d26f44c0d9f4" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem.KeepsOriginalUnitPriceIfMoreItemsAdded" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0002481" startTime="2022-12-23T15:51:20.6522108+02:00" endTime="2022-12-23T15:51:20.6522109+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f63cb724-2160-4070-87e5-0c9a8cbe8b3d" />
+    <UnitTestResult executionId="14868392-ff72-43b1-9070-6ab992cb4aba" testId="20566fc0-4d83-2996-2ce9-ad2b56afbdb9" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.OrderTests.OrderTotal.IsCorrectGiven1Item" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0010000" startTime="2022-12-23T15:51:20.6502468+02:00" endTime="2022-12-23T15:51:20.6502469+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="14868392-ff72-43b1-9070-6ab992cb4aba">
+      <Output>
+        <StdOut>Skipped test 1</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="8829810f-df17-4d6b-826b-a11c60345937" testId="1cf81a3c-cfc1-079b-5747-0ec84c028de6" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems.MatchesBasketWithGivenBuyerId" computerName="DESKTOP-QRVC9QF" duration="00:00:00.1008530" startTime="2022-12-23T15:51:20.7317578+02:00" endTime="2022-12-23T15:51:20.7317578+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8829810f-df17-4d6b-826b-a11c60345937" />
+    <UnitTestResult executionId="c7d16183-ef47-4650-90c8-fd05fe7ecef4" testId="6dd4e6f5-18c8-4a68-839a-b7ec93940764" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterPaginatedSpecification.Returns2CatalogItemsWithSameBrandAndTypeId" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0010000" startTime="2022-12-23T15:51:20.6297839+02:00" endTime="2022-12-23T15:51:20.6298135+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c7d16183-ef47-4650-90c8-fd05fe7ecef4">
+      <Output>
+        <StdOut>Skipped test 3</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="f2b73b08-3208-4a81-8120-1c22b6fdfdf1" testId="8c9e1224-108a-0a36-56ae-4ccc9f15f109" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem.AddsBasketItemIfNotPresent" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0003289" startTime="2022-12-23T15:51:20.6521475+02:00" endTime="2022-12-23T15:51:20.6521476+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f2b73b08-3208-4a81-8120-1c22b6fdfdf1" />
+    <UnitTestResult executionId="ff8338fc-a611-44be-952c-778ea05bbbcc" testId="e0a1c8e7-f68a-2cf8-7e14-db8e5476ff08" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.TransferBasket.CreatesNewUserBasketIfNotExists" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0041107" startTime="2022-12-23T15:51:20.7506433+02:00" endTime="2022-12-23T15:51:20.7506434+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ff8338fc-a611-44be-952c-778ea05bbbcc" />
+    <UnitTestResult executionId="773c9d42-cac0-4735-849d-aa1486fe6763" testId="0cbb9ef2-017c-05d3-5097-5a77b4b5796c" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterPaginatedSpecification.ReturnsAllCatalogItems" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0084284" startTime="2022-12-23T15:51:20.6728321+02:00" endTime="2022-12-23T15:51:20.6728326+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="773c9d42-cac0-4735-849d-aa1486fe6763">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Fail(): Failed test 2</Message>
+          <StackTrace>   at Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterPaginatedSpecification.ReturnsAllCatalogItems() in C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\ApplicationCore\Specifications\CatalogFilterPaginatedSpecification.cs:line 11</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="dfab9d16-869c-4c2f-a029-9e93ec9fa022" testId="1f23e6a0-7ba4-f24f-383d-c48ac93f941b" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: 2, typeId: null, expectedCount: 2)" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0179628" startTime="2022-12-23T15:51:20.6795014+02:00" endTime="2022-12-23T15:51:20.6795016+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dfab9d16-869c-4c2f-a029-9e93ec9fa022" />
+    <UnitTestResult executionId="7c1b19c3-eb8d-4892-a84b-363589b20591" testId="567700fc-cf3c-80b5-54cc-ae91474e799f" testName="Microsoft.eShopWeb.UnitTests.Web.Extensions.CacheHelpersTests.GenerateCatalogItemCacheKey.ReturnsCatalogItemCacheKey" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0004093" startTime="2022-12-23T15:51:20.6505464+02:00" endTime="2022-12-23T15:51:20.6505465+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7c1b19c3-eb8d-4892-a84b-363589b20591" />
+    <UnitTestResult executionId="f772918c-e7c6-4330-8bd9-e2d4ec8d74bf" testId="ae160215-e214-c67f-7415-aa33e198a82e" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem.DefaultsToQuantityOfOne" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0001604" startTime="2022-12-23T15:51:20.6522576+02:00" endTime="2022-12-23T15:51:20.6522577+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f772918c-e7c6-4330-8bd9-e2d4ec8d74bf" />
+    <UnitTestResult executionId="eb403246-2b0c-4bd8-9950-9ff7a49687d5" testId="c7910bf4-89c3-8a2f-933b-9ff63611214a" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketTotalItems.ReturnsTotalQuantityWithMultipleItems" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0004518" startTime="2022-12-23T15:51:20.6502887+02:00" endTime="2022-12-23T15:51:20.6502888+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="eb403246-2b0c-4bd8-9950-9ff7a49687d5" />
+    <UnitTestResult executionId="9c202ca1-069c-491a-a597-371631f34717" testId="72443913-5403-ad26-4838-0ae9fbf5e073" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.TransferBasket.RemovesAnonymousBasketAfterUpdatingUserBasket" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0019516" startTime="2022-12-23T15:51:20.7541209+02:00" endTime="2022-12-23T15:51:20.7541210+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9c202ca1-069c-491a-a597-371631f34717" />
+    <UnitTestResult executionId="18564b8d-1292-46cf-bea0-6110b39d3b71" testId="bc98ae64-67a4-0a1e-f0af-b2bffb6f7a7e" testName="Microsoft.eShopWeb.UnitTests.MediatorHandlers.OrdersTests.GetOrderDetails.NotBeNullIfOrderExists" computerName="DESKTOP-QRVC9QF" duration="00:00:00.1075960" startTime="2022-12-23T15:51:20.7217459+02:00" endTime="2022-12-23T15:51:20.7217463+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="18564b8d-1292-46cf-bea0-6110b39d3b71" />
+    <UnitTestResult executionId="35c508dc-de1a-42f0-9613-9ed697c7582b" testId="cd89ce44-f749-0e1c-9ce3-7ce898040ad6" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CustomerOrdersWithItemsSpecification.ReturnsOrderWithOrderedItem" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0007700" startTime="2022-12-23T15:51:20.6879852+02:00" endTime="2022-12-23T15:51:20.6879853+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="35c508dc-de1a-42f0-9613-9ed697c7582b" />
+    <UnitTestResult executionId="7b1d78e7-71ca-4087-b8b6-303cc7621b4a" testId="46e1704b-ee49-4ca1-7ec2-26aaca69f44a" testName="Microsoft.eShopWeb.UnitTests.MediatorHandlers.OrdersTests.GetMyOrders.NotReturnNullIfOrdersArePresIent" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0546393" startTime="2022-12-23T15:51:20.7318627+02:00" endTime="2022-12-23T15:51:20.7318628+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7b1d78e7-71ca-4087-b8b6-303cc7621b4a" />
+    <UnitTestResult executionId="8ed68cdd-93f3-47de-9495-eb59609a19c5" testId="385eba87-3774-4e25-cfb8-8eb494cad33d" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: 1, typeId: 3, expectedCount: 1)" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0004682" startTime="2022-12-23T15:51:20.6837771+02:00" endTime="2022-12-23T15:51:20.6837772+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8ed68cdd-93f3-47de-9495-eb59609a19c5" />
+    <UnitTestResult executionId="7643b263-f14d-4e8a-9232-6465e787e470" testId="fa6d0187-df2c-7cd2-457c-26df9c2d8af7" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: null, typeId: 3, expectedCount: 1)" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0006573" startTime="2022-12-23T15:51:20.6811025+02:00" endTime="2022-12-23T15:51:20.6811026+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7643b263-f14d-4e8a-9232-6465e787e470" />
+    <UnitTestResult executionId="9b1307a8-aa5b-4389-aad5-16053ce89626" testId="582d5339-bbce-6a48-9c69-0635b72e59a4" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems.MatchesNoBasketsIfBuyerIdNotPresent" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0007259" startTime="2022-12-23T15:51:20.7391777+02:00" endTime="2022-12-23T15:51:20.7391780+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9b1307a8-aa5b-4389-aad5-16053ce89626" />
+    <UnitTestResult executionId="2b14bf73-19ef-42c3-8430-586b645c6777" testId="1daacc2d-6ec7-e84d-70fa-9614bc70d236" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems.MatchesNoBasketsIfBasketIdNotPresent" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0070605" startTime="2022-12-23T15:51:20.7383325+02:00" endTime="2022-12-23T15:51:20.7383328+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2b14bf73-19ef-42c3-8430-586b645c6777" />
+    <UnitTestResult executionId="8ff0a96c-ddcb-424a-835a-06f9fcd84ead" testId="6206ccea-5ab0-4699-f8e5-4ff2d77aa296" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.OrderTests.OrderTotal.IsCorrectGiven3Items" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0010000" startTime="2022-12-23T15:51:20.6499326+02:00" endTime="2022-12-23T15:51:20.6499328+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8ff0a96c-ddcb-424a-835a-06f9fcd84ead">
+      <Output>
+        <StdOut>Skipped test 2</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="5b91fd1d-34f6-40ff-93a2-70073b3fcf4f" testId="6b3a7082-717e-c426-a6b1-d0e9ac900019" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CustomerOrdersWithItemsSpecification.ReturnsAllOrderWithAllOrderedItem" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0031519" startTime="2022-12-23T15:51:20.6871787+02:00" endTime="2022-12-23T15:51:20.6871788+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5b91fd1d-34f6-40ff-93a2-70073b3fcf4f" />
+    <UnitTestResult executionId="db045ebf-5d59-4a53-a5c4-9e0de9ab5001" testId="2448f295-536e-207a-0358-8db926bd1068" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.DeleteBasket.ShouldInvokeBasketRepositoryDeleteAsyncOnce" computerName="DESKTOP-QRVC9QF" duration="00:00:00.1309367" startTime="2022-12-23T15:51:20.7451014+02:00" endTime="2022-12-23T15:51:20.7451018+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="db045ebf-5d59-4a53-a5c4-9e0de9ab5001" />
+    <UnitTestResult executionId="c97f6368-369d-47b3-813a-52e50c896adb" testId="e5fe95db-7d39-5ca7-a37e-c5267d799e35" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: null, typeId: 1, expectedCount: 2)" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0008173" startTime="2022-12-23T15:51:20.6803859+02:00" endTime="2022-12-23T15:51:20.6803861+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c97f6368-369d-47b3-813a-52e50c896adb" />
+    <UnitTestResult executionId="cc9d6351-76e1-4442-aa76-b3aeb87892c2" testId="de6ef683-9020-85e4-15de-7ee8383b3973" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.AddItemToBasket.InvokesBasketRepositoryUpdateAsyncOnce" computerName="DESKTOP-QRVC9QF" duration="00:00:00.1135591" startTime="2022-12-23T15:51:20.7451499+02:00" endTime="2022-12-23T15:51:20.7451500+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cc9d6351-76e1-4442-aa76-b3aeb87892c2" />
+    <UnitTestResult executionId="27a3eef7-038e-4236-a0cf-573fd711a639" testId="63318c4f-26e3-0be7-27ef-9e8a0af20216" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: 2, typeId: 3, expectedCount: 0)" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0006390" startTime="2022-12-23T15:51:20.6817737+02:00" endTime="2022-12-23T15:51:20.6817738+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="27a3eef7-038e-4236-a0cf-573fd711a639" />
+    <UnitTestResult executionId="3052cf05-3790-448e-996b-93a79c11f67f" testId="00664bba-3743-dc76-9f81-975a340b8e91" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems.MatchesBasketWithGivenBasketId" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0012486" startTime="2022-12-23T15:51:20.7412158+02:00" endTime="2022-12-23T15:51:20.7412159+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3052cf05-3790-448e-996b-93a79c11f67f">
+      <Output>
+        <ErrorInfo>
+          <Message>System.Exception : Test exception</Message>
+          <StackTrace>   at Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems.MatchesBasketWithGivenBasketId() in C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\ApplicationCore\Specifications\BasketWithItemsSpecification.cs:line 24</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="8db0f244-98e0-4ae8-a08f-e2c9911e36b3" testId="082ac2ff-07be-7ee9-ba9b-7a7258e89c99" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: 1, typeId: null, expectedCount: 3)" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0007640" startTime="2022-12-23T15:51:20.6832756+02:00" endTime="2022-12-23T15:51:20.6832757+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8db0f244-98e0-4ae8-a08f-e2c9911e36b3" />
+    <UnitTestResult executionId="13b93068-7140-4eda-9157-c222d519d9f6" testId="a52bb89f-7cc4-6a69-a2d8-eb556c5ed89a" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.TransferBasket.TransferAnonymousBasketItemsWhilePreservingExistingUserBasketItems" computerName="DESKTOP-QRVC9QF" duration="00:00:00.1319359" startTime="2022-12-23T15:51:20.7460625+02:00" endTime="2022-12-23T15:51:20.7460628+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="13b93068-7140-4eda-9157-c222d519d9f6" />
+    <UnitTestResult executionId="028b6733-a18f-4794-b49f-009d39b0d1a7" testId="cf864cdd-a72b-9a3d-2537-54eb25bd9f96" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.TransferBasket.InvokesBasketRepositoryFirstOrDefaultAsyncOnceIfAnonymousBasketNotExists" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0017496" startTime="2022-12-23T15:51:20.7520851+02:00" endTime="2022-12-23T15:51:20.7520854+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="028b6733-a18f-4794-b49f-009d39b0d1a7" />
+    <UnitTestResult executionId="3f7c2878-7bad-4358-9480-3efdf028bed1" testId="616b4056-ddbd-1e5d-495a-5ba583f3a226" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem.CantModifyQuantityToNegativeNumber" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0009294" startTime="2022-12-23T15:51:20.6505174+02:00" endTime="2022-12-23T15:51:20.6505175+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3f7c2878-7bad-4358-9480-3efdf028bed1" />
+    <UnitTestResult executionId="426f2fe7-3e50-4cec-8567-36ff7dc9c8f7" testId="ccaa32e5-0143-a6df-fa32-2a02b972ae62" testName="Microsoft.eShopWeb.UnitTests.Web.Extensions.CacheHelpersTests.GenerateBrandsCacheKey.ReturnsBrandsCacheKey" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0004738" startTime="2022-12-23T15:51:20.6504628+02:00" endTime="2022-12-23T15:51:20.6504628+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="426f2fe7-3e50-4cec-8567-36ff7dc9c8f7" />
+    <UnitTestResult executionId="b56a5298-7670-44d6-8921-104957dcbe00" testId="677a9c80-ebe7-3a8a-b4b7-d0a505c0604a" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: null, typeId: null, expectedCount: 5)" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0006752" startTime="2022-12-23T15:51:20.6824361+02:00" endTime="2022-12-23T15:51:20.6824363+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b56a5298-7670-44d6-8921-104957dcbe00" />
+    <UnitTestResult executionId="19240eda-13f8-4c1f-a31e-21b839103106" testId="56a85005-6432-19a2-0819-e66acf9ffccf" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogItemsSpecification.MatchesSpecificCatalogItem" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0015513" startTime="2022-12-23T15:51:20.7321705+02:00" endTime="2022-12-23T15:51:20.7321706+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="19240eda-13f8-4c1f-a31e-21b839103106" />
+    <UnitTestResult executionId="549ef8b6-d5e3-4671-87e4-0249117ed732" testId="5d996689-e787-2364-6001-79ba4dfe0975" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Extensions.JsonExtensions.CorrectlyDeserializesJson(json: &quot;{ \&quot;id\&quot;: 3124, \&quot;name\&quot;: \&quot;Test Value 1\&quot; }&quot;, expectedId: 3124, expectedName: &quot;Test Value 1&quot;)" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0000933" startTime="2022-12-23T15:51:20.6731963+02:00" endTime="2022-12-23T15:51:20.6731964+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="549ef8b6-d5e3-4671-87e4-0249117ed732" />
+    <UnitTestResult executionId="e245ce3d-79ae-4bbf-a00c-e9c35987ccd1" testId="8e2d6fc3-584d-5555-509c-50bd954b4850" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem.CantAddItemWithNegativeQuantity" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0002873" startTime="2022-12-23T15:51:20.6505816+02:00" endTime="2022-12-23T15:51:20.6505817+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e245ce3d-79ae-4bbf-a00c-e9c35987ccd1" />
+    <UnitTestResult executionId="1d457a75-70cb-447e-bce0-f693bc7ba4c6" testId="84798de8-0293-5c61-0f8f-dd5c64a0a32d" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketTotalItems.ReturnsTotalQuantityWithOneItem" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0052449" startTime="2022-12-23T15:51:20.6363456+02:00" endTime="2022-12-23T15:51:20.6363457+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1d457a75-70cb-447e-bce0-f693bc7ba4c6" />
+    <UnitTestResult executionId="3843df6d-958d-4ae8-9c17-2a054258f87e" testId="76afdb8f-7b28-1b1d-ae33-eaddf5297167" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Extensions.JsonExtensions.CorrectlyDeserializesJson(json: &quot;{ \&quot;id\&quot;: 9, \&quot;name\&quot;: \&quot;Another test\&quot; }&quot;, expectedId: 9, expectedName: &quot;Another test&quot;)" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0298489" startTime="2022-12-23T15:51:20.6731511+02:00" endTime="2022-12-23T15:51:20.6731512+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3843df6d-958d-4ae8-9c17-2a054258f87e" />
+    <UnitTestResult executionId="d57e3f79-e79e-48d0-be08-be3d15ad35d0" testId="8a697d61-d867-500a-1274-5e30e1aa2c14" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.OrderTests.OrderTotal.IsZeroForNewOrder" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0061848" startTime="2022-12-23T15:51:20.6363613+02:00" endTime="2022-12-23T15:51:20.6363614+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d57e3f79-e79e-48d0-be08-be3d15ad35d0" />
+    <UnitTestResult executionId="52dd1523-7351-4170-900a-bf599f7fa343" testId="d3d9ffcf-88a4-5a02-d88f-063b96ecf03d" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogItemsSpecification.MatchesAllCatalogItems" computerName="DESKTOP-QRVC9QF" duration="00:00:00.1118315" startTime="2022-12-23T15:51:20.7316433+02:00" endTime="2022-12-23T15:51:20.7316436+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="52dd1523-7351-4170-900a-bf599f7fa343" />
+    <UnitTestResult executionId="47c2aaf7-5e7e-48cf-aef9-b91f0cd5b0e5" testId="8174b6f6-80ed-26fd-fcc1-2b203d2877d1" testName="Microsoft.eShopWeb.UnitTests.Web.Extensions.CacheHelpersTests.GenerateTypesCacheKey.ReturnsTypesCacheKey" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0035057" startTime="2022-12-23T15:51:20.6362190+02:00" endTime="2022-12-23T15:51:20.6362195+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="47c2aaf7-5e7e-48cf-aef9-b91f0cd5b0e5" />
+    <UnitTestResult executionId="eb2b8ca3-e655-42d1-a5d5-cc42c36801c8" testId="5c835b47-0387-7203-f4d1-329b7b5384d4" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Extensions.JsonExtensions.CorrectlySerializesAndDeserializesObject" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0131552" startTime="2022-12-23T15:51:20.6768478+02:00" endTime="2022-12-23T15:51:20.6768482+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="eb2b8ca3-e655-42d1-a5d5-cc42c36801c8" />
+    <UnitTestResult executionId="271adb5e-a527-4814-bb52-f6eb379955b8" testId="f9c498c1-4170-e3b8-3449-651211e5a38f" testName="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.AddItemToBasket.InvokesBasketRepositoryGetBySpecAsyncOnce" computerName="DESKTOP-QRVC9QF" duration="00:00:00.0010971" startTime="2022-12-23T15:51:20.7505578+02:00" endTime="2022-12-23T15:51:20.7505582+02:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="271adb5e-a527-4814-bb52-f6eb379955b8">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Fail(): Failed test 1</Message>
+          <StackTrace>   at Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.AddItemToBasket.InvokesBasketRepositoryGetBySpecAsyncOnce() in C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\ApplicationCore\Services\BasketServiceTests\AddItemToBasket.cs:line 20&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.MediatorHandlers.OrdersTests.GetOrderDetails.NotBeNullIfOrderExists" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="bc98ae64-67a4-0a1e-f0af-b2bffb6f7a7e">
+      <Execution id="18564b8d-1292-46cf-bea0-6110b39d3b71" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.MediatorHandlers.OrdersTests.GetOrderDetails" name="NotBeNullIfOrderExists" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterPaginatedSpecification.ReturnsAllCatalogItems" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="0cbb9ef2-017c-05d3-5097-5a77b4b5796c">
+      <Execution id="773c9d42-cac0-4735-849d-aa1486fe6763" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterPaginatedSpecification" name="ReturnsAllCatalogItems" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.Web.Extensions.CacheHelpersTests.GenerateTypesCacheKey.ReturnsTypesCacheKey" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="8174b6f6-80ed-26fd-fcc1-2b203d2877d1">
+      <Execution id="47c2aaf7-5e7e-48cf-aef9-b91f0cd5b0e5" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.Web.Extensions.CacheHelpersTests.GenerateTypesCacheKey" name="ReturnsTypesCacheKey" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems.MatchesNoBasketsIfBasketIdNotPresent" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="1daacc2d-6ec7-e84d-70fa-9614bc70d236">
+      <Execution id="2b14bf73-19ef-42c3-8430-586b645c6777" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems" name="MatchesNoBasketsIfBasketIdNotPresent" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketTotalItems.ReturnsTotalQuantityWithOneItem" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="84798de8-0293-5c61-0f8f-dd5c64a0a32d">
+      <Execution id="1d457a75-70cb-447e-bce0-f693bc7ba4c6" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketTotalItems" name="ReturnsTotalQuantityWithOneItem" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.Web.Extensions.CacheHelpersTests.GenerateCatalogItemCacheKey.ReturnsCatalogItemCacheKey" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="567700fc-cf3c-80b5-54cc-ae91474e799f">
+      <Execution id="7c1b19c3-eb8d-4892-a84b-363589b20591" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.Web.Extensions.CacheHelpersTests.GenerateCatalogItemCacheKey" name="ReturnsCatalogItemCacheKey" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.TransferBasket.InvokesBasketRepositoryFirstOrDefaultAsyncOnceIfAnonymousBasketNotExists" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="cf864cdd-a72b-9a3d-2537-54eb25bd9f96">
+      <Execution id="028b6733-a18f-4794-b49f-009d39b0d1a7" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.TransferBasket" name="InvokesBasketRepositoryFirstOrDefaultAsyncOnceIfAnonymousBasketNotExists" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem.DefaultsToQuantityOfOne" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="ae160215-e214-c67f-7415-aa33e198a82e">
+      <Execution id="f772918c-e7c6-4330-8bd9-e2d4ec8d74bf" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem" name="DefaultsToQuantityOfOne" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: 2, typeId: null, expectedCount: 2)" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="1f23e6a0-7ba4-f24f-383d-c48ac93f941b">
+      <Execution id="dfab9d16-869c-4c2f-a029-9e93ec9fa022" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification" name="MatchesExpectedNumberOfItems" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.OrderTests.OrderTotal.IsZeroForNewOrder" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="8a697d61-d867-500a-1274-5e30e1aa2c14">
+      <Execution id="d57e3f79-e79e-48d0-be08-be3d15ad35d0" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.OrderTests.OrderTotal" name="IsZeroForNewOrder" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.DeleteBasket.ShouldInvokeBasketRepositoryDeleteAsyncOnce" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="2448f295-536e-207a-0358-8db926bd1068">
+      <Execution id="db045ebf-5d59-4a53-a5c4-9e0de9ab5001" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.DeleteBasket" name="ShouldInvokeBasketRepositoryDeleteAsyncOnce" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.AddItemToBasket.InvokesBasketRepositoryUpdateAsyncOnce" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="de6ef683-9020-85e4-15de-7ee8383b3973">
+      <Execution id="cc9d6351-76e1-4442-aa76-b3aeb87892c2" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.AddItemToBasket" name="InvokesBasketRepositoryUpdateAsyncOnce" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems.MatchesBasketWithGivenBuyerId" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="1cf81a3c-cfc1-079b-5747-0ec84c028de6">
+      <Execution id="8829810f-df17-4d6b-826b-a11c60345937" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems" name="MatchesBasketWithGivenBuyerId" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Extensions.JsonExtensions.CorrectlyDeserializesJson(json: &quot;{ \&quot;id\&quot;: 3124, \&quot;name\&quot;: \&quot;Test Value 1\&quot; }&quot;, expectedId: 3124, expectedName: &quot;Test Value 1&quot;)" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="5d996689-e787-2364-6001-79ba4dfe0975">
+      <Execution id="549ef8b6-d5e3-4671-87e4-0249117ed732" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Extensions.JsonExtensions" name="CorrectlyDeserializesJson" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: 1, typeId: null, expectedCount: 3)" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="082ac2ff-07be-7ee9-ba9b-7a7258e89c99">
+      <Execution id="8db0f244-98e0-4ae8-a08f-e2c9911e36b3" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification" name="MatchesExpectedNumberOfItems" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: 1, typeId: 3, expectedCount: 1)" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="385eba87-3774-4e25-cfb8-8eb494cad33d">
+      <Execution id="8ed68cdd-93f3-47de-9495-eb59609a19c5" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification" name="MatchesExpectedNumberOfItems" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem.CantAddItemWithNegativeQuantity" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="8e2d6fc3-584d-5555-509c-50bd954b4850">
+      <Execution id="e245ce3d-79ae-4bbf-a00c-e9c35987ccd1" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem" name="CantAddItemWithNegativeQuantity" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Extensions.JsonExtensions.CorrectlySerializesAndDeserializesObject" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="5c835b47-0387-7203-f4d1-329b7b5384d4">
+      <Execution id="eb2b8ca3-e655-42d1-a5d5-cc42c36801c8" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Extensions.JsonExtensions" name="CorrectlySerializesAndDeserializesObject" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.MediatorHandlers.OrdersTests.GetMyOrders.NotReturnNullIfOrdersArePresIent" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="46e1704b-ee49-4ca1-7ec2-26aaca69f44a">
+      <Execution id="7b1d78e7-71ca-4087-b8b6-303cc7621b4a" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.MediatorHandlers.OrdersTests.GetMyOrders" name="NotReturnNullIfOrdersArePresIent" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems.MatchesBasketWithGivenBasketId" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="00664bba-3743-dc76-9f81-975a340b8e91">
+      <Execution id="3052cf05-3790-448e-996b-93a79c11f67f" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems" name="MatchesBasketWithGivenBasketId" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem.CantModifyQuantityToNegativeNumber" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="616b4056-ddbd-1e5d-495a-5ba583f3a226">
+      <Execution id="3f7c2878-7bad-4358-9480-3efdf028bed1" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem" name="CantModifyQuantityToNegativeNumber" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem.KeepsOriginalUnitPriceIfMoreItemsAdded" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="79979c84-840c-c42e-5fdf-d26f44c0d9f4">
+      <Execution id="f63cb724-2160-4070-87e5-0c9a8cbe8b3d" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem" name="KeepsOriginalUnitPriceIfMoreItemsAdded" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.TransferBasket.RemovesAnonymousBasketAfterUpdatingUserBasket" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="72443913-5403-ad26-4838-0ae9fbf5e073">
+      <Execution id="9c202ca1-069c-491a-a597-371631f34717" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.TransferBasket" name="RemovesAnonymousBasketAfterUpdatingUserBasket" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterPaginatedSpecification.Returns2CatalogItemsWithSameBrandAndTypeId" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="6dd4e6f5-18c8-4a68-839a-b7ec93940764">
+      <Execution id="c7d16183-ef47-4650-90c8-fd05fe7ecef4" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterPaginatedSpecification" name="Returns2CatalogItemsWithSameBrandAndTypeId" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: null, typeId: null, expectedCount: 5)" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="677a9c80-ebe7-3a8a-b4b7-d0a505c0604a">
+      <Execution id="b56a5298-7670-44d6-8921-104957dcbe00" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification" name="MatchesExpectedNumberOfItems" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogItemsSpecification.MatchesAllCatalogItems" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="d3d9ffcf-88a4-5a02-d88f-063b96ecf03d">
+      <Execution id="52dd1523-7351-4170-900a-bf599f7fa343" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogItemsSpecification" name="MatchesAllCatalogItems" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.TransferBasket.TransferAnonymousBasketItemsWhilePreservingExistingUserBasketItems" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="a52bb89f-7cc4-6a69-a2d8-eb556c5ed89a">
+      <Execution id="13b93068-7140-4eda-9157-c222d519d9f6" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.TransferBasket" name="TransferAnonymousBasketItemsWhilePreservingExistingUserBasketItems" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CustomerOrdersWithItemsSpecification.ReturnsOrderWithOrderedItem" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="cd89ce44-f749-0e1c-9ce3-7ce898040ad6">
+      <Execution id="35c508dc-de1a-42f0-9613-9ed697c7582b" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CustomerOrdersWithItemsSpecification" name="ReturnsOrderWithOrderedItem" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.AddItemToBasket.InvokesBasketRepositoryGetBySpecAsyncOnce" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="f9c498c1-4170-e3b8-3449-651211e5a38f">
+      <Execution id="271adb5e-a527-4814-bb52-f6eb379955b8" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.AddItemToBasket" name="InvokesBasketRepositoryGetBySpecAsyncOnce" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketRemoveEmptyItems.RemovesEmptyBasketItems" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="9b0da45c-854e-e694-b852-ec17be2ae643">
+      <Execution id="698b8d5e-21c1-48ac-aabc-9c4e96d0d191" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketRemoveEmptyItems" name="RemovesEmptyBasketItems" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketTotalItems.ReturnsTotalQuantityWithMultipleItems" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="c7910bf4-89c3-8a2f-933b-9ff63611214a">
+      <Execution id="eb403246-2b0c-4bd8-9950-9ff7a49687d5" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketTotalItems" name="ReturnsTotalQuantityWithMultipleItems" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.Web.Extensions.CacheHelpersTests.GenerateBrandsCacheKey.ReturnsBrandsCacheKey" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="ccaa32e5-0143-a6df-fa32-2a02b972ae62">
+      <Execution id="426f2fe7-3e50-4cec-8567-36ff7dc9c8f7" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.Web.Extensions.CacheHelpersTests.GenerateBrandsCacheKey" name="ReturnsBrandsCacheKey" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.OrderTests.OrderTotal.IsCorrectGiven3Items" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="6206ccea-5ab0-4699-f8e5-4ff2d77aa296">
+      <Execution id="8ff0a96c-ddcb-424a-835a-06f9fcd84ead" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.OrderTests.OrderTotal" name="IsCorrectGiven3Items" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: null, typeId: 3, expectedCount: 1)" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="fa6d0187-df2c-7cd2-457c-26df9c2d8af7">
+      <Execution id="7643b263-f14d-4e8a-9232-6465e787e470" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification" name="MatchesExpectedNumberOfItems" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.TransferBasket.CreatesNewUserBasketIfNotExists" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="e0a1c8e7-f68a-2cf8-7e14-db8e5476ff08">
+      <Execution id="ff8338fc-a611-44be-952c-778ea05bbbcc" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.TransferBasket" name="CreatesNewUserBasketIfNotExists" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem.IncrementsQuantityOfItemIfPresent" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="17322f1e-a1bc-972a-b134-e4feba609614">
+      <Execution id="630c2a75-3f8f-4f8e-8372-52acdfddad6c" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem" name="IncrementsQuantityOfItemIfPresent" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.OrderTests.OrderTotal.IsCorrectGiven1Item" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="20566fc0-4d83-2996-2ce9-ad2b56afbdb9">
+      <Execution id="14868392-ff72-43b1-9070-6ab992cb4aba" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.OrderTests.OrderTotal" name="IsCorrectGiven1Item" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Extensions.JsonExtensions.CorrectlyDeserializesJson(json: &quot;{ \&quot;id\&quot;: 9, \&quot;name\&quot;: \&quot;Another test\&quot; }&quot;, expectedId: 9, expectedName: &quot;Another test&quot;)" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="76afdb8f-7b28-1b1d-ae33-eaddf5297167">
+      <Execution id="3843df6d-958d-4ae8-9c17-2a054258f87e" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Extensions.JsonExtensions" name="CorrectlyDeserializesJson" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CustomerOrdersWithItemsSpecification.ReturnsAllOrderWithAllOrderedItem" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="6b3a7082-717e-c426-a6b1-d0e9ac900019">
+      <Execution id="5b91fd1d-34f6-40ff-93a2-70073b3fcf4f" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CustomerOrdersWithItemsSpecification" name="ReturnsAllOrderWithAllOrderedItem" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem.AddsBasketItemIfNotPresent" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="8c9e1224-108a-0a36-56ae-4ccc9f15f109">
+      <Execution id="f2b73b08-3208-4a81-8120-1c22b6fdfdf1" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.BasketTests.BasketAddItem" name="AddsBasketItemIfNotPresent" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems.MatchesNoBasketsIfBuyerIdNotPresent" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="582d5339-bbce-6a48-9c69-0635b72e59a4">
+      <Execution id="9b1307a8-aa5b-4389-aad5-16053ce89626" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems" name="MatchesNoBasketsIfBuyerIdNotPresent" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogItemsSpecification.MatchesSpecificCatalogItem" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="56a85005-6432-19a2-0819-e66acf9ffccf">
+      <Execution id="19240eda-13f8-4c1f-a31e-21b839103106" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogItemsSpecification" name="MatchesSpecificCatalogItem" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: null, typeId: 1, expectedCount: 2)" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="e5fe95db-7d39-5ca7-a37e-c5267d799e35">
+      <Execution id="c97f6368-369d-47b3-813a-52e50c896adb" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification" name="MatchesExpectedNumberOfItems" />
+    </UnitTest>
+    <UnitTest name="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification.MatchesExpectedNumberOfItems(brandId: 2, typeId: 3, expectedCount: 0)" storage="c:\users\testuser\files\projects\eshoponweb\tests\unittests\bin\debug\net6.0\unittests.dll" id="63318c4f-26e3-0be7-27ef-9e8a0af20216">
+      <Execution id="27a3eef7-038e-4236-a0cf-573fd711a639" />
+      <TestMethod codeBase="C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\bin\Debug\net6.0\UnitTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterSpecification" name="MatchesExpectedNumberOfItems" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="17322f1e-a1bc-972a-b134-e4feba609614" executionId="630c2a75-3f8f-4f8e-8372-52acdfddad6c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9b0da45c-854e-e694-b852-ec17be2ae643" executionId="698b8d5e-21c1-48ac-aabc-9c4e96d0d191" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="79979c84-840c-c42e-5fdf-d26f44c0d9f4" executionId="f63cb724-2160-4070-87e5-0c9a8cbe8b3d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="20566fc0-4d83-2996-2ce9-ad2b56afbdb9" executionId="14868392-ff72-43b1-9070-6ab992cb4aba" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1cf81a3c-cfc1-079b-5747-0ec84c028de6" executionId="8829810f-df17-4d6b-826b-a11c60345937" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6dd4e6f5-18c8-4a68-839a-b7ec93940764" executionId="c7d16183-ef47-4650-90c8-fd05fe7ecef4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8c9e1224-108a-0a36-56ae-4ccc9f15f109" executionId="f2b73b08-3208-4a81-8120-1c22b6fdfdf1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e0a1c8e7-f68a-2cf8-7e14-db8e5476ff08" executionId="ff8338fc-a611-44be-952c-778ea05bbbcc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0cbb9ef2-017c-05d3-5097-5a77b4b5796c" executionId="773c9d42-cac0-4735-849d-aa1486fe6763" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1f23e6a0-7ba4-f24f-383d-c48ac93f941b" executionId="dfab9d16-869c-4c2f-a029-9e93ec9fa022" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="567700fc-cf3c-80b5-54cc-ae91474e799f" executionId="7c1b19c3-eb8d-4892-a84b-363589b20591" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ae160215-e214-c67f-7415-aa33e198a82e" executionId="f772918c-e7c6-4330-8bd9-e2d4ec8d74bf" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c7910bf4-89c3-8a2f-933b-9ff63611214a" executionId="eb403246-2b0c-4bd8-9950-9ff7a49687d5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="72443913-5403-ad26-4838-0ae9fbf5e073" executionId="9c202ca1-069c-491a-a597-371631f34717" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bc98ae64-67a4-0a1e-f0af-b2bffb6f7a7e" executionId="18564b8d-1292-46cf-bea0-6110b39d3b71" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cd89ce44-f749-0e1c-9ce3-7ce898040ad6" executionId="35c508dc-de1a-42f0-9613-9ed697c7582b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="46e1704b-ee49-4ca1-7ec2-26aaca69f44a" executionId="7b1d78e7-71ca-4087-b8b6-303cc7621b4a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="385eba87-3774-4e25-cfb8-8eb494cad33d" executionId="8ed68cdd-93f3-47de-9495-eb59609a19c5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fa6d0187-df2c-7cd2-457c-26df9c2d8af7" executionId="7643b263-f14d-4e8a-9232-6465e787e470" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="582d5339-bbce-6a48-9c69-0635b72e59a4" executionId="9b1307a8-aa5b-4389-aad5-16053ce89626" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1daacc2d-6ec7-e84d-70fa-9614bc70d236" executionId="2b14bf73-19ef-42c3-8430-586b645c6777" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6206ccea-5ab0-4699-f8e5-4ff2d77aa296" executionId="8ff0a96c-ddcb-424a-835a-06f9fcd84ead" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6b3a7082-717e-c426-a6b1-d0e9ac900019" executionId="5b91fd1d-34f6-40ff-93a2-70073b3fcf4f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2448f295-536e-207a-0358-8db926bd1068" executionId="db045ebf-5d59-4a53-a5c4-9e0de9ab5001" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e5fe95db-7d39-5ca7-a37e-c5267d799e35" executionId="c97f6368-369d-47b3-813a-52e50c896adb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="de6ef683-9020-85e4-15de-7ee8383b3973" executionId="cc9d6351-76e1-4442-aa76-b3aeb87892c2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="63318c4f-26e3-0be7-27ef-9e8a0af20216" executionId="27a3eef7-038e-4236-a0cf-573fd711a639" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="00664bba-3743-dc76-9f81-975a340b8e91" executionId="3052cf05-3790-448e-996b-93a79c11f67f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="082ac2ff-07be-7ee9-ba9b-7a7258e89c99" executionId="8db0f244-98e0-4ae8-a08f-e2c9911e36b3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a52bb89f-7cc4-6a69-a2d8-eb556c5ed89a" executionId="13b93068-7140-4eda-9157-c222d519d9f6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cf864cdd-a72b-9a3d-2537-54eb25bd9f96" executionId="028b6733-a18f-4794-b49f-009d39b0d1a7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="616b4056-ddbd-1e5d-495a-5ba583f3a226" executionId="3f7c2878-7bad-4358-9480-3efdf028bed1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ccaa32e5-0143-a6df-fa32-2a02b972ae62" executionId="426f2fe7-3e50-4cec-8567-36ff7dc9c8f7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="677a9c80-ebe7-3a8a-b4b7-d0a505c0604a" executionId="b56a5298-7670-44d6-8921-104957dcbe00" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="56a85005-6432-19a2-0819-e66acf9ffccf" executionId="19240eda-13f8-4c1f-a31e-21b839103106" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5d996689-e787-2364-6001-79ba4dfe0975" executionId="549ef8b6-d5e3-4671-87e4-0249117ed732" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8e2d6fc3-584d-5555-509c-50bd954b4850" executionId="e245ce3d-79ae-4bbf-a00c-e9c35987ccd1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="84798de8-0293-5c61-0f8f-dd5c64a0a32d" executionId="1d457a75-70cb-447e-bce0-f693bc7ba4c6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="76afdb8f-7b28-1b1d-ae33-eaddf5297167" executionId="3843df6d-958d-4ae8-9c17-2a054258f87e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8a697d61-d867-500a-1274-5e30e1aa2c14" executionId="d57e3f79-e79e-48d0-be08-be3d15ad35d0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d3d9ffcf-88a4-5a02-d88f-063b96ecf03d" executionId="52dd1523-7351-4170-900a-bf599f7fa343" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8174b6f6-80ed-26fd-fcc1-2b203d2877d1" executionId="47c2aaf7-5e7e-48cf-aef9-b91f0cd5b0e5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5c835b47-0387-7203-f4d1-329b7b5384d4" executionId="eb2b8ca3-e655-42d1-a5d5-cc42c36801c8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f9c498c1-4170-e3b8-3449-651211e5a38f" executionId="271adb5e-a527-4814-bb52-f6eb379955b8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="44" executed="41" passed="38" failed="3" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.4.5+1caef2f33e (64-bit .NET 6.0.12)&#xD;
+[xUnit.net 00:00:03.57]   Discovering: UnitTests&#xD;
+[xUnit.net 00:00:03.63]   Discovered:  UnitTests&#xD;
+[xUnit.net 00:00:03.63]   Starting:    UnitTests&#xD;
+[xUnit.net 00:00:03.70]       Skipped test 3&#xD;
+Test 'Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterPaginatedSpecification.Returns2CatalogItemsWithSameBrandAndTypeId' was skipped in the test run.&#xD;
+[xUnit.net 00:00:03.73]       Skipped test 2&#xD;
+[xUnit.net 00:00:03.73]       Skipped test 1&#xD;
+Test 'Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.OrderTests.OrderTotal.IsCorrectGiven3Items' was skipped in the test run.&#xD;
+Test 'Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.OrderTests.OrderTotal.IsCorrectGiven1Item' was skipped in the test run.&#xD;
+[xUnit.net 00:00:03.74]       Assert.Fail(): Failed test 2&#xD;
+[xUnit.net 00:00:03.75]       Stack Trace:&#xD;
+[xUnit.net 00:00:03.75]         C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\ApplicationCore\Specifications\CatalogFilterPaginatedSpecification.cs(11,0): at Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterPaginatedSpecification.ReturnsAllCatalogItems()&#xD;
+[xUnit.net 00:00:03.82]       System.Exception : Test exception&#xD;
+[xUnit.net 00:00:03.82]       Stack Trace:&#xD;
+[xUnit.net 00:00:03.82]         C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\ApplicationCore\Specifications\BasketWithItemsSpecification.cs(24,0): at Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems.MatchesBasketWithGivenBasketId()&#xD;
+[xUnit.net 00:00:03.83]       Assert.Fail(): Failed test 1&#xD;
+[xUnit.net 00:00:03.83]       Stack Trace:&#xD;
+[xUnit.net 00:00:03.83]         C:\Users\testuser\Files\Projects\eShopOnWeb\tests\UnitTests\ApplicationCore\Services\BasketServiceTests\AddItemToBasket.cs(20,0): at Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.AddItemToBasket.InvokesBasketRepositoryGetBySpecAsyncOnce()&#xD;
+[xUnit.net 00:00:03.83]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:03.83]   Finished:    UnitTests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="DESKTOP-QRVC9QF" outcome="Warning" timestamp="2022-12-23T15:51:20.6510744+02:00">
+        <Text>[xUnit.net 00:00:03.70]     Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterPaginatedSpecification.Returns2CatalogItemsWithSameBrandAndTypeId [SKIP]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-QRVC9QF" outcome="Warning" timestamp="2022-12-23T15:51:20.6897160+02:00">
+        <Text>[xUnit.net 00:00:03.73]     Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.OrderTests.OrderTotal.IsCorrectGiven3Items [SKIP]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-QRVC9QF" outcome="Warning" timestamp="2022-12-23T15:51:20.6912596+02:00">
+        <Text>[xUnit.net 00:00:03.73]     Microsoft.eShopWeb.UnitTests.ApplicationCore.Entities.OrderTests.OrderTotal.IsCorrectGiven1Item [SKIP]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-QRVC9QF" outcome="Min" timestamp="2022-12-23T15:51:20.6949475+02:00">
+        <Text>[xUnit.net 00:00:03.74]     Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.CatalogFilterPaginatedSpecification.ReturnsAllCatalogItems [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-QRVC9QF" outcome="Min" timestamp="2022-12-23T15:51:20.7411707+02:00">
+        <Text>[xUnit.net 00:00:03.82]     Microsoft.eShopWeb.UnitTests.ApplicationCore.Specifications.BasketWithItems.MatchesBasketWithGivenBasketId [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-QRVC9QF" outcome="Min" timestamp="2022-12-23T15:51:20.7505059+02:00">
+        <Text>[xUnit.net 00:00:03.83]     Microsoft.eShopWeb.UnitTests.ApplicationCore.Services.BasketServiceTests.AddItemToBasket.InvokesBasketRepositoryGetBySpecAsyncOnce [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

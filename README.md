@@ -38,6 +38,12 @@ Set to `true` to post a new comment after each run.
 Set to `false` or leave blank to only update an existing comment.
 <br/>Default: `false`
 
+#### `allow-failed-tests`
+**Optional** - Boolean flag. 
+Set to `true` to prevent failed tests from failing the job.
+Set to `false` or leave blank to fail the job if there are any failed tests (recommended).
+<br/>Default: `false`
+
 ## Outputs
 
 #### `tests-total`

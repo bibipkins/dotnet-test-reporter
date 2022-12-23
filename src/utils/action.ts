@@ -5,6 +5,7 @@ const inputs = {
   token: 'github-token',
   title: 'comment-title',
   postNewComment: 'post-new-comment',
+  allowFailedTests: 'allow-failed-tests',
   resultsPath: 'results-path',
   coveragePath: 'coverage-path',
   coverageType: 'coverage-type',
@@ -24,13 +25,14 @@ const outputs = {
   branchesCovered: 'coverage-branches-covered'
 };
 
-export const getActionInputs = (): IActionInputs => {
+export const getInputs = (): IActionInputs => {
   const token = core.getInput(inputs.token) || process.env['GITHUB_TOKEN'] || '';
 
   return {
     token,
     title: core.getInput(inputs.title),
     postNewComment: core.getBooleanInput(inputs.postNewComment),
+    allowFailedTests: core.getBooleanInput(inputs.allowFailedTests),
     resultsPath: core.getInput(inputs.resultsPath),
     coveragePath: core.getInput(inputs.coveragePath),
     coverageType: core.getInput(inputs.coverageType) as CoverageType,
@@ -38,11 +40,11 @@ export const getActionInputs = (): IActionInputs => {
   };
 };
 
-export const setResultOutputs = (results: IResult): void => {
-  core.setOutput(outputs.total, results.total);
-  core.setOutput(outputs.passed, results.passed);
-  core.setOutput(outputs.failed, results.failed);
-  core.setOutput(outputs.skipped, results.skipped);
+export const setResultOutputs = (result: IResult): void => {
+  core.setOutput(outputs.total, result.total);
+  core.setOutput(outputs.passed, result.passed);
+  core.setOutput(outputs.failed, result.failed);
+  core.setOutput(outputs.skipped, result.skipped);
 };
 
 export const setCoverageOutputs = (coverage: ICoverage): void => {
@@ -54,6 +56,14 @@ export const setCoverageOutputs = (coverage: ICoverage): void => {
   core.setOutput(outputs.branchesCovered, coverage.branchesCovered);
 };
 
-export const setActionFailed = (message: string): void => {
+export const setFailed = (message: string): void => {
   core.setFailed(message);
+};
+
+export const setSummary = async (text: string): Promise<void> => {
+  await core.summary.addRaw(text).write();
+};
+
+export const log = (message: string): void => {
+  core.info(message);
 };
