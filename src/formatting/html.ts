@@ -31,8 +31,8 @@ export const formatResultHtml = (result: IResult): string => {
     const icon = getStatusIcon(suit.success);
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
     const table = formatTable(
-      [{ name: 'Test' }, { name: 'Result', align: 'center' }],
-      suit.tests.map(test => [test.name, outcomeIcons[test.outcome]])
+      [{ name: 'Test' }, { name: 'Result', align: 'center' }, { name: 'Output' }],
+      suit.tests.map(test => [test.name, outcomeIcons[test.outcome], `${test.output}\n${test.error}`])
     );
 
     html += formatDetails(summary, table);
@@ -51,12 +51,12 @@ const wrap = (item: string, element: string | Element): string => {
     tag = element.tag;
     attributes = element.attributes
       ? Object.keys(element.attributes)
-          .map(a => `${a}="${element.attributes?.[a]}"`)
-          .join(' ')
+          .map(a => ` ${a}="${element.attributes?.[a]}"`)
+          .join('')
       : '';
   }
 
-  return `<${tag} ${attributes}>${item}</${tag}>`;
+  return `<${tag}${attributes}>${item}</${tag}>`;
 };
 
 const wrapMany = (items: string[], element: string | Element): string =>

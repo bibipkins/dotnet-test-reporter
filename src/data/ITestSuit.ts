@@ -6,6 +6,8 @@ export default interface ITestSuit {
   passed: number;
   tests: {
     name: string;
+    output: string;
+    error: string;
     outcome: TestOutcome;
   }[];
 }

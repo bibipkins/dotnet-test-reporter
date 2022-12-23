@@ -56,6 +56,8 @@ export default class TrxParser implements IResultParser {
       startTime: new Date(result['$'].startTime),
       endTime: new Date(result['$'].endTime),
       outcome: String(result['$'].outcome) as TestOutcome,
+      output: String(result.Output?.[0]?.StdOut?.[0] ?? ''),
+      error: String(result.Output?.[0]?.ErrorInfo?.[0]?.Message?.[0] ?? ''),
       relativeResultsDirectory: String(result['$'].relativeResultsDirectory)
     }));
   }
@@ -96,6 +98,8 @@ export default class TrxParser implements IResultParser {
 
       suit.tests.push({
         name: definition.name.replace(`${definition.testMethod.className}.`, ''),
+        output: result?.output ?? '',
+        error: result?.error ?? '',
         outcome: result?.outcome || 'NotExecuted'
       });
 

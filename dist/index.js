@@ -93,7 +93,7 @@ const formatResultHtml = (result) => {
     for (const suit of result.suits) {
         const icon = (0, common_1.getStatusIcon)(suit.success);
         const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
-        const table = formatTable([{ name: 'Test' }, { name: 'Result', align: 'center' }], suit.tests.map(test => [test.name, outcomeIcons[test.outcome]]));
+        const table = formatTable([{ name: 'Test' }, { name: 'Result', align: 'center' }, { name: 'Output' }], suit.tests.map(test => [test.name, outcomeIcons[test.outcome], `${test.output}\n${test.error}`]));
         html += formatDetails(summary, table);
     }
     return html;
@@ -109,11 +109,11 @@ const wrap = (item, element) => {
         tag = element.tag;
         attributes = element.attributes
             ? Object.keys(element.attributes)
-                .map(a => { var _a; return `${a}="${(_a = element.attributes) === null || _a === void 0 ? void 0 : _a[a]}"`; })
-                .join(' ')
+                .map(a => { var _a; return ` ${a}="${(_a = element.attributes) === null || _a === void 0 ? void 0 : _a[a]}"`; })
+                .join('')
             : '';
     }
-    return `<${tag} ${attributes}>${item}</${tag}>`;
+    return `<${tag}${attributes}>${item}</${tag}>`;
 };
 const wrapMany = (items, element) => items.map(item => wrap(item, element)).join('');
 const formatDetails = (summary, details) => wrap(`${wrap(summary, 'summary')}<br/>${details}`, 'details');
@@ -356,19 +356,24 @@ class TrxParser {
     }
     parseResults(file) {
         const results = file.TestRun.Results[0].UnitTestResult;
-        return results.map((result) => ({
-            executionId: String(result['$'].executionId),
-            testId: String(result['$'].testId),
-            testName: String(result['$'].testName),
-            testType: String(result['$'].testType),
-            testListId: String(result['$'].testListId),
-            computerName: String(result['$'].computerName),
-            duration: String(result['$'].duration),
-            startTime: new Date(result['$'].startTime),
-            endTime: new Date(result['$'].endTime),
-            outcome: String(result['$'].outcome),
-            relativeResultsDirectory: String(result['$'].relativeResultsDirectory)
-        }));
+        return results.map((result) => {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+            return ({
+                executionId: String(result['$'].executionId),
+                testId: String(result['$'].testId),
+                testName: String(result['$'].testName),
+                testType: String(result['$'].testType),
+                testListId: String(result['$'].testListId),
+                computerName: String(result['$'].computerName),
+                duration: String(result['$'].duration),
+                startTime: new Date(result['$'].startTime),
+                endTime: new Date(result['$'].endTime),
+                outcome: String(result['$'].outcome),
+                output: String((_d = (_c = (_b = (_a = result.Output) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.StdOut) === null || _c === void 0 ? void 0 : _c[0]) !== null && _d !== void 0 ? _d : ''),
+                error: String((_k = (_j = (_h = (_g = (_f = (_e = result.Output) === null || _e === void 0 ? void 0 : _e[0]) === null || _f === void 0 ? void 0 : _f.ErrorInfo) === null || _g === void 0 ? void 0 : _g[0]) === null || _h === void 0 ? void 0 : _h.Message) === null || _j === void 0 ? void 0 : _j[0]) !== null && _k !== void 0 ? _k : ''),
+                relativeResultsDirectory: String(result['$'].relativeResultsDirectory)
+            });
+        });
     }
     parseDefinitions(file) {
         const definitions = file.TestRun.TestDefinitions[0].UnitTest;
@@ -390,6 +395,7 @@ class TrxParser {
         });
     }
     parseSuits(file) {
+        var _a, _b;
         const suits = [];
         const results = this.parseResults(file);
         const definitions = this.parseDefinitions(file);
@@ -405,6 +411,8 @@ class TrxParser {
             };
             suit.tests.push({
                 name: definition.name.replace(`${definition.testMethod.className}.`, ''),
+                output: (_a = result === null || result === void 0 ? void 0 : result.output) !== null && _a !== void 0 ? _a : '',
+                error: (_b = result === null || result === void 0 ? void 0 : result.error) !== null && _b !== void 0 ? _b : '',
                 outcome: (result === null || result === void 0 ? void 0 : result.outcome) || 'NotExecuted'
             });
             if (!existingSuit) {
