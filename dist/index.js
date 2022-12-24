@@ -51,7 +51,9 @@ exports.processTestCoverage = processTestCoverage;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatElapsedTime = exports.getStatusIcon = void 0;
+exports.formatElapsedTime = exports.getStatusIcon = exports.getSectionLink = void 0;
+const getSectionLink = (section) => section.toLowerCase().replace(/ /g, '-');
+exports.getSectionLink = getSectionLink;
 const getStatusIcon = (success) => (success ? '✔️' : '❌');
 exports.getStatusIcon = getStatusIcon;
 const formatElapsedTime = (elapsed) => {
@@ -85,7 +87,7 @@ const outcomeIcons = {
     Failed: '❌',
     NotExecuted: '⚠️'
 };
-const formatTitleHtml = (title) => wrap(title, 'h1');
+const formatTitleHtml = (title) => wrap(title, { tag: 'h1', attributes: { id: (0, common_1.getSectionLink)(title) } });
 exports.formatTitleHtml = formatTitleHtml;
 const formatResultHtml = (result) => {
     let html = wrap('Tests', 'h3');
@@ -155,8 +157,8 @@ const formatHeaderMarkdown = (header) => `## ${header}\n`;
 exports.formatHeaderMarkdown = formatHeaderMarkdown;
 const formatFooterMarkdown = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 exports.formatFooterMarkdown = formatFooterMarkdown;
-const formatSummaryLinkMarkdown = (owner, repo, runId, jobId) => {
-    const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#summary-${jobId}`;
+const formatSummaryLinkMarkdown = (owner, repo, runId, title) => {
+    const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#user-content-${(0, common_1.getSectionLink)(title)}`;
     return `🔍 click [here](${url}) for more details\n`;
 };
 exports.formatSummaryLinkMarkdown = formatSummaryLinkMarkdown;
@@ -650,9 +652,8 @@ const publishComment = (token, title, message, postNew) => __awaiter(void 0, voi
     }
     const header = (0, markdown_1.formatHeaderMarkdown)(title);
     const octokit = (0, github_1.getOctokit)(token);
-    const currentJob = yield getCurrentJob(octokit, context);
     const existingComment = yield getExistingComment(octokit, context, header);
-    const summaryLink = currentJob ? (0, markdown_1.formatSummaryLinkMarkdown)(owner, repo, runId, currentJob.id) : '';
+    const summaryLink = (0, markdown_1.formatSummaryLinkMarkdown)(owner, repo, runId, title);
     const footer = commit ? (0, markdown_1.formatFooterMarkdown)(commit) : '';
     const body = `${header}${message}${summaryLink}${footer}`;
     if (existingComment && !postNew) {
@@ -665,22 +666,16 @@ const publishComment = (token, title, message, postNew) => __awaiter(void 0, voi
 exports.publishComment = publishComment;
 const getContext = () => {
     var _a, _b;
-    const { job, runId, payload: { pull_request, repository, after } } = github_1.context;
+    const { runId, payload: { pull_request, repository, after } } = github_1.context;
     const issueNumber = (_a = pull_request === null || pull_request === void 0 ? void 0 : pull_request.number) !== null && _a !== void 0 ? _a : -1;
     const [owner, repo] = ((_b = repository === null || repository === void 0 ? void 0 : repository.full_name) === null || _b === void 0 ? void 0 : _b.split('/')) || [];
-    return { owner, repo, issueNumber, commit: after, runId, jobName: job };
+    return { owner, repo, issueNumber, commit: after, runId };
 };
-const getCurrentJob = (octokit, context) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
-    const { owner, repo, runId, jobName } = context;
-    const jobs = yield octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
-    return (_b = (_a = jobs.data) === null || _a === void 0 ? void 0 : _a.jobs) === null || _b === void 0 ? void 0 : _b.find(job => job.name === jobName);
-});
 const getExistingComment = (octokit, context, header) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c;
+    var _a;
     const { owner, repo, issueNumber } = context;
     const comments = yield octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber });
-    return (_c = comments.data) === null || _c === void 0 ? void 0 : _c.find(comment => {
+    return (_a = comments.data) === null || _a === void 0 ? void 0 : _a.find(comment => {
         var _a, _b;
         const isBotUserType = ((_a = comment.user) === null || _a === void 0 ? void 0 : _a.type) === 'Bot';
         const startsWithHeader = (_b = comment.body) === null || _b === void 0 ? void 0 : _b.startsWith(header);

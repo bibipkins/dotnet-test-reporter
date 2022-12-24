@@ -1,5 +1,5 @@
 import { IResult, ITest, ITestSuit, TestOutcome } from '../data';
-import { formatElapsedTime, getStatusIcon } from './common';
+import { formatElapsedTime, getSectionLink, getStatusIcon } from './common';
 
 interface Element {
   tag: string;
@@ -17,7 +17,8 @@ const outcomeIcons: { [key in TestOutcome]: string } = {
   NotExecuted: '⚠️'
 };
 
-export const formatTitleHtml = (title: string): string => wrap(title, 'h1');
+export const formatTitleHtml = (title: string): string =>
+  wrap(title, { tag: 'h1', attributes: { id: getSectionLink(title) } });
 
 export const formatResultHtml = (result: IResult): string => {
   let html = wrap('Tests', 'h3');

@@ -11,7 +11,6 @@ interface IContext {
   commit: string;
   issueNumber: number;
   runId: number;
-  jobName: string;
 }
 
 export const publishComment = async (
@@ -30,10 +29,9 @@ export const publishComment = async (
 
   const header = formatHeaderMarkdown(title);
   const octokit = getOctokit(token);
-  const currentJob = await getCurrentJob(octokit, context);
   const existingComment = await getExistingComment(octokit, context, header);
 
-  const summaryLink = currentJob ? formatSummaryLinkMarkdown(owner, repo, runId, currentJob.id) : '';
+  const summaryLink = formatSummaryLinkMarkdown(owner, repo, runId, title);
   const footer = commit ? formatFooterMarkdown(commit) : '';
   const body = `${header}${message}${summaryLink}${footer}`;
 
@@ -46,7 +44,6 @@ export const publishComment = async (
 
 const getContext = (): IContext => {
   const {
-    job,
     runId,
     payload: { pull_request, repository, after }
   } = context;
@@ -54,14 +51,7 @@ const getContext = (): IContext => {
   const issueNumber = pull_request?.number ?? -1;
   const [owner, repo] = repository?.full_name?.split('/') || [];
 
-  return { owner, repo, issueNumber, commit: after, runId, jobName: job };
-};
-
-const getCurrentJob = async (octokit: Octokit, context: IContext) => {
-  const { owner, repo, runId, jobName } = context;
-  const jobs = await octokit.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: runId });
-
-  return jobs.data?.jobs?.find(job => job.name === jobName);
+  return { owner, repo, issueNumber, commit: after, runId };
 };
 
 const getExistingComment = async (octokit: Octokit, context: IContext, header: string) => {
