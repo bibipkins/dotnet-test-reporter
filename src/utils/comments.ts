@@ -33,7 +33,7 @@ export const publishComment = async (
   const currentJob = await getCurrentJob(octokit, context);
   const existingComment = await getExistingComment(octokit, context, header);
 
-  const summaryLink = currentJob ? formatSummaryLinkMarkdown(owner, repo, runId, currentJob.id) : '';
+  const summaryLink = currentJob ? formatSummaryLinkMarkdown(owner, repo, runId, title) : '';
   const footer = commit ? formatFooterMarkdown(commit) : '';
   const body = `${header}${message}${summaryLink}${footer}`;
 

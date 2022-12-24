@@ -51,7 +51,9 @@ exports.processTestCoverage = processTestCoverage;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatElapsedTime = exports.getStatusIcon = void 0;
+exports.formatElapsedTime = exports.getStatusIcon = exports.getSectionLink = void 0;
+const getSectionLink = (section) => section.toLowerCase().replace(/ /g, '-');
+exports.getSectionLink = getSectionLink;
 const getStatusIcon = (success) => (success ? '✔️' : '❌');
 exports.getStatusIcon = getStatusIcon;
 const formatElapsedTime = (elapsed) => {
@@ -85,17 +87,7 @@ const outcomeIcons = {
     Failed: '❌',
     NotExecuted: '⚠️'
 };
-const formatTitleHtml = (title) => {
-    const href = title.toLocaleLowerCase().replace(/ /g, '-');
-    const sectionLink = wrap('', {
-        tag: 'a',
-        attributes: {
-            name: href,
-            href
-        }
-    });
-    return wrap(sectionLink + title, 'h1');
-};
+const formatTitleHtml = (title) => wrap(title, { tag: 'h1', attributes: { id: (0, common_1.getSectionLink)(title) } });
 exports.formatTitleHtml = formatTitleHtml;
 const formatResultHtml = (result) => {
     let html = wrap('Tests', 'h3');
@@ -165,8 +157,8 @@ const formatHeaderMarkdown = (header) => `## ${header}\n`;
 exports.formatHeaderMarkdown = formatHeaderMarkdown;
 const formatFooterMarkdown = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 exports.formatFooterMarkdown = formatFooterMarkdown;
-const formatSummaryLinkMarkdown = (owner, repo, runId, jobId) => {
-    const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#summary-${jobId}`;
+const formatSummaryLinkMarkdown = (owner, repo, runId, title) => {
+    const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#${(0, common_1.getSectionLink)(title)}`;
     return `🔍 click [here](${url}) for more details\n`;
 };
 exports.formatSummaryLinkMarkdown = formatSummaryLinkMarkdown;
@@ -662,7 +654,7 @@ const publishComment = (token, title, message, postNew) => __awaiter(void 0, voi
     const octokit = (0, github_1.getOctokit)(token);
     const currentJob = yield getCurrentJob(octokit, context);
     const existingComment = yield getExistingComment(octokit, context, header);
-    const summaryLink = currentJob ? (0, markdown_1.formatSummaryLinkMarkdown)(owner, repo, runId, currentJob.id) : '';
+    const summaryLink = currentJob ? (0, markdown_1.formatSummaryLinkMarkdown)(owner, repo, runId, title) : '';
     const footer = commit ? (0, markdown_1.formatFooterMarkdown)(commit) : '';
     const body = `${header}${message}${summaryLink}${footer}`;
     if (existingComment && !postNew) {
