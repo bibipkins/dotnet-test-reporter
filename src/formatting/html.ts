@@ -23,7 +23,7 @@ export const formatTitleHtml = (title: string): string => {
     attributes: { name: title.toLocaleLowerCase().replace(' ', '-') }
   });
 
-  return sectionLink + wrap(title, 'h1');
+  return wrap(sectionLink + title, 'h1');
 };
 
 export const formatResultHtml = (result: IResult): string => {

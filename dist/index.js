@@ -90,7 +90,7 @@ const formatTitleHtml = (title) => {
         tag: 'a',
         attributes: { name: title.toLocaleLowerCase().replace(' ', '-') }
     });
-    return sectionLink + wrap(title, 'h1');
+    return wrap(sectionLink + title, 'h1');
 };
 exports.formatTitleHtml = formatTitleHtml;
 const formatResultHtml = (result) => {
