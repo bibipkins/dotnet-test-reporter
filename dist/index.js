@@ -158,7 +158,7 @@ exports.formatHeaderMarkdown = formatHeaderMarkdown;
 const formatFooterMarkdown = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 exports.formatFooterMarkdown = formatFooterMarkdown;
 const formatSummaryLinkMarkdown = (owner, repo, runId, title) => {
-    const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#${(0, common_1.getSectionLink)(title)}`;
+    const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#user-content-${(0, common_1.getSectionLink)(title)}`;
     return `🔍 click [here](${url}) for more details\n`;
 };
 exports.formatSummaryLinkMarkdown = formatSummaryLinkMarkdown;

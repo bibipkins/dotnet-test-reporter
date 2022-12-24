@@ -7,7 +7,7 @@ export const formatFooterMarkdown = (commit: string): string =>
   `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
 
 export const formatSummaryLinkMarkdown = (owner: string, repo: string, runId: number, title: string): string => {
-  const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#${getSectionLink(title)}`;
+  const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#user-content-${getSectionLink(title)}`;
   return `🔍 click [here](${url}) for more details\n`;
 };
 
