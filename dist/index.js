@@ -85,7 +85,13 @@ const outcomeIcons = {
     Failed: '❌',
     NotExecuted: '⚠️'
 };
-const formatTitleHtml = (title) => wrap(title, 'h1');
+const formatTitleHtml = (title) => {
+    const sectionLink = wrap('', {
+        tag: 'a',
+        attributes: { name: title.toLocaleLowerCase().replace(' ', '-') }
+    });
+    return sectionLink + wrap(title, 'h1');
+};
 exports.formatTitleHtml = formatTitleHtml;
 const formatResultHtml = (result) => {
     let html = wrap('Tests', 'h3');
