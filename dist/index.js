@@ -86,9 +86,13 @@ const outcomeIcons = {
     NotExecuted: '⚠️'
 };
 const formatTitleHtml = (title) => {
+    const href = title.toLocaleLowerCase().replace(/ /g, '-');
     const sectionLink = wrap('', {
         tag: 'a',
-        attributes: { name: title.toLocaleLowerCase().replace(' ', '-') }
+        attributes: {
+            name: href,
+            href
+        }
     });
     return wrap(sectionLink + title, 'h1');
 };

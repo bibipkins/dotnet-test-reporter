@@ -18,9 +18,13 @@ const outcomeIcons: { [key in TestOutcome]: string } = {
 };
 
 export const formatTitleHtml = (title: string): string => {
+  const href = title.toLocaleLowerCase().replace(/ /g, '-');
   const sectionLink = wrap('', {
     tag: 'a',
-    attributes: { name: title.toLocaleLowerCase().replace(' ', '-') }
+    attributes: {
+      name: href,
+      href
+    }
   });
 
   return wrap(sectionLink + title, 'h1');
