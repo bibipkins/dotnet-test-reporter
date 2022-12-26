@@ -76,14 +76,14 @@ const formatCoverageModule = (module: ICoverageModule): string => {
 };
 
 const formatLinesToCover = (linesToCover: number[]): string => {
-  const lineGroups = linesToCover.reduce((groups: number[][], line, i, a) => {
+  const lineGroups = linesToCover.sort().reduce((groups: number[][], line, i, a) => {
     if (!i || line !== a[i - 1] + 1) groups.push([]);
     groups[groups.length - 1].push(line);
     return groups;
   }, []);
 
   return lineGroups
-    .map(group => (group.length < 3 ? group.join(', ') : `${group[0]} - ${group[group.length - 1]}`))
+    .map(group => (group.length < 3 ? group.join(', ') : `${group[0]}-${group[group.length - 1]}`))
     .join(', ');
 };
 
