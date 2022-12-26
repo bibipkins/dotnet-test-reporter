@@ -44,7 +44,7 @@ export const formatCoverageHtml = (coverage: ICoverage): string => {
   const rows = coverage.modules.reduce(
     (rows: string[][], module) =>
       rows
-        .concat([module.name])
+        .concat([[module.name]])
         .concat(
           module.files.map(file => [
             `&nbsp; &nbsp;${file.name}`,

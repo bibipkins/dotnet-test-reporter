@@ -100,7 +100,7 @@ const formatCoverageHtml = (coverage) => {
     let html = wrap('Coverage', 'h3');
     html += formatTable([{ name: '📝 Total' }, { name: '📏 Line', align: 'center' }, { name: '🌿 Branch', align: 'center' }], [[`${coverage.linesCovered} / ${coverage.linesTotal}`, `${coverage.lineCoverage}%`, `${coverage.branchCoverage}%`]]);
     const rows = coverage.modules.reduce((rows, module) => rows
-        .concat([module.name])
+        .concat([[module.name]])
         .concat(module.files.map(file => [
         `&nbsp; &nbsp;${file.name}`,
         `${file.linesCovered} / ${file.linesTotal}`,
