@@ -11,7 +11,7 @@ export default class CoberturaParser implements ICoverageParser {
     }
 
     const summary = this.parseSummary(file);
-    const modules = this.parseModules(file);
+    const modules = this.parseModules(file, threshold);
     const success = !threshold || summary.lineCoverage >= threshold;
 
     return { success, ...summary, modules };
@@ -30,7 +30,7 @@ export default class CoberturaParser implements ICoverageParser {
     };
   }
 
-  private parseModules(file: any) {
+  private parseModules(file: any, threshold: number) {
     const modules = file.coverage.packages?.[0]?.package as any[];
 
     return modules.map(module => {
@@ -75,8 +75,9 @@ export default class CoberturaParser implements ICoverageParser {
       const linesTotal = files.reduce((summ, file) => summ + file.linesTotal, 0);
       const linesCovered = files.reduce((summ, file) => summ + file.linesCovered, 0);
       const coverage = linesTotal ? normalize(linesCovered / linesTotal) : 100;
+      const success = !threshold || coverage >= threshold;
 
-      return { name, coverage, files };
+      return { name, coverage, success, files };
     });
   }
 }

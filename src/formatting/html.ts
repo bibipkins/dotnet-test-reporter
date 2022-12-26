@@ -47,7 +47,8 @@ export const formatCoverageHtml = (coverage: ICoverage): string => {
 };
 
 const formatCoverageModule = (module: ICoverageModule): string => {
-  const summary = `${module.name} - ${module.coverage}%`;
+  const icon = getStatusIcon(module.success);
+  const summary = `${icon} ${module.name} - ${module.coverage}%`;
 
   const table = formatTable(
     [

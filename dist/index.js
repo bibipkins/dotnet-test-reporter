@@ -104,7 +104,8 @@ const formatCoverageHtml = (coverage) => {
 };
 exports.formatCoverageHtml = formatCoverageHtml;
 const formatCoverageModule = (module) => {
-    const summary = `${module.name} - ${module.coverage}%`;
+    const icon = (0, common_1.getStatusIcon)(module.success);
+    const summary = `${icon} ${module.name} - ${module.coverage}%`;
     const table = formatTable([
         { name: 'File' },
         { name: 'Total', align: 'center' },
@@ -278,7 +279,7 @@ class CoberturaParser {
                 return null;
             }
             const summary = this.parseSummary(file);
-            const modules = this.parseModules(file);
+            const modules = this.parseModules(file, threshold);
             const success = !threshold || summary.lineCoverage >= threshold;
             return Object.assign(Object.assign({ success }, summary), { modules });
         });
@@ -294,7 +295,7 @@ class CoberturaParser {
             branchCoverage: (0, common_1.normalize)(summary['branch-rate'])
         };
     }
-    parseModules(file) {
+    parseModules(file, threshold) {
         var _a, _b;
         const modules = (_b = (_a = file.coverage.packages) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.package;
         return modules.map(module => {
@@ -334,7 +335,8 @@ class CoberturaParser {
             const linesTotal = files.reduce((summ, file) => summ + file.linesTotal, 0);
             const linesCovered = files.reduce((summ, file) => summ + file.linesCovered, 0);
             const coverage = linesTotal ? (0, common_1.normalize)(linesCovered / linesTotal) : 100;
-            return { name, coverage, files };
+            const success = !threshold || coverage >= threshold;
+            return { name, coverage, success, files };
         });
     }
 }
@@ -368,7 +370,7 @@ class OpencoverParser {
                 return null;
             }
             const summary = this.parseSummary(file);
-            const modules = this.parseModules(file);
+            const modules = this.parseModules(file, threshold);
             const success = !threshold || summary.lineCoverage >= threshold;
             return Object.assign(Object.assign({ success }, summary), { modules });
         });
@@ -385,7 +387,7 @@ class OpencoverParser {
             branchCoverage: Number(summary.branchCoverage)
         };
     }
-    parseModules(file) {
+    parseModules(file, threshold) {
         var _a, _b;
         const modules = (_b = (_a = file.CoverageSession.Modules) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.Module;
         return modules.map(module => {
@@ -427,7 +429,8 @@ class OpencoverParser {
             const linesTotal = files.reduce((summ, file) => summ + file.linesTotal, 0);
             const linesCovered = files.reduce((summ, file) => summ + file.linesCovered, 0);
             const coverage = linesTotal ? (0, common_1.normalize)(linesCovered / linesTotal) : 100;
-            return { name, coverage, files };
+            const success = !threshold || coverage >= threshold;
+            return { name, coverage, success, files };
         });
     }
 }

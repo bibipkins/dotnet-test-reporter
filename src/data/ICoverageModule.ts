@@ -1,6 +1,7 @@
 export default interface ICoverageModule {
   name: string;
   coverage: number;
+  success: boolean;
   files: {
     id: string;
     name: string;
