@@ -63,6 +63,7 @@ export default class CoberturaParser implements ICoverageParser {
           file.linesTotal += Number(lines.length);
           file.linesCovered += Number(lines.filter(l => Number(l['$'].hits) > 0).length);
           file.branchesTotal += branchData.reduce((summ, branch) => summ + Number(branch[1]), 0);
+          file.branchesCovered += branchData.reduce((summ, branch) => summ + Number(branch[0]), 0);
         }
       });
 

@@ -104,9 +104,15 @@ const formatCoverageHtml = (coverage) => {
         .concat(module.files.map(file => [
         `&nbsp; &nbsp;${file.name}`,
         `${file.linesCovered} / ${file.linesTotal}`,
-        `${file.lineCoverage}%`
+        `${file.lineCoverage}%`,
+        `${file.branchCoverage}%`
     ])), []);
-    html += formatTable([{ name: 'File' }, { name: 'Total', align: 'center' }, { name: 'Lines', align: 'center' }], rows);
+    html += formatTable([
+        { name: 'File' },
+        { name: 'Total', align: 'center' },
+        { name: 'Line', align: 'center' },
+        { name: 'Branch', align: 'center' }
+    ], rows);
     return html;
 };
 exports.formatCoverageHtml = formatCoverageHtml;
@@ -299,18 +305,29 @@ class CoberturaParser {
                 name: file,
                 linesTotal: 0,
                 linesCovered: 0,
-                lineCoverage: 0
+                lineCoverage: 0,
+                branchesTotal: 0,
+                branchesCovered: 0,
+                branchCoverage: 0
             }))
                 .sort((a, b) => a.name.localeCompare(b.name));
             classData.forEach(c => {
                 const file = files.find(f => f.id === String(c['$'].filename));
+                const lines = c.lines[0].line;
+                const branchRegex = /\(([^)]+)\)/;
+                const branchData = lines
+                    .filter(l => l['$']['condition-coverage'])
+                    .map(l => { var _a, _b; return (_b = (_a = branchRegex.exec(String(l['$']['condition-coverage']))) === null || _a === void 0 ? void 0 : _a[1].split('/')) !== null && _b !== void 0 ? _b : []; });
                 if (file) {
-                    file.linesTotal += Number(c.lines[0].line.length);
-                    file.linesCovered += Number(c.lines[0].line.filter(l => Number(l['$'].hits) > 0).length);
+                    file.linesTotal += Number(lines.length);
+                    file.linesCovered += Number(lines.filter(l => Number(l['$'].hits) > 0).length);
+                    file.branchesTotal += branchData.reduce((summ, branch) => summ + Number(branch[1]), 0);
+                    file.branchesCovered += branchData.reduce((summ, branch) => summ + Number(branch[0]), 0);
                 }
             });
             files.forEach(file => {
-                file.lineCoverage = file.linesTotal ? (0, common_1.normalize)(file.linesCovered / file.linesTotal) : 0;
+                file.lineCoverage = file.linesTotal ? (0, common_1.normalize)(file.linesCovered / file.linesTotal) : 100;
+                file.branchCoverage = file.branchesTotal ? (0, common_1.normalize)(file.branchesCovered / file.branchesTotal) : 100;
             });
             return { name, files };
         });
@@ -378,7 +395,10 @@ class OpencoverParser {
                     name: (_a = String(file['$'].fullPath).split(`${name}\\`).slice(-1).pop()) !== null && _a !== void 0 ? _a : '',
                     linesTotal: 0,
                     linesCovered: 0,
-                    lineCoverage: 0
+                    lineCoverage: 0,
+                    branchesTotal: 0,
+                    branchesCovered: 0,
+                    branchCoverage: 0
                 });
             })
                 .sort((a, b) => a.name.localeCompare(b.name));
@@ -386,14 +406,18 @@ class OpencoverParser {
                 const methods = c.Methods[0].Method;
                 methods.forEach(m => {
                     const file = files.find(f => f.id === m.FileRef[0]['$'].uid);
+                    const summary = m.Summary[0]['$'];
                     if (file) {
-                        file.linesTotal += Number(m.Summary[0]['$'].numSequencePoints);
-                        file.linesCovered += Number(m.Summary[0]['$'].visitedSequencePoints);
+                        file.linesTotal += Number(summary.numSequencePoints);
+                        file.linesCovered += Number(summary.visitedSequencePoints);
+                        file.branchesTotal += Number(summary.numBranchPoints);
+                        file.branchesCovered += Number(summary.visitedBranchPoints);
                     }
                 });
             });
             files.forEach(file => {
-                file.lineCoverage = file.linesTotal ? (0, common_1.normalize)(file.linesCovered / file.linesTotal) : 0;
+                file.lineCoverage = file.linesTotal ? (0, common_1.normalize)(file.linesCovered / file.linesTotal) : 100;
+                file.branchCoverage = file.branchesTotal ? (0, common_1.normalize)(file.branchesCovered / file.branchesTotal) : 100;
             });
             return { name, files };
         });

@@ -49,13 +49,22 @@ export const formatCoverageHtml = (coverage: ICoverage): string => {
           module.files.map(file => [
             `&nbsp; &nbsp;${file.name}`,
             `${file.linesCovered} / ${file.linesTotal}`,
-            `${file.lineCoverage}%`
+            `${file.lineCoverage}%`,
+            `${file.branchCoverage}%`
           ])
         ),
     []
   );
 
-  html += formatTable([{ name: 'File' }, { name: 'Total', align: 'center' }, { name: 'Lines', align: 'center' }], rows);
+  html += formatTable(
+    [
+      { name: 'File' },
+      { name: 'Total', align: 'center' },
+      { name: 'Line', align: 'center' },
+      { name: 'Branch', align: 'center' }
+    ],
+    rows
+  );
 
   return html;
 };
