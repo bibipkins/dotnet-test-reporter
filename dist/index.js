@@ -261,6 +261,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const utils_1 = __nccwpck_require__(7782);
+const common_1 = __nccwpck_require__(9023);
 class CoberturaParser {
     parse(filePath, threshold) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -279,10 +280,10 @@ class CoberturaParser {
         return {
             linesTotal: Number(summary['lines-valid']),
             linesCovered: Number(summary['lines-covered']),
-            lineCoverage: this.normalize(summary['line-rate']),
+            lineCoverage: (0, common_1.normalize)(summary['line-rate']),
             branchesTotal: Number(summary['branches-valid']),
             branchesCovered: Number(summary['branches-covered']),
-            branchCoverage: this.normalize(summary['branch-rate'])
+            branchCoverage: (0, common_1.normalize)(summary['branch-rate'])
         };
     }
     parseModules(file) {
@@ -292,26 +293,27 @@ class CoberturaParser {
             const name = String(module['$'].name);
             const classData = module.classes[0].class;
             const fileNames = [...new Set(classData.map(c => String(c['$'].filename)))];
-            const files = fileNames.map(file => ({
+            const files = fileNames
+                .map(file => ({
                 id: file,
                 name: file,
                 linesTotal: 0,
                 linesCovered: 0,
                 lineCoverage: 0
-            }));
+            }))
+                .sort((a, b) => a.name.localeCompare(b.name));
             classData.forEach(c => {
                 const file = files.find(f => f.id === String(c['$'].filename));
                 if (file) {
                     file.linesTotal += Number(c.lines[0].line.length);
                     file.linesCovered += Number(c.lines[0].line.filter(l => Number(l['$'].hits) > 0).length);
-                    file.lineCoverage += this.normalize(c['$']['line-rate']);
                 }
+            });
+            files.forEach(file => {
+                file.lineCoverage = file.linesTotal ? (0, common_1.normalize)(file.linesCovered / file.linesTotal) : 0;
             });
             return { name, files };
         });
-    }
-    normalize(rate) {
-        return Math.round(rate * 10000) / 100;
     }
 }
 exports["default"] = CoberturaParser;
@@ -335,6 +337,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const utils_1 = __nccwpck_require__(7782);
+const common_1 = __nccwpck_require__(9023);
 class OpencoverParser {
     parse(filePath, threshold) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -367,16 +370,18 @@ class OpencoverParser {
             const name = String(module.ModuleName[0]);
             const fileData = module.Files[0].File;
             const classData = module.Classes[0].Class;
-            const files = fileData.map(file => {
+            const files = fileData
+                .map(file => {
                 var _a;
                 return ({
                     id: String(file['$'].uid),
-                    name: (_a = String(file['$'].fullPath).split(name).slice(-1).pop()) !== null && _a !== void 0 ? _a : '',
+                    name: (_a = String(file['$'].fullPath).split(`${name}\\`).slice(-1).pop()) !== null && _a !== void 0 ? _a : '',
                     linesTotal: 0,
                     linesCovered: 0,
                     lineCoverage: 0
                 });
-            });
+            })
+                .sort((a, b) => a.name.localeCompare(b.name));
             classData.forEach(c => {
                 const methods = c.Methods[0].Method;
                 methods.forEach(m => {
@@ -384,9 +389,11 @@ class OpencoverParser {
                     if (file) {
                         file.linesTotal += Number(m.Summary[0]['$'].numSequencePoints);
                         file.linesCovered += Number(m.Summary[0]['$'].visitedSequencePoints);
-                        file.lineCoverage += Number(m.Summary[0]['$'].sequenceCoverage);
                     }
                 });
+            });
+            files.forEach(file => {
+                file.lineCoverage = file.linesTotal ? (0, common_1.normalize)(file.linesCovered / file.linesTotal) : 0;
             });
             return { name, files };
         });
@@ -521,6 +528,21 @@ class TrxParser {
     }
 }
 exports["default"] = TrxParser;
+
+
+/***/ }),
+
+/***/ 9023:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.normalize = void 0;
+const normalize = (rate) => {
+    return Math.round(rate * 10000) / 100;
+};
+exports.normalize = normalize;
 
 
 /***/ }),

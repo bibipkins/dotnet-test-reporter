@@ -1,5 +1,6 @@
 import { ICoverage, ICoverageParser } from '../data';
 import { readXmlFile } from '../utils';
+import { normalize } from './common';
 
 export default class OpencoverParser implements ICoverageParser {
   public async parse(filePath: any, threshold: number): Promise<ICoverage | null> {
@@ -37,13 +38,15 @@ export default class OpencoverParser implements ICoverageParser {
       const fileData = module.Files[0].File as any[];
       const classData = module.Classes[0].Class as any[];
 
-      const files = fileData.map(file => ({
-        id: String(file['$'].uid),
-        name: String(file['$'].fullPath).split(name).slice(-1).pop() ?? '',
-        linesTotal: 0,
-        linesCovered: 0,
-        lineCoverage: 0
-      }));
+      const files = fileData
+        .map(file => ({
+          id: String(file['$'].uid),
+          name: String(file['$'].fullPath).split(`${name}\\`).slice(-1).pop() ?? '',
+          linesTotal: 0,
+          linesCovered: 0,
+          lineCoverage: 0
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
 
       classData.forEach(c => {
         const methods = c.Methods[0].Method as any[];
@@ -54,9 +57,12 @@ export default class OpencoverParser implements ICoverageParser {
           if (file) {
             file.linesTotal += Number(m.Summary[0]['$'].numSequencePoints);
             file.linesCovered += Number(m.Summary[0]['$'].visitedSequencePoints);
-            file.lineCoverage += Number(m.Summary[0]['$'].sequenceCoverage);
           }
         });
+      });
+
+      files.forEach(file => {
+        file.lineCoverage = file.linesTotal ? normalize(file.linesCovered / file.linesTotal) : 0;
       });
 
       return { name, files };

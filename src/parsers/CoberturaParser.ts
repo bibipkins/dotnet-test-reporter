@@ -1,5 +1,6 @@
 import { ICoverage, ICoverageParser } from '../data';
 import { readXmlFile } from '../utils';
+import { normalize } from './common';
 
 export default class CoberturaParser implements ICoverageParser {
   public async parse(filePath: string, threshold: number): Promise<ICoverage | null> {
@@ -22,10 +23,10 @@ export default class CoberturaParser implements ICoverageParser {
     return {
       linesTotal: Number(summary['lines-valid']),
       linesCovered: Number(summary['lines-covered']),
-      lineCoverage: this.normalize(summary['line-rate']),
+      lineCoverage: normalize(summary['line-rate']),
       branchesTotal: Number(summary['branches-valid']),
       branchesCovered: Number(summary['branches-covered']),
-      branchCoverage: this.normalize(summary['branch-rate'])
+      branchCoverage: normalize(summary['branch-rate'])
     };
   }
 
@@ -37,13 +38,15 @@ export default class CoberturaParser implements ICoverageParser {
       const classData = module.classes[0].class as any[];
       const fileNames = [...new Set(classData.map(c => String(c['$'].filename)))];
 
-      const files = fileNames.map(file => ({
-        id: file,
-        name: file,
-        linesTotal: 0,
-        linesCovered: 0,
-        lineCoverage: 0
-      }));
+      const files = fileNames
+        .map(file => ({
+          id: file,
+          name: file,
+          linesTotal: 0,
+          linesCovered: 0,
+          lineCoverage: 0
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
 
       classData.forEach(c => {
         const file = files.find(f => f.id === String(c['$'].filename));
@@ -51,15 +54,14 @@ export default class CoberturaParser implements ICoverageParser {
         if (file) {
           file.linesTotal += Number(c.lines[0].line.length);
           file.linesCovered += Number(c.lines[0].line.filter(l => Number(l['$'].hits) > 0).length);
-          file.lineCoverage += this.normalize(c['$']['line-rate']);
         }
+      });
+
+      files.forEach(file => {
+        file.lineCoverage = file.linesTotal ? normalize(file.linesCovered / file.linesTotal) : 0;
       });
 
       return { name, files };
     });
-  }
-
-  private normalize(rate: number) {
-    return Math.round(rate * 10000) / 100;
   }
 }
