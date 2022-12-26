@@ -80,7 +80,7 @@ exports.formatElapsedTime = formatElapsedTime;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.formatResultHtml = exports.formatTitleHtml = void 0;
+exports.formatCoverageHtml = exports.formatResultHtml = exports.formatTitleHtml = void 0;
 const common_1 = __nccwpck_require__(9759);
 const outcomeIcons = {
     Passed: '✔️',
@@ -96,6 +96,13 @@ const formatResultHtml = (result) => {
     return html;
 };
 exports.formatResultHtml = formatResultHtml;
+const formatCoverageHtml = (coverage) => {
+    let html = wrap('Coverage', 'h3');
+    html += formatTable([{ name: '📝 Total' }, { name: '📏 Line' }, { name: '🌿 Branch' }], [[`${coverage.linesCovered} / ${coverage.linesTotal}`, `${coverage.lineCoverage}%`, `${coverage.branchCoverage}%`]]);
+    html += formatTable([{ name: 'File' }, { name: 'Lines' }], coverage.modules.reduce((rows, module) => rows.concat([module.name], ...module.classes.map(c => [`&nbsp; &nbsp;${c.name}`, `${c.lineCoverage}%`])), []));
+    return html;
+};
+exports.formatCoverageHtml = formatCoverageHtml;
 const formatTestSuit = (suit) => {
     const icon = (0, common_1.getStatusIcon)(suit.success);
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
@@ -217,6 +224,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         if (coveragePath) {
             const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold);
             comment += testCoverage ? (0, markdown_1.formatCoverageMarkdown)(testCoverage, coverageThreshold) : '';
+            summary += testCoverage ? (0, html_1.formatCoverageHtml)(testCoverage) : '';
         }
         yield (0, utils_1.setSummary)(summary);
         yield (0, utils_1.publishComment)(token, title, comment, postNewComment);
@@ -254,20 +262,37 @@ class CoberturaParser {
                 return null;
             }
             const summary = this.parseSummary(file);
+            const modules = this.parseModules(file);
             const success = !threshold || summary.lineCoverage >= threshold;
-            return Object.assign({ success }, summary);
+            return Object.assign(Object.assign({ success }, summary), { modules });
         });
     }
     parseSummary(file) {
-        const data = file.coverage['$'];
+        const summary = file.coverage['$'];
         return {
-            linesTotal: data['lines-valid'],
-            linesCovered: data['lines-covered'],
-            lineCoverage: Math.round(data['line-rate'] * 10000) / 100,
-            branchesTotal: data['branches-valid'],
-            branchesCovered: data['branches-covered'],
-            branchCoverage: Math.round(data['branch-rate'] * 10000) / 100
+            linesTotal: Number(summary['lines-valid']),
+            linesCovered: Number(summary['lines-covered']),
+            lineCoverage: this.normalize(summary['line-rate']),
+            branchesTotal: Number(summary['branches-valid']),
+            branchesCovered: Number(summary['branches-covered']),
+            branchCoverage: this.normalize(summary['branch-rate'])
         };
+    }
+    parseModules(file) {
+        var _a, _b;
+        const modules = (_b = (_a = file.coverage.packages) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.package;
+        return modules.map(module => ({
+            name: String(module['$'].name),
+            classes: module.classes[0].class.map(c => ({
+                name: String(c['$'].name),
+                linesTotal: Number(c.lines[0].line.length),
+                linesCovered: Number(c.lines[0].line.filter(l => Number(l['$'].hits) > 0).length),
+                lineCoverage: this.normalize(c['$']['line-rate'])
+            }))
+        }));
+    }
+    normalize(rate) {
+        return Math.round(rate * 10000) / 100;
     }
 }
 exports["default"] = CoberturaParser;
@@ -299,21 +324,35 @@ class OpencoverParser {
                 return null;
             }
             const summary = this.parseSummary(file);
+            const modules = this.parseModules(file);
             const success = !threshold || summary.lineCoverage >= threshold;
-            return Object.assign({ success }, summary);
+            return Object.assign(Object.assign({ success }, summary), { modules });
         });
     }
     parseSummary(file) {
-        var _a;
-        const data = (_a = file.CoverageSession) === null || _a === void 0 ? void 0 : _a.Summary[0]['$'];
+        var _a, _b, _c;
+        const summary = (_c = (_b = (_a = file.CoverageSession) === null || _a === void 0 ? void 0 : _a.Summary) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c['$'];
         return {
-            linesTotal: data.numSequencePoints,
-            linesCovered: data.visitedSequencePoints,
-            lineCoverage: data.sequenceCoverage,
-            branchesTotal: data.numBranchPoints,
-            branchesCovered: data.visitedBranchPoints,
-            branchCoverage: data.branchCoverage
+            linesTotal: Number(summary.numSequencePoints),
+            linesCovered: Number(summary.visitedSequencePoints),
+            lineCoverage: Number(summary.sequenceCoverage),
+            branchesTotal: Number(summary.numBranchPoints),
+            branchesCovered: Number(summary.visitedBranchPoints),
+            branchCoverage: Number(summary.branchCoverage)
         };
+    }
+    parseModules(file) {
+        var _a, _b;
+        const modules = (_b = (_a = file.CoverageSession.Modules) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.Module;
+        return modules.map(module => ({
+            name: String(module.ModuleName[0]),
+            classes: module.Classes[0].Class.map(c => ({
+                name: String(c.FullName[0]),
+                linesTotal: Number(c.Summary[0]['$'].numSequencePoints),
+                linesCovered: Number(c.Summary[0]['$'].visitedSequencePoints),
+                lineCoverage: Number(c.Summary[0]['$'].sequenceCoverage)
+            }))
+        }));
     }
 }
 exports["default"] = OpencoverParser;
@@ -344,13 +383,13 @@ class TrxParser {
             if (!file) {
                 return null;
             }
-            const suits = this.parseSuits(file);
             const { start, finish } = this.parseElapsedTime(file);
-            const { outcome, total, passed, failed, executed } = this.parseSummary(file);
+            const summary = this.parseSummary(file);
+            const suits = this.parseSuits(file);
             const elapsed = finish.getTime() - start.getTime();
-            const skipped = total - executed;
-            const success = failed === 0 && outcome === 'Completed';
-            return { success, elapsed, total, passed, failed, skipped, suits };
+            const skipped = summary.total - summary.executed;
+            const success = summary.failed === 0 && summary.outcome === 'Completed';
+            return Object.assign(Object.assign({ success }, summary), { skipped, elapsed, suits });
         });
     }
     parseElapsedTime(file) {
@@ -361,13 +400,14 @@ class TrxParser {
     }
     parseSummary(file) {
         const summary = file.TestRun.ResultSummary[0];
-        const outcome = summary['$'].outcome;
         const counters = summary.Counters[0]['$'];
-        const total = Number(counters.total);
-        const passed = Number(counters.passed);
-        const failed = Number(counters.failed);
-        const executed = Number(counters.executed);
-        return { outcome, total, passed, failed, executed };
+        return {
+            outcome: String(summary['$'].outcome),
+            total: Number(counters.total),
+            passed: Number(counters.passed),
+            failed: Number(counters.failed),
+            executed: Number(counters.executed)
+        };
     }
     parseResults(file) {
         const results = file.TestRun.Results[0].UnitTestResult;

@@ -6,4 +6,13 @@ export default interface ICoverage {
   branchesTotal: number;
   branchesCovered: number;
   branchCoverage: number;
+  modules: {
+    name: string;
+    classes: {
+      name: string;
+      linesTotal: number;
+      linesCovered: number;
+      lineCoverage: number;
+    }[];
+  }[];
 }

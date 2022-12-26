@@ -1,4 +1,4 @@
-import { IResult, ITest, ITestSuit, TestOutcome } from '../data';
+import { ICoverage, IResult, ITest, ITestSuit, TestOutcome } from '../data';
 import { formatElapsedTime, getSectionLink, getStatusIcon } from './common';
 
 interface Element {
@@ -29,6 +29,26 @@ export const formatResultHtml = (result: IResult): string => {
   );
 
   html += result.suits.map(suit => formatTestSuit(suit)).join('');
+
+  return html;
+};
+
+export const formatCoverageHtml = (coverage: ICoverage): string => {
+  let html = wrap('Coverage', 'h3');
+
+  html += formatTable(
+    [{ name: '📝 Total' }, { name: '📏 Line' }, { name: '🌿 Branch' }],
+    [[`${coverage.linesCovered} / ${coverage.linesTotal}`, `${coverage.lineCoverage}%`, `${coverage.branchCoverage}%`]]
+  );
+
+  html += formatTable(
+    [{ name: 'File' }, { name: 'Lines' }],
+    coverage.modules.reduce(
+      (rows: string[][], module) =>
+        rows.concat([module.name], ...module.classes.map(c => [`&nbsp; &nbsp;${c.name}`, `${c.lineCoverage}%`])),
+      []
+    )
+  );
 
   return html;
 };

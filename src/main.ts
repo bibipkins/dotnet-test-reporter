@@ -2,7 +2,7 @@ import { processTestResults } from './results';
 import { processTestCoverage } from './coverage';
 import { getInputs, publishComment, setFailed, setSummary } from './utils';
 import { formatCoverageMarkdown, formatResultMarkdown } from './formatting/markdown';
-import { formatResultHtml, formatTitleHtml } from './formatting/html';
+import { formatCoverageHtml, formatResultHtml, formatTitleHtml } from './formatting/html';
 
 const run = async (): Promise<void> => {
   try {
@@ -27,6 +27,7 @@ const run = async (): Promise<void> => {
     if (coveragePath) {
       const testCoverage = await processTestCoverage(coveragePath, coverageType, coverageThreshold);
       comment += testCoverage ? formatCoverageMarkdown(testCoverage, coverageThreshold) : '';
+      summary += testCoverage ? formatCoverageHtml(testCoverage) : '';
     }
 
     await setSummary(summary);
