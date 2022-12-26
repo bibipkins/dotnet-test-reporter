@@ -37,8 +37,13 @@ export const formatCoverageHtml = (coverage: ICoverage): string => {
   let html = wrap('Coverage', 'h3');
 
   html += formatTable(
-    [{ name: '📝 Total' }, { name: '📏 Line', align: 'center' }, { name: '🌿 Branch', align: 'center' }],
-    [[`${coverage.linesCovered} / ${coverage.linesTotal}`, `${coverage.lineCoverage}%`, `${coverage.branchCoverage}%`]]
+    [{ name: '📏 Line' }, { name: '🌿 Branch' }],
+    [
+      [
+        `${coverage.linesCovered} / ${coverage.linesTotal} (${coverage.lineCoverage}%)`,
+        `${coverage.branchesCovered} / ${coverage.branchesTotal} (${coverage.branchCoverage}%)`
+      ]
+    ]
   );
 
   html += coverage.modules.map(formatCoverageModule).join('');
