@@ -43,7 +43,7 @@ export const formatCoverageHtml = (coverage: ICoverage): string => {
 
   const rows = coverage.modules.reduce(
     (rows: string[][], module) =>
-      rows.concat(...module.classes.map(c => [`&nbsp; &nbsp;${c.name}`, `${c.lineCoverage}%`])),
+      rows.concat(module.classes.map(c => [`&nbsp; &nbsp;${c.name}`, `${c.lineCoverage}%`])),
     []
   );
 
