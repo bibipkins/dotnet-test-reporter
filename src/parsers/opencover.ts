@@ -1,57 +1,32 @@
-import { CoverageParser } from '../data';
-import { readXmlFile } from '../utils';
-import { normalize } from './common';
+import { CoverageParser, ICoverageData, ICoverageModule } from '../data';
+import { calculateCoverage, createCoverageModule, parseCoverage } from './common';
 
-const parseOpencover: CoverageParser = async (filePath: string, threshold: number) => {
-  const file = await readXmlFile(filePath);
+const parseOpencover: CoverageParser = async (filePath: string, threshold: number) =>
+  parseCoverage(filePath, threshold, parseSummary, parseModules);
 
-  if (!file) {
-    return null;
-  }
-
-  const summary = parseSummary(file);
-  const modules = parseModules(file, threshold);
-  const success = !threshold || summary.lineCoverage >= threshold;
-
-  return { success, ...summary, modules };
-};
-
-const parseSummary = (file: any) => {
-  const summary = file.CoverageSession?.Summary?.[0]?.['$'];
+const parseSummary = (file: any): ICoverageData => {
+  const summary = file.CoverageSession.Summary[0]['$'];
 
   return {
     linesTotal: Number(summary.numSequencePoints),
     linesCovered: Number(summary.visitedSequencePoints),
-    lineCoverage: Number(summary.sequenceCoverage),
+    lineCoverage: calculateCoverage(summary.visitedSequencePoints, summary.numSequencePoints),
     branchesTotal: Number(summary.numBranchPoints),
     branchesCovered: Number(summary.visitedBranchPoints),
-    branchCoverage: Number(summary.branchCoverage)
+    branchCoverage: calculateCoverage(summary.visitedBranchPoints, summary.numBranchPoints)
   };
 };
 
-const parseModules = (file: any, threshold: number) => {
-  const modules = file.CoverageSession.Modules?.[0]?.Module as any[];
+const parseModules = (file: any, threshold: number): ICoverageModule[] => {
+  const modules = (file.CoverageSession.Modules[0].Module ?? []) as any[];
 
   return modules.map(module => {
     const name = String(module.ModuleName[0]);
-    const fileData = module.Files[0].File as any[];
-    const classData = module.Classes[0].Class as any[];
+    const files = parseFiles(name, module);
+    const classes = (module.Classes[0].Class ?? []) as any[];
 
-    const files = fileData
-      .map(file => ({
-        id: String(file['$'].uid),
-        name: String(file['$'].fullPath).split(`${name}\\`).slice(-1).pop() ?? '',
-        linesTotal: 0,
-        linesCovered: 0,
-        lineCoverage: 0,
-        branchesTotal: 0,
-        branchesCovered: 0,
-        branchCoverage: 0
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-
-    classData.forEach(c => {
-      const methods = c.Methods[0].Method as any[];
+    classes.forEach(c => {
+      const methods = (c.Methods[0].Method ?? []) as any[];
 
       methods.forEach(m => {
         const file = files.find(f => f.id === m.FileRef[0]['$'].uid);
@@ -66,18 +41,23 @@ const parseModules = (file: any, threshold: number) => {
       });
     });
 
-    files.forEach(file => {
-      file.lineCoverage = file.linesTotal ? normalize(file.linesCovered / file.linesTotal) : 100;
-      file.branchCoverage = file.branchesTotal ? normalize(file.branchesCovered / file.branchesTotal) : 100;
-    });
-
-    const linesTotal = files.reduce((summ, file) => summ + file.linesTotal, 0);
-    const linesCovered = files.reduce((summ, file) => summ + file.linesCovered, 0);
-    const coverage = linesTotal ? normalize(linesCovered / linesTotal) : 100;
-    const success = !threshold || coverage >= threshold;
-
-    return { name, coverage, success, files };
+    return createCoverageModule(name, threshold, files);
   });
+};
+
+const parseFiles = (moduleName: string, module: any) => {
+  const fileData = (module.Files[0].File ?? []) as any[];
+
+  return fileData.map(file => ({
+    id: String(file['$'].uid),
+    name: String(file['$'].fullPath).split(`${moduleName}\\`).slice(-1).pop() ?? '',
+    linesTotal: 0,
+    linesCovered: 0,
+    lineCoverage: 0,
+    branchesTotal: 0,
+    branchesCovered: 0,
+    branchCoverage: 0
+  }));
 };
 
 export default parseOpencover;

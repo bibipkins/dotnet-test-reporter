@@ -1,58 +1,33 @@
-import { CoverageParser } from '../data';
-import { readXmlFile } from '../utils';
-import { normalize } from './common';
+import { CoverageParser, ICoverageData, ICoverageModule } from '../data';
+import { calculateCoverage, createCoverageModule, parseCoverage } from './common';
 
-const parseCobertura: CoverageParser = async (filePath: string, threshold: number) => {
-  const file = await readXmlFile(filePath);
+const parseCobertura: CoverageParser = async (filePath: string, threshold: number) =>
+  parseCoverage(filePath, threshold, parseSummary, parseModules);
 
-  if (!file) {
-    return null;
-  }
-
-  const summary = parseSummary(file);
-  const modules = parseModules(file, threshold);
-  const success = !threshold || summary.lineCoverage >= threshold;
-
-  return { success, ...summary, modules };
-};
-
-const parseSummary = (file: any) => {
+const parseSummary = (file: any): ICoverageData => {
   const summary = file.coverage['$'];
 
   return {
     linesTotal: Number(summary['lines-valid']),
     linesCovered: Number(summary['lines-covered']),
-    lineCoverage: normalize(summary['line-rate']),
+    lineCoverage: calculateCoverage(summary['lines-covered'], summary['lines-valid']),
     branchesTotal: Number(summary['branches-valid']),
     branchesCovered: Number(summary['branches-covered']),
-    branchCoverage: normalize(summary['branch-rate'])
+    branchCoverage: calculateCoverage(summary['branches-covered'], summary['branches-valid'])
   };
 };
 
-const parseModules = (file: any, threshold: number) => {
-  const modules = file.coverage.packages?.[0]?.package as any[];
+const parseModules = (file: any, threshold: number): ICoverageModule[] => {
+  const modules = (file.coverage.packages[0].package ?? []) as any[];
 
   return modules.map(module => {
     const name = String(module['$'].name);
-    const classData = module.classes[0].class as any[];
-    const fileNames = [...new Set(classData.map(c => String(c['$'].filename)))];
+    const classes = (module.classes[0].class ?? []) as any[];
+    const files = parseFiles(classes);
 
-    const files = fileNames
-      .map(file => ({
-        id: file,
-        name: file,
-        linesTotal: 0,
-        linesCovered: 0,
-        lineCoverage: 0,
-        branchesTotal: 0,
-        branchesCovered: 0,
-        branchCoverage: 0
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-
-    classData.forEach(c => {
-      const file = files.find(f => f.id === String(c['$'].filename));
-      const lines = c.lines[0].line as any[];
+    classes.forEach(c => {
+      const file = files.find(f => f.name === String(c['$'].filename));
+      const lines = (c.lines[0].line ?? []) as any[];
       const branchRegex = /\(([^)]+)\)/;
       const branchData = lines
         .filter(l => l['$']['condition-coverage'])
@@ -66,18 +41,22 @@ const parseModules = (file: any, threshold: number) => {
       }
     });
 
-    files.forEach(file => {
-      file.lineCoverage = file.linesTotal ? normalize(file.linesCovered / file.linesTotal) : 100;
-      file.branchCoverage = file.branchesTotal ? normalize(file.branchesCovered / file.branchesTotal) : 100;
-    });
-
-    const linesTotal = files.reduce((summ, file) => summ + file.linesTotal, 0);
-    const linesCovered = files.reduce((summ, file) => summ + file.linesCovered, 0);
-    const coverage = linesTotal ? normalize(linesCovered / linesTotal) : 100;
-    const success = !threshold || coverage >= threshold;
-
-    return { name, coverage, success, files };
+    return createCoverageModule(name, threshold, files);
   });
+};
+
+const parseFiles = (classes: any[]) => {
+  const fileNames = [...new Set(classes.map(c => String(c['$'].filename)))];
+
+  return fileNames.map(file => ({
+    name: file,
+    linesTotal: 0,
+    linesCovered: 0,
+    lineCoverage: 0,
+    branchesTotal: 0,
+    branchesCovered: 0,
+    branchCoverage: 0
+  }));
 };
 
 export default parseCobertura;

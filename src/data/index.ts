@@ -1,7 +1,9 @@
 export type { default as IActionInputs } from './IActionInputs';
-export type { default as ICoverage } from './ICoverage';
 export type { default as CoverageType } from './CoverageType';
 export type { default as CoverageParser } from './CoverageParser';
+export type { default as ICoverage } from './ICoverage';
+export type { default as ICoverageData } from './ICoverageData';
+export type { default as ICoverageFile } from './ICoverageFile';
 export type { default as ICoverageModule } from './ICoverageModule';
 export type { default as IResult } from './IResult';
 export type { default as ITest } from './ITest';

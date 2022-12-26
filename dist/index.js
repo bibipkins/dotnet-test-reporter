@@ -269,51 +269,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const utils_1 = __nccwpck_require__(7782);
 const common_1 = __nccwpck_require__(9023);
-const parseCobertura = (filePath, threshold) => __awaiter(void 0, void 0, void 0, function* () {
-    const file = yield (0, utils_1.readXmlFile)(filePath);
-    if (!file) {
-        return null;
-    }
-    const summary = parseSummary(file);
-    const modules = parseModules(file, threshold);
-    const success = !threshold || summary.lineCoverage >= threshold;
-    return Object.assign(Object.assign({ success }, summary), { modules });
-});
+const parseCobertura = (filePath, threshold) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, parseSummary, parseModules); });
 const parseSummary = (file) => {
     const summary = file.coverage['$'];
     return {
         linesTotal: Number(summary['lines-valid']),
         linesCovered: Number(summary['lines-covered']),
-        lineCoverage: (0, common_1.normalize)(summary['line-rate']),
+        lineCoverage: (0, common_1.calculateCoverage)(summary['lines-covered'], summary['lines-valid']),
         branchesTotal: Number(summary['branches-valid']),
         branchesCovered: Number(summary['branches-covered']),
-        branchCoverage: (0, common_1.normalize)(summary['branch-rate'])
+        branchCoverage: (0, common_1.calculateCoverage)(summary['branches-covered'], summary['branches-valid'])
     };
 };
 const parseModules = (file, threshold) => {
-    var _a, _b;
-    const modules = (_b = (_a = file.coverage.packages) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.package;
+    var _a;
+    const modules = ((_a = file.coverage.packages[0].package) !== null && _a !== void 0 ? _a : []);
     return modules.map(module => {
+        var _a;
         const name = String(module['$'].name);
-        const classData = module.classes[0].class;
-        const fileNames = [...new Set(classData.map(c => String(c['$'].filename)))];
-        const files = fileNames
-            .map(file => ({
-            id: file,
-            name: file,
-            linesTotal: 0,
-            linesCovered: 0,
-            lineCoverage: 0,
-            branchesTotal: 0,
-            branchesCovered: 0,
-            branchCoverage: 0
-        }))
-            .sort((a, b) => a.name.localeCompare(b.name));
-        classData.forEach(c => {
-            const file = files.find(f => f.id === String(c['$'].filename));
-            const lines = c.lines[0].line;
+        const classes = ((_a = module.classes[0].class) !== null && _a !== void 0 ? _a : []);
+        const files = parseFiles(classes);
+        classes.forEach(c => {
+            var _a;
+            const file = files.find(f => f.name === String(c['$'].filename));
+            const lines = ((_a = c.lines[0].line) !== null && _a !== void 0 ? _a : []);
             const branchRegex = /\(([^)]+)\)/;
             const branchData = lines
                 .filter(l => l['$']['condition-coverage'])
@@ -325,16 +305,20 @@ const parseModules = (file, threshold) => {
                 file.branchesCovered += branchData.reduce((summ, branch) => summ + Number(branch[0]), 0);
             }
         });
-        files.forEach(file => {
-            file.lineCoverage = file.linesTotal ? (0, common_1.normalize)(file.linesCovered / file.linesTotal) : 100;
-            file.branchCoverage = file.branchesTotal ? (0, common_1.normalize)(file.branchesCovered / file.branchesTotal) : 100;
-        });
-        const linesTotal = files.reduce((summ, file) => summ + file.linesTotal, 0);
-        const linesCovered = files.reduce((summ, file) => summ + file.linesCovered, 0);
-        const coverage = linesTotal ? (0, common_1.normalize)(linesCovered / linesTotal) : 100;
-        const success = !threshold || coverage >= threshold;
-        return { name, coverage, success, files };
+        return (0, common_1.createCoverageModule)(name, threshold, files);
     });
+};
+const parseFiles = (classes) => {
+    const fileNames = [...new Set(classes.map(c => String(c['$'].filename)))];
+    return fileNames.map(file => ({
+        name: file,
+        linesTotal: 0,
+        linesCovered: 0,
+        lineCoverage: 0,
+        branchesTotal: 0,
+        branchesCovered: 0,
+        branchCoverage: 0
+    }));
 };
 exports["default"] = parseCobertura;
 
@@ -342,16 +326,48 @@ exports["default"] = parseCobertura;
 /***/ }),
 
 /***/ 9023:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.normalize = void 0;
-const normalize = (rate) => {
-    return Math.round(rate * 10000) / 100;
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
-exports.normalize = normalize;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseCoverage = exports.createCoverageModule = exports.calculateCoverage = void 0;
+const utils_1 = __nccwpck_require__(7782);
+const calculateCoverage = (covered, total) => {
+    return total ? Math.round((covered / total) * 10000) / 100 : 100;
+};
+exports.calculateCoverage = calculateCoverage;
+const createCoverageModule = (name, threshold, files) => {
+    const linesTotal = files.reduce((summ, file) => summ + file.linesTotal, 0);
+    const linesCovered = files.reduce((summ, file) => summ + file.linesCovered, 0);
+    const coverage = (0, exports.calculateCoverage)(linesCovered, linesTotal);
+    const success = !threshold || coverage >= threshold;
+    const updatedFiles = files
+        .map(file => (Object.assign(Object.assign({}, file), { lineCoverage: (0, exports.calculateCoverage)(file.linesCovered, file.linesTotal), branchCoverage: (0, exports.calculateCoverage)(file.branchesCovered, file.branchesTotal) })))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    return { name, coverage, success, files: updatedFiles };
+};
+exports.createCoverageModule = createCoverageModule;
+const parseCoverage = (filePath, threshold, parseSummary, parseModules) => __awaiter(void 0, void 0, void 0, function* () {
+    const file = yield (0, utils_1.readXmlFile)(filePath);
+    if (!file) {
+        return null;
+    }
+    const summary = parseSummary(file);
+    const modules = parseModules(file, threshold);
+    const success = !threshold || summary.lineCoverage >= threshold;
+    return Object.assign(Object.assign({ success }, summary), { modules });
+});
+exports.parseCoverage = parseCoverage;
 
 
 /***/ }),
@@ -371,54 +387,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const utils_1 = __nccwpck_require__(7782);
 const common_1 = __nccwpck_require__(9023);
-const parseOpencover = (filePath, threshold) => __awaiter(void 0, void 0, void 0, function* () {
-    const file = yield (0, utils_1.readXmlFile)(filePath);
-    if (!file) {
-        return null;
-    }
-    const summary = parseSummary(file);
-    const modules = parseModules(file, threshold);
-    const success = !threshold || summary.lineCoverage >= threshold;
-    return Object.assign(Object.assign({ success }, summary), { modules });
-});
+const parseOpencover = (filePath, threshold) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, parseSummary, parseModules); });
 const parseSummary = (file) => {
-    var _a, _b, _c;
-    const summary = (_c = (_b = (_a = file.CoverageSession) === null || _a === void 0 ? void 0 : _a.Summary) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c['$'];
+    const summary = file.CoverageSession.Summary[0]['$'];
     return {
         linesTotal: Number(summary.numSequencePoints),
         linesCovered: Number(summary.visitedSequencePoints),
-        lineCoverage: Number(summary.sequenceCoverage),
+        lineCoverage: (0, common_1.calculateCoverage)(summary.visitedSequencePoints, summary.numSequencePoints),
         branchesTotal: Number(summary.numBranchPoints),
         branchesCovered: Number(summary.visitedBranchPoints),
-        branchCoverage: Number(summary.branchCoverage)
+        branchCoverage: (0, common_1.calculateCoverage)(summary.visitedBranchPoints, summary.numBranchPoints)
     };
 };
 const parseModules = (file, threshold) => {
-    var _a, _b;
-    const modules = (_b = (_a = file.CoverageSession.Modules) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.Module;
+    var _a;
+    const modules = ((_a = file.CoverageSession.Modules[0].Module) !== null && _a !== void 0 ? _a : []);
     return modules.map(module => {
+        var _a;
         const name = String(module.ModuleName[0]);
-        const fileData = module.Files[0].File;
-        const classData = module.Classes[0].Class;
-        const files = fileData
-            .map(file => {
+        const files = parseFiles(name, module);
+        const classes = ((_a = module.Classes[0].Class) !== null && _a !== void 0 ? _a : []);
+        classes.forEach(c => {
             var _a;
-            return ({
-                id: String(file['$'].uid),
-                name: (_a = String(file['$'].fullPath).split(`${name}\\`).slice(-1).pop()) !== null && _a !== void 0 ? _a : '',
-                linesTotal: 0,
-                linesCovered: 0,
-                lineCoverage: 0,
-                branchesTotal: 0,
-                branchesCovered: 0,
-                branchCoverage: 0
-            });
-        })
-            .sort((a, b) => a.name.localeCompare(b.name));
-        classData.forEach(c => {
-            const methods = c.Methods[0].Method;
+            const methods = ((_a = c.Methods[0].Method) !== null && _a !== void 0 ? _a : []);
             methods.forEach(m => {
                 const file = files.find(f => f.id === m.FileRef[0]['$'].uid);
                 const summary = m.Summary[0]['$'];
@@ -430,15 +422,24 @@ const parseModules = (file, threshold) => {
                 }
             });
         });
-        files.forEach(file => {
-            file.lineCoverage = file.linesTotal ? (0, common_1.normalize)(file.linesCovered / file.linesTotal) : 100;
-            file.branchCoverage = file.branchesTotal ? (0, common_1.normalize)(file.branchesCovered / file.branchesTotal) : 100;
+        return (0, common_1.createCoverageModule)(name, threshold, files);
+    });
+};
+const parseFiles = (moduleName, module) => {
+    var _a;
+    const fileData = ((_a = module.Files[0].File) !== null && _a !== void 0 ? _a : []);
+    return fileData.map(file => {
+        var _a;
+        return ({
+            id: String(file['$'].uid),
+            name: (_a = String(file['$'].fullPath).split(`${moduleName}\\`).slice(-1).pop()) !== null && _a !== void 0 ? _a : '',
+            linesTotal: 0,
+            linesCovered: 0,
+            lineCoverage: 0,
+            branchesTotal: 0,
+            branchesCovered: 0,
+            branchCoverage: 0
         });
-        const linesTotal = files.reduce((summ, file) => summ + file.linesTotal, 0);
-        const linesCovered = files.reduce((summ, file) => summ + file.linesCovered, 0);
-        const coverage = linesTotal ? (0, common_1.normalize)(linesCovered / linesTotal) : 100;
-        const success = !threshold || coverage >= threshold;
-        return { name, coverage, success, files };
     });
 };
 exports["default"] = parseOpencover;
