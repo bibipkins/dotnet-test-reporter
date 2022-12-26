@@ -39,7 +39,7 @@ const parseModules = (file: any, threshold: number): ICoverageModule[] => {
         file.branchesTotal += branchData.reduce((summ, branch) => summ + Number(branch[1]), 0);
         file.branchesCovered += branchData.reduce((summ, branch) => summ + Number(branch[0]), 0);
         file.linesToCover = file.linesToCover.concat(
-          lines.filter(line => Number(line['$'].hits) > 0).map(line => Number(line['$'].number))
+          lines.filter(line => !Number(line['$'].hits)).map(line => Number(line['$'].number))
         );
       }
     });

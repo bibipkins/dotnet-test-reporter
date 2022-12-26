@@ -310,7 +310,7 @@ const parseModules = (file, threshold) => {
                 file.linesCovered += Number(lines.filter(l => Number(l['$'].hits) > 0).length);
                 file.branchesTotal += branchData.reduce((summ, branch) => summ + Number(branch[1]), 0);
                 file.branchesCovered += branchData.reduce((summ, branch) => summ + Number(branch[0]), 0);
-                file.linesToCover = file.linesToCover.concat(lines.filter(line => Number(line['$'].hits) > 0).map(line => Number(line['$'].number)));
+                file.linesToCover = file.linesToCover.concat(lines.filter(line => !Number(line['$'].hits)).map(line => Number(line['$'].number)));
             }
         });
         return (0, common_1.createCoverageModule)(name, threshold, files);
@@ -430,7 +430,7 @@ const parseModules = (file, threshold) => {
                     file.linesCovered += Number(summary.visitedSequencePoints);
                     file.branchesTotal += Number(summary.numBranchPoints);
                     file.branchesCovered += Number(summary.visitedBranchPoints);
-                    file.linesToCover = file.linesToCover.concat(lines.filter(line => Number(line['$'].vc) > 0).map(line => Number(line['$'].sl)));
+                    file.linesToCover = file.linesToCover.concat(lines.filter(line => !Number(line['$'].vc)).map(line => Number(line['$'].sl)));
                 }
             });
         });
