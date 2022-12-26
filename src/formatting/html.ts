@@ -61,18 +61,30 @@ const formatCoverageModule = (module: ICoverageModule): string => {
       { name: 'Total', align: 'center' },
       { name: 'Line', align: 'center' },
       { name: 'Branch', align: 'center' },
-      { name: 'Lines to Cover', align: 'center' }
+      { name: 'Lines to Cover' }
     ],
     module.files.map(file => [
       file.name,
       `${file.linesCovered} / ${file.linesTotal}`,
       `${file.lineCoverage}%`,
       `${file.branchCoverage}%`,
-      file.linesToCover.join(', ')
+      formatLinesToCover(file.linesToCover)
     ])
   );
 
   return formatDetails(summary, table);
+};
+
+const formatLinesToCover = (linesToCover: number[]): string => {
+  const lineGroups = linesToCover.reduce((groups: number[][], line, i, a) => {
+    if (!i || line !== a[i - 1] + 1) groups.push([]);
+    groups[groups.length - 1].push(line);
+    return groups;
+  }, []);
+
+  return lineGroups
+    .map(group => (group.length < 3 ? group.join(', ') : `${group[0]} - ${group[group.length - 1]}`))
+    .join(', ');
 };
 
 const formatTestSuit = (suit: ITestSuit): string => {
