@@ -127,12 +127,15 @@ const formatCoverageModule = (module) => {
     return formatDetails(summary, table);
 };
 const formatLinesToCover = (linesToCover) => {
-    const lineGroups = linesToCover.sort().reduce((groups, line, i, a) => {
+    const lineGroups = linesToCover
+        .sort((a, b) => a - b)
+        .reduce((groups, line, i, a) => {
         if (!i || line !== a[i - 1] + 1)
             groups.push([]);
         groups[groups.length - 1].push(line);
         return groups;
     }, []);
+    console.log(lineGroups);
     return lineGroups
         .map(group => (group.length < 3 ? group.join(', ') : `${group[0]}-${group[group.length - 1]}`))
         .join(', ');
