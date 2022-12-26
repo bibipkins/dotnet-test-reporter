@@ -44,7 +44,10 @@ export default class OpencoverParser implements ICoverageParser {
           name: String(file['$'].fullPath).split(`${name}\\`).slice(-1).pop() ?? '',
           linesTotal: 0,
           linesCovered: 0,
-          lineCoverage: 0
+          lineCoverage: 0,
+          branchesTotal: 0,
+          branchesCovered: 0,
+          branchCoverage: 0
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -53,16 +56,20 @@ export default class OpencoverParser implements ICoverageParser {
 
         methods.forEach(m => {
           const file = files.find(f => f.id === m.FileRef[0]['$'].uid);
+          const summary = m.Summary[0]['$'];
 
           if (file) {
-            file.linesTotal += Number(m.Summary[0]['$'].numSequencePoints);
-            file.linesCovered += Number(m.Summary[0]['$'].visitedSequencePoints);
+            file.linesTotal += Number(summary.numSequencePoints);
+            file.linesCovered += Number(summary.visitedSequencePoints);
+            file.branchesTotal += Number(summary.numBranchPoints);
+            file.branchesCovered += Number(summary.visitedBranchPoints);
           }
         });
       });
 
       files.forEach(file => {
-        file.lineCoverage = file.linesTotal ? normalize(file.linesCovered / file.linesTotal) : 0;
+        file.lineCoverage = file.linesTotal ? normalize(file.linesCovered / file.linesTotal) : 100;
+        file.branchCoverage = file.branchesTotal ? normalize(file.branchesCovered / file.branchesTotal) : 100;
       });
 
       return { name, files };

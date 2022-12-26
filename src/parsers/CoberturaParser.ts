@@ -44,21 +44,31 @@ export default class CoberturaParser implements ICoverageParser {
           name: file,
           linesTotal: 0,
           linesCovered: 0,
-          lineCoverage: 0
+          lineCoverage: 0,
+          branchesTotal: 0,
+          branchesCovered: 0,
+          branchCoverage: 0
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
 
       classData.forEach(c => {
         const file = files.find(f => f.id === String(c['$'].filename));
+        const lines = c.lines[0].line as any[];
+        const branchRegex = /\(([^)]+)\)/;
+        const branchData = lines
+          .filter(l => l['$']['condition-coverage'])
+          .map(l => branchRegex.exec(String(l['$']['condition-coverage']))?.[1].split('/') ?? []);
 
         if (file) {
-          file.linesTotal += Number(c.lines[0].line.length);
-          file.linesCovered += Number(c.lines[0].line.filter(l => Number(l['$'].hits) > 0).length);
+          file.linesTotal += Number(lines.length);
+          file.linesCovered += Number(lines.filter(l => Number(l['$'].hits) > 0).length);
+          file.branchesTotal += branchData.reduce((summ, branch) => summ + Number(branch[1]), 0);
         }
       });
 
       files.forEach(file => {
-        file.lineCoverage = file.linesTotal ? normalize(file.linesCovered / file.linesTotal) : 0;
+        file.lineCoverage = file.linesTotal ? normalize(file.linesCovered / file.linesTotal) : 100;
+        file.branchCoverage = file.branchesTotal ? normalize(file.branchesCovered / file.branchesTotal) : 100;
       });
 
       return { name, files };
