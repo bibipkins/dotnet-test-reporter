@@ -32,14 +32,34 @@ export default class OpencoverParser implements ICoverageParser {
   private parseModules(file: any) {
     const modules = file.CoverageSession.Modules?.[0]?.Module as any[];
 
-    return modules.map(module => ({
-      name: String(module.ModuleName[0]),
-      classes: module.Classes[0].Class.map(c => ({
-        name: String(c.FullName[0]),
-        linesTotal: Number(c.Summary[0]['$'].numSequencePoints),
-        linesCovered: Number(c.Summary[0]['$'].visitedSequencePoints),
-        lineCoverage: Number(c.Summary[0]['$'].sequenceCoverage)
-      }))
-    }));
+    return modules.map(module => {
+      const name = String(module.ModuleName[0]);
+      const fileData = module.Files[0].File as any[];
+      const classData = module.Classes[0].Class as any[];
+
+      const files = fileData.map(file => ({
+        id: String(file['$'].uid),
+        name: String(file['$'].fullPath).split(name).slice(-1).pop() ?? '',
+        linesTotal: 0,
+        linesCovered: 0,
+        lineCoverage: 0
+      }));
+
+      classData.forEach(c => {
+        const methods = c.Methods[0].Method as any[];
+
+        methods.forEach(m => {
+          const file = files.find(f => f.id === m.FileRef[0]['$'].uid);
+
+          if (file) {
+            file.linesTotal += Number(m.Summary[0]['$'].numSequencePoints);
+            file.linesCovered += Number(m.Summary[0]['$'].visitedSequencePoints);
+            file.lineCoverage += Number(m.Summary[0]['$'].sequenceCoverage);
+          }
+        });
+      });
+
+      return { name, files };
+    });
   }
 }

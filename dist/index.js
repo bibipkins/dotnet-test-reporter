@@ -99,9 +99,12 @@ exports.formatResultHtml = formatResultHtml;
 const formatCoverageHtml = (coverage) => {
     let html = wrap('Coverage', 'h3');
     html += formatTable([{ name: '📝 Total' }, { name: '📏 Line' }, { name: '🌿 Branch' }], [[`${coverage.linesCovered} / ${coverage.linesTotal}`, `${coverage.lineCoverage}%`, `${coverage.branchCoverage}%`]]);
-    const rows = coverage.modules.reduce((rows, module) => rows.concat(module.classes.map(c => [`&nbsp; &nbsp;${c.name}`, `${c.lineCoverage}%`])), []);
-    console.log(rows);
-    html += formatTable([{ name: 'File' }, { name: 'Lines' }], rows);
+    const rows = coverage.modules.reduce((rows, module) => rows.concat(module.files.map(file => [
+        `&nbsp; &nbsp;${file.name}`,
+        `${file.linesCovered} / ${file.linesTotal}`,
+        `${file.lineCoverage}%`
+    ])), []);
+    html += formatTable([{ name: 'File' }, { name: 'Total', align: 'center' }, { name: 'Lines', align: 'center' }], rows);
     return html;
 };
 exports.formatCoverageHtml = formatCoverageHtml;
@@ -283,15 +286,27 @@ class CoberturaParser {
     parseModules(file) {
         var _a, _b;
         const modules = (_b = (_a = file.coverage.packages) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.package;
-        return modules.map(module => ({
-            name: String(module['$'].name),
-            classes: module.classes[0].class.map(c => ({
-                name: String(c['$'].name),
-                linesTotal: Number(c.lines[0].line.length),
-                linesCovered: Number(c.lines[0].line.filter(l => Number(l['$'].hits) > 0).length),
-                lineCoverage: this.normalize(c['$']['line-rate'])
-            }))
-        }));
+        return modules.map(module => {
+            const name = String(module['$'].name);
+            const classData = module.classes[0].class;
+            const fileNames = [...new Set(classData.map(c => String(c['$'].filename)))];
+            const files = fileNames.map(file => ({
+                id: file,
+                name: file,
+                linesTotal: 0,
+                linesCovered: 0,
+                lineCoverage: 0
+            }));
+            classData.forEach(c => {
+                const file = files.find(f => f.id === String(c['$'].filename));
+                if (file) {
+                    file.linesTotal += Number(c.lines[0].line.length);
+                    file.linesCovered += Number(c.lines[0].line.filter(l => Number(l['$'].hits) > 0).length);
+                    file.lineCoverage += this.normalize(c['$']['line-rate']);
+                }
+            });
+            return { name, files };
+        });
     }
     normalize(rate) {
         return Math.round(rate * 10000) / 100;
@@ -346,15 +361,33 @@ class OpencoverParser {
     parseModules(file) {
         var _a, _b;
         const modules = (_b = (_a = file.CoverageSession.Modules) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.Module;
-        return modules.map(module => ({
-            name: String(module.ModuleName[0]),
-            classes: module.Classes[0].Class.map(c => ({
-                name: String(c.FullName[0]),
-                linesTotal: Number(c.Summary[0]['$'].numSequencePoints),
-                linesCovered: Number(c.Summary[0]['$'].visitedSequencePoints),
-                lineCoverage: Number(c.Summary[0]['$'].sequenceCoverage)
-            }))
-        }));
+        return modules.map(module => {
+            const name = String(module.ModuleName[0]);
+            const fileData = module.Files[0].File;
+            const classData = module.Classes[0].Class;
+            const files = fileData.map(file => {
+                var _a;
+                return ({
+                    id: String(file['$'].uid),
+                    name: (_a = String(file['$'].fullPath).split(name).slice(-1).pop()) !== null && _a !== void 0 ? _a : '',
+                    linesTotal: 0,
+                    linesCovered: 0,
+                    lineCoverage: 0
+                });
+            });
+            classData.forEach(c => {
+                const methods = c.Methods[0].Method;
+                methods.forEach(m => {
+                    const file = files.find(f => f.id === m.FileRef[0]['$'].uid);
+                    if (file) {
+                        file.linesTotal += Number(m.Summary[0]['$'].numSequencePoints);
+                        file.linesCovered += Number(m.Summary[0]['$'].visitedSequencePoints);
+                        file.lineCoverage += Number(m.Summary[0]['$'].sequenceCoverage);
+                    }
+                });
+            });
+            return { name, files };
+        });
     }
 }
 exports["default"] = OpencoverParser;

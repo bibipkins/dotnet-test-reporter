@@ -32,15 +32,31 @@ export default class CoberturaParser implements ICoverageParser {
   private parseModules(file: any) {
     const modules = file.coverage.packages?.[0]?.package as any[];
 
-    return modules.map(module => ({
-      name: String(module['$'].name),
-      classes: module.classes[0].class.map(c => ({
-        name: String(c['$'].name),
-        linesTotal: Number(c.lines[0].line.length),
-        linesCovered: Number(c.lines[0].line.filter(l => Number(l['$'].hits) > 0).length),
-        lineCoverage: this.normalize(c['$']['line-rate'])
-      }))
-    }));
+    return modules.map(module => {
+      const name = String(module['$'].name);
+      const classData = module.classes[0].class as any[];
+      const fileNames = [...new Set(classData.map(c => String(c['$'].filename)))];
+
+      const files = fileNames.map(file => ({
+        id: file,
+        name: file,
+        linesTotal: 0,
+        linesCovered: 0,
+        lineCoverage: 0
+      }));
+
+      classData.forEach(c => {
+        const file = files.find(f => f.id === String(c['$'].filename));
+
+        if (file) {
+          file.linesTotal += Number(c.lines[0].line.length);
+          file.linesCovered += Number(c.lines[0].line.filter(l => Number(l['$'].hits) > 0).length);
+          file.lineCoverage += this.normalize(c['$']['line-rate']);
+        }
+      });
+
+      return { name, files };
+    });
   }
 
   private normalize(rate: number) {

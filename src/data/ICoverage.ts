@@ -8,7 +8,8 @@ export default interface ICoverage {
   branchCoverage: number;
   modules: {
     name: string;
-    classes: {
+    files: {
+      id: string;
       name: string;
       linesTotal: number;
       linesCovered: number;
