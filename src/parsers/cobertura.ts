@@ -38,6 +38,9 @@ const parseModules = (file: any, threshold: number): ICoverageModule[] => {
         file.linesCovered += Number(lines.filter(l => Number(l['$'].hits) > 0).length);
         file.branchesTotal += branchData.reduce((summ, branch) => summ + Number(branch[1]), 0);
         file.branchesCovered += branchData.reduce((summ, branch) => summ + Number(branch[0]), 0);
+        file.linesToCover = file.linesToCover.concat(
+          lines.filter(line => Number(line['$'].hits) > 0).map(line => Number(line['$'].number))
+        );
       }
     });
 
@@ -55,7 +58,8 @@ const parseFiles = (classes: any[]) => {
     lineCoverage: 0,
     branchesTotal: 0,
     branchesCovered: 0,
-    branchCoverage: 0
+    branchCoverage: 0,
+    linesToCover: Array<number>()
   }));
 };
 

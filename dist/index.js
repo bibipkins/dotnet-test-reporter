@@ -115,12 +115,14 @@ const formatCoverageModule = (module) => {
         { name: 'File' },
         { name: 'Total', align: 'center' },
         { name: 'Line', align: 'center' },
-        { name: 'Branch', align: 'center' }
+        { name: 'Branch', align: 'center' },
+        { name: 'Lines to Cover', align: 'center' }
     ], module.files.map(file => [
         file.name,
         `${file.linesCovered} / ${file.linesTotal}`,
         `${file.lineCoverage}%`,
-        `${file.branchCoverage}%`
+        `${file.branchCoverage}%`,
+        file.linesToCover.join(', ')
     ]));
     return formatDetails(summary, table);
 };
@@ -308,6 +310,7 @@ const parseModules = (file, threshold) => {
                 file.linesCovered += Number(lines.filter(l => Number(l['$'].hits) > 0).length);
                 file.branchesTotal += branchData.reduce((summ, branch) => summ + Number(branch[1]), 0);
                 file.branchesCovered += branchData.reduce((summ, branch) => summ + Number(branch[0]), 0);
+                file.linesToCover = file.linesToCover.concat(lines.filter(line => Number(line['$'].hits) > 0).map(line => Number(line['$'].number)));
             }
         });
         return (0, common_1.createCoverageModule)(name, threshold, files);
@@ -322,7 +325,8 @@ const parseFiles = (classes) => {
         lineCoverage: 0,
         branchesTotal: 0,
         branchesCovered: 0,
-        branchCoverage: 0
+        branchCoverage: 0,
+        linesToCover: Array()
     }));
 };
 exports["default"] = parseCobertura;
@@ -417,13 +421,16 @@ const parseModules = (file, threshold) => {
             var _a;
             const methods = ((_a = c.Methods[0].Method) !== null && _a !== void 0 ? _a : []);
             methods.forEach(m => {
+                var _a;
                 const file = files.find(f => f.id === m.FileRef[0]['$'].uid);
                 const summary = m.Summary[0]['$'];
+                const lines = ((_a = m.SequencePoints[0].SequencePoint) !== null && _a !== void 0 ? _a : []);
                 if (file) {
                     file.linesTotal += Number(summary.numSequencePoints);
                     file.linesCovered += Number(summary.visitedSequencePoints);
                     file.branchesTotal += Number(summary.numBranchPoints);
                     file.branchesCovered += Number(summary.visitedBranchPoints);
+                    file.linesToCover = file.linesToCover.concat(lines.filter(line => Number(line['$'].vc) > 0).map(line => Number(line['$'].sl)));
                 }
             });
         });
@@ -443,7 +450,8 @@ const parseFiles = (moduleName, module) => {
             lineCoverage: 0,
             branchesTotal: 0,
             branchesCovered: 0,
-            branchCoverage: 0
+            branchCoverage: 0,
+            linesToCover: Array()
         });
     });
 };

@@ -31,12 +31,16 @@ const parseModules = (file: any, threshold: number): ICoverageModule[] => {
       methods.forEach(m => {
         const file = files.find(f => f.id === m.FileRef[0]['$'].uid);
         const summary = m.Summary[0]['$'];
+        const lines = (m.SequencePoints[0].SequencePoint ?? []) as any[];
 
         if (file) {
           file.linesTotal += Number(summary.numSequencePoints);
           file.linesCovered += Number(summary.visitedSequencePoints);
           file.branchesTotal += Number(summary.numBranchPoints);
           file.branchesCovered += Number(summary.visitedBranchPoints);
+          file.linesToCover = file.linesToCover.concat(
+            lines.filter(line => Number(line['$'].vc) > 0).map(line => Number(line['$'].sl))
+          );
         }
       });
     });
@@ -56,7 +60,8 @@ const parseFiles = (moduleName: string, module: any) => {
     lineCoverage: 0,
     branchesTotal: 0,
     branchesCovered: 0,
-    branchCoverage: 0
+    branchCoverage: 0,
+    linesToCover: Array<number>()
   }));
 };
 

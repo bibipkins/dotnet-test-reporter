@@ -60,13 +60,15 @@ const formatCoverageModule = (module: ICoverageModule): string => {
       { name: 'File' },
       { name: 'Total', align: 'center' },
       { name: 'Line', align: 'center' },
-      { name: 'Branch', align: 'center' }
+      { name: 'Branch', align: 'center' },
+      { name: 'Lines to Cover', align: 'center' }
     ],
     module.files.map(file => [
       file.name,
       `${file.linesCovered} / ${file.linesTotal}`,
       `${file.lineCoverage}%`,
-      `${file.branchCoverage}%`
+      `${file.branchCoverage}%`,
+      file.linesToCover.join(', ')
     ])
   );
 
