@@ -135,7 +135,6 @@ const formatLinesToCover = (linesToCover) => {
         groups[groups.length - 1].push(line);
         return groups;
     }, []);
-    console.log(lineGroups);
     return lineGroups
         .map(group => (group.length < 3 ? group.join(', ') : `${group[0]}-${group[group.length - 1]}`))
         .join(', ');
