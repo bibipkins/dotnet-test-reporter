@@ -47,6 +47,8 @@ export const formatCoverageHtml = (coverage: ICoverage): string => {
     []
   );
 
+  console.log(rows);
+
   html += formatTable([{ name: 'File' }, { name: 'Lines' }], rows);
 
   return html;
