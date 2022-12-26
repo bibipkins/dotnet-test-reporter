@@ -41,14 +41,13 @@ export const formatCoverageHtml = (coverage: ICoverage): string => {
     [[`${coverage.linesCovered} / ${coverage.linesTotal}`, `${coverage.lineCoverage}%`, `${coverage.branchCoverage}%`]]
   );
 
-  html += formatTable(
-    [{ name: 'File' }, { name: 'Lines' }],
-    coverage.modules.reduce(
-      (rows: string[][], module) =>
-        rows.concat([module.name], ...module.classes.map(c => [`&nbsp; &nbsp;${c.name}`, `${c.lineCoverage}%`])),
-      []
-    )
+  const rows = coverage.modules.reduce(
+    (rows: string[][], module) =>
+      rows.concat(...module.classes.map(c => [`&nbsp; &nbsp;${c.name}`, `${c.lineCoverage}%`])),
+    []
   );
+
+  html += formatTable([{ name: 'File' }, { name: 'Lines' }], rows);
 
   return html;
 };

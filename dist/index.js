@@ -99,7 +99,8 @@ exports.formatResultHtml = formatResultHtml;
 const formatCoverageHtml = (coverage) => {
     let html = wrap('Coverage', 'h3');
     html += formatTable([{ name: '📝 Total' }, { name: '📏 Line' }, { name: '🌿 Branch' }], [[`${coverage.linesCovered} / ${coverage.linesTotal}`, `${coverage.lineCoverage}%`, `${coverage.branchCoverage}%`]]);
-    html += formatTable([{ name: 'File' }, { name: 'Lines' }], coverage.modules.reduce((rows, module) => rows.concat([module.name], ...module.classes.map(c => [`&nbsp; &nbsp;${c.name}`, `${c.lineCoverage}%`])), []));
+    const rows = coverage.modules.reduce((rows, module) => rows.concat(...module.classes.map(c => [`&nbsp; &nbsp;${c.name}`, `${c.lineCoverage}%`])), []);
+    html += formatTable([{ name: 'File' }, { name: 'Lines' }], rows);
     return html;
 };
 exports.formatCoverageHtml = formatCoverageHtml;
