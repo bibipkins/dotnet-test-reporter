@@ -1,4 +1,4 @@
-import { ICoverage, IResult, ITest, ITestSuit, TestOutcome } from '../data';
+import { ICoverage, ICoverageModule, IResult, ITest, ITestSuit, TestOutcome } from '../data';
 import { formatElapsedTime, getSectionLink, getStatusIcon } from './common';
 
 interface Element {
@@ -28,7 +28,7 @@ export const formatResultHtml = (result: IResult): string => {
     [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, formatElapsedTime(result.elapsed)]]
   );
 
-  html += result.suits.map(suit => formatTestSuit(suit)).join('');
+  html += result.suits.map(formatTestSuit).join('');
 
   return html;
 };
@@ -41,32 +41,30 @@ export const formatCoverageHtml = (coverage: ICoverage): string => {
     [[`${coverage.linesCovered} / ${coverage.linesTotal}`, `${coverage.lineCoverage}%`, `${coverage.branchCoverage}%`]]
   );
 
-  const rows = coverage.modules.reduce(
-    (rows: string[][], module) =>
-      rows
-        .concat([[module.name]])
-        .concat(
-          module.files.map(file => [
-            `&nbsp; &nbsp;${file.name}`,
-            `${file.linesCovered} / ${file.linesTotal}`,
-            `${file.lineCoverage}%`,
-            `${file.branchCoverage}%`
-          ])
-        ),
-    []
-  );
+  html += coverage.modules.map(formatCoverageModule).join('');
 
-  html += formatTable(
+  return html;
+};
+
+const formatCoverageModule = (module: ICoverageModule): string => {
+  const summary = `${module.name} - ${module.coverage}%`;
+
+  const table = formatTable(
     [
       { name: 'File' },
       { name: 'Total', align: 'center' },
       { name: 'Line', align: 'center' },
       { name: 'Branch', align: 'center' }
     ],
-    rows
+    module.files.map(file => [
+      file.name,
+      `${file.linesCovered} / ${file.linesTotal}`,
+      `${file.lineCoverage}%`,
+      `${file.branchCoverage}%`
+    ])
   );
 
-  return html;
+  return formatDetails(summary, table);
 };
 
 const formatTestSuit = (suit: ITestSuit): string => {

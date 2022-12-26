@@ -72,7 +72,11 @@ export default class OpencoverParser implements ICoverageParser {
         file.branchCoverage = file.branchesTotal ? normalize(file.branchesCovered / file.branchesTotal) : 100;
       });
 
-      return { name, files };
+      const linesTotal = files.reduce((summ, file) => summ + file.linesTotal, 0);
+      const linesCovered = files.reduce((summ, file) => summ + file.linesCovered, 0);
+      const coverage = linesTotal ? normalize(linesCovered / linesTotal) : 100;
+
+      return { name, coverage, files };
     });
   }
 }

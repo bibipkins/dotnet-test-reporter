@@ -1,3 +1,5 @@
+import ICoverageModule from './ICoverageModule';
+
 export default interface ICoverage {
   success: boolean;
   linesTotal: number;
@@ -6,17 +8,5 @@ export default interface ICoverage {
   branchesTotal: number;
   branchesCovered: number;
   branchCoverage: number;
-  modules: {
-    name: string;
-    files: {
-      id: string;
-      name: string;
-      linesTotal: number;
-      linesCovered: number;
-      lineCoverage: number;
-      branchesTotal: number;
-      branchesCovered: number;
-      branchCoverage: number;
-    }[];
-  }[];
+  modules: ICoverageModule[];
 }

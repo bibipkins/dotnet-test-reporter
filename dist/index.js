@@ -92,30 +92,32 @@ exports.formatTitleHtml = formatTitleHtml;
 const formatResultHtml = (result) => {
     let html = wrap('Tests', 'h3');
     html += formatTable([{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }, { name: '⏱️ Time' }], [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, (0, common_1.formatElapsedTime)(result.elapsed)]]);
-    html += result.suits.map(suit => formatTestSuit(suit)).join('');
+    html += result.suits.map(formatTestSuit).join('');
     return html;
 };
 exports.formatResultHtml = formatResultHtml;
 const formatCoverageHtml = (coverage) => {
     let html = wrap('Coverage', 'h3');
     html += formatTable([{ name: '📝 Total' }, { name: '📏 Line', align: 'center' }, { name: '🌿 Branch', align: 'center' }], [[`${coverage.linesCovered} / ${coverage.linesTotal}`, `${coverage.lineCoverage}%`, `${coverage.branchCoverage}%`]]);
-    const rows = coverage.modules.reduce((rows, module) => rows
-        .concat([[module.name]])
-        .concat(module.files.map(file => [
-        `&nbsp; &nbsp;${file.name}`,
-        `${file.linesCovered} / ${file.linesTotal}`,
-        `${file.lineCoverage}%`,
-        `${file.branchCoverage}%`
-    ])), []);
-    html += formatTable([
+    html += coverage.modules.map(formatCoverageModule).join('');
+    return html;
+};
+exports.formatCoverageHtml = formatCoverageHtml;
+const formatCoverageModule = (module) => {
+    const summary = `${module.name} - ${module.coverage}%`;
+    const table = formatTable([
         { name: 'File' },
         { name: 'Total', align: 'center' },
         { name: 'Line', align: 'center' },
         { name: 'Branch', align: 'center' }
-    ], rows);
-    return html;
+    ], module.files.map(file => [
+        file.name,
+        `${file.linesCovered} / ${file.linesTotal}`,
+        `${file.lineCoverage}%`,
+        `${file.branchCoverage}%`
+    ]));
+    return formatDetails(summary, table);
 };
-exports.formatCoverageHtml = formatCoverageHtml;
 const formatTestSuit = (suit) => {
     const icon = (0, common_1.getStatusIcon)(suit.success);
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
@@ -329,7 +331,10 @@ class CoberturaParser {
                 file.lineCoverage = file.linesTotal ? (0, common_1.normalize)(file.linesCovered / file.linesTotal) : 100;
                 file.branchCoverage = file.branchesTotal ? (0, common_1.normalize)(file.branchesCovered / file.branchesTotal) : 100;
             });
-            return { name, files };
+            const linesTotal = files.reduce((summ, file) => summ + file.linesTotal, 0);
+            const linesCovered = files.reduce((summ, file) => summ + file.linesCovered, 0);
+            const coverage = linesTotal ? (0, common_1.normalize)(linesCovered / linesTotal) : 100;
+            return { name, coverage, files };
         });
     }
 }
@@ -419,7 +424,10 @@ class OpencoverParser {
                 file.lineCoverage = file.linesTotal ? (0, common_1.normalize)(file.linesCovered / file.linesTotal) : 100;
                 file.branchCoverage = file.branchesTotal ? (0, common_1.normalize)(file.branchesCovered / file.branchesTotal) : 100;
             });
-            return { name, files };
+            const linesTotal = files.reduce((summ, file) => summ + file.linesTotal, 0);
+            const linesCovered = files.reduce((summ, file) => summ + file.linesCovered, 0);
+            const coverage = linesTotal ? (0, common_1.normalize)(linesCovered / linesTotal) : 100;
+            return { name, coverage, files };
         });
     }
 }
