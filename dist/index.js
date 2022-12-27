@@ -98,12 +98,9 @@ const formatResultHtml = (result) => {
 exports.formatResultHtml = formatResultHtml;
 const formatCoverageHtml = (coverage) => {
     let html = wrap('Coverage', 'h3');
-    html += formatTable([{ name: '📏 Line' }, { name: '🌿 Branch' }], [
-        [
-            `${coverage.linesCovered} / ${coverage.linesTotal} (${coverage.lineCoverage}%)`,
-            `${coverage.branchesCovered} / ${coverage.branchesTotal} (${coverage.branchCoverage}%)`
-        ]
-    ]);
+    const lineInfo = `${coverage.linesCovered} / ${coverage.linesTotal} (${coverage.lineCoverage}%)`;
+    const branchInfo = `${coverage.branchesCovered} / ${coverage.branchesTotal} (${coverage.branchCoverage}%)`;
+    html += formatTable([{ name: '📏 Line' }, { name: '🌿 Branch' }], [[lineInfo, branchInfo]]);
     html += coverage.modules.map(formatCoverageModule).join('');
     return html;
 };
