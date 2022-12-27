@@ -1,4 +1,4 @@
-import { IResult, ITest, ITestSuit, TestOutcome } from '../data';
+import { ICoverage, ICoverageModule, IResult, ITest, ITestSuit, TestOutcome } from '../data';
 import { formatElapsedTime, getSectionLink, getStatusIcon } from './common';
 
 interface Element {
@@ -28,9 +28,58 @@ export const formatResultHtml = (result: IResult): string => {
     [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, formatElapsedTime(result.elapsed)]]
   );
 
-  html += result.suits.map(suit => formatTestSuit(suit)).join('');
+  html += result.suits.map(formatTestSuit).join('');
 
   return html;
+};
+
+export const formatCoverageHtml = (coverage: ICoverage): string => {
+  let html = wrap('Coverage', 'h3');
+  const lineInfo = `${coverage.linesCovered} / ${coverage.linesTotal} (${coverage.lineCoverage}%)`;
+  const branchInfo = `${coverage.branchesCovered} / ${coverage.branchesTotal} (${coverage.branchCoverage}%)`;
+
+  html += formatTable([{ name: '📏 Line' }, { name: '🌿 Branch' }], [[lineInfo, branchInfo]]);
+  html += coverage.modules.map(formatCoverageModule).join('');
+
+  return html;
+};
+
+const formatCoverageModule = (module: ICoverageModule): string => {
+  const icon = getStatusIcon(module.success);
+  const summary = `${icon} ${module.name} - ${module.coverage}%`;
+
+  const table = formatTable(
+    [
+      { name: 'File' },
+      { name: 'Total', align: 'center' },
+      { name: 'Line', align: 'center' },
+      { name: 'Branch', align: 'center' },
+      { name: 'Lines to Cover' }
+    ],
+    module.files.map(file => [
+      file.name,
+      `${file.linesCovered} / ${file.linesTotal}`,
+      `${file.lineCoverage}%`,
+      `${file.branchCoverage}%`,
+      formatLinesToCover(file.linesToCover)
+    ])
+  );
+
+  return formatDetails(summary, table);
+};
+
+const formatLinesToCover = (linesToCover: number[]): string => {
+  const lineGroups = linesToCover
+    .sort((a, b) => a - b)
+    .reduce((groups: number[][], line, i, a) => {
+      if (!i || line !== a[i - 1] + 1) groups.push([]);
+      groups[groups.length - 1].push(line);
+      return groups;
+    }, []);
+
+  return lineGroups
+    .map(group => (group.length < 3 ? group.join(', ') : `${group[0]}-${group[group.length - 1]}`))
+    .join(', ');
 };
 
 const formatTestSuit = (suit: ITestSuit): string => {
