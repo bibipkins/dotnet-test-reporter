@@ -90,8 +90,8 @@ Branches covered
 uses: bibipkins/dotnet-test-reporter@v1
 with:
   github-token: ${{ secrets.GITHUB_TOKEN }}
-  test-results: ./TestResults/
-  test-coverage: ./TestResults/coverage.xml
-  min-coverage: 80
   comment-title: 'Unit Test Results'
+  results-path: ./TestResults/
+  coverage-path: ./TestResults/coverage.xml
+  coverage-threshold: 80
 ```
