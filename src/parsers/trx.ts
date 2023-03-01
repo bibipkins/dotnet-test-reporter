@@ -14,7 +14,7 @@ const parseTrx: ResultParser = async (filePath: string) => {
 
   const elapsed = finish.getTime() - start.getTime();
   const skipped = summary.total - summary.executed;
-  const success = summary.failed === 0 && summary.outcome === 'Completed';
+  const success = summary.failed === 0;
 
   return { success, ...summary, skipped, elapsed, suits };
 };

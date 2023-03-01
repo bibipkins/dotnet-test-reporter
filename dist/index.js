@@ -496,7 +496,7 @@ const parseTrx = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
     const suits = parseSuits(file);
     const elapsed = finish.getTime() - start.getTime();
     const skipped = summary.total - summary.executed;
-    const success = summary.failed === 0 && summary.outcome === 'Completed';
+    const success = summary.failed === 0;
     return Object.assign(Object.assign({ success }, summary), { skipped, elapsed, suits });
 });
 const parseElapsedTime = (file) => {
