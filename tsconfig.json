@@ -5,6 +5,7 @@
     "outDir": "./build",
     "rootDir": "./src",
     "strict": true,
+    "skipLibCheck": true,
     "noImplicitAny": false,
     "strictNullChecks": true,
     "noUnusedLocals": true,
