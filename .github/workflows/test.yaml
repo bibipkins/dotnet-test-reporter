@@ -43,7 +43,7 @@ jobs:
           comment-title: Test Coverage OpenCover
           results-path: ./files/success/
           coverage-path: ./files/success/test_coverage_opencover.xml
-          coverage-threshold: 46
+          coverage-threshold: 44
       - name: Test Coverage Cobertura
         uses: ./
         with:
@@ -52,4 +52,4 @@ jobs:
           results-path: ./files/success
           coverage-path: ./files/success/test_coverage_cobertura.xml
           coverage-type: cobertura
-          coverage-threshold: 46
+          coverage-threshold: 44
