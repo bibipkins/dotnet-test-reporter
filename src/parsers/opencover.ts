@@ -7,8 +7,8 @@ const parseOpencover: CoverageParser = async (filePath: string, threshold: numbe
 const parseSummary = (file: any): ICoverageData => {
   const summary = file.CoverageSession.Summary[0]['$'];
   const totalCoverage = calculateCoverage(
-    summary.visitedSequencePoints + summary.visitedBranchPoints,
-    summary.numSequencePoints + summary.numBranchPoints
+    Number(summary.visitedSequencePoints) + Number(summary.visitedBranchPoints),
+    Number(summary.numSequencePoints) + Number(summary.numBranchPoints)
   );
 
   return {
