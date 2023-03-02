@@ -6,8 +6,13 @@ const parseCobertura: CoverageParser = async (filePath: string, threshold: numbe
 
 const parseSummary = (file: any): ICoverageData => {
   const summary = file.coverage['$'];
+  const totalCoverage = calculateCoverage(
+    summary['lines-covered'] + summary['branches-covered'],
+    summary['lines-valid'] + summary['branches-valid']
+  );
 
   return {
+    totalCoverage,
     linesTotal: Number(summary['lines-valid']),
     linesCovered: Number(summary['lines-covered']),
     lineCoverage: calculateCoverage(summary['lines-covered'], summary['lines-valid']),
@@ -53,6 +58,7 @@ const parseFiles = (classes: any[]) => {
 
   return fileNames.map(file => ({
     name: file,
+    totalCoverage: 0,
     linesTotal: 0,
     linesCovered: 0,
     lineCoverage: 0,

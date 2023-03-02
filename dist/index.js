@@ -212,9 +212,9 @@ const formatResultMarkdown = (result) => {
 };
 exports.formatResultMarkdown = formatResultMarkdown;
 const formatCoverageMarkdown = (coverage, min) => {
-    const { linesCovered, linesTotal, lineCoverage, branchesTotal, branchesCovered, success } = coverage;
+    const { totalCoverage, linesCovered, linesTotal, branchesTotal, branchesCovered, success } = coverage;
     const title = `${min ? (0, common_1.getStatusIcon)(success) : '📝'} Coverage`;
-    const info = `**${lineCoverage}%**`;
+    const info = `**${totalCoverage}%**`;
     const status = min ? `- ${getStatusText(success)} with ${min}% threshold` : '';
     const lines = `📏 ${linesCovered} / ${linesTotal} lines covered`;
     const branches = `🌿 ${branchesCovered} / ${branchesTotal} branches covered`;
@@ -290,7 +290,9 @@ const common_1 = __nccwpck_require__(9023);
 const parseCobertura = (filePath, threshold) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, parseSummary, parseModules); });
 const parseSummary = (file) => {
     const summary = file.coverage['$'];
+    const totalCoverage = (0, common_1.calculateCoverage)(summary['lines-covered'] + summary['branches-covered'], summary['lines-valid'] + summary['branches-valid']);
     return {
+        totalCoverage,
         linesTotal: Number(summary['lines-valid']),
         linesCovered: Number(summary['lines-covered']),
         lineCoverage: (0, common_1.calculateCoverage)(summary['lines-covered'], summary['lines-valid']),
@@ -330,6 +332,7 @@ const parseFiles = (classes) => {
     const fileNames = [...new Set(classes.map(c => String(c['$'].filename)))];
     return fileNames.map(file => ({
         name: file,
+        totalCoverage: 0,
         linesTotal: 0,
         linesCovered: 0,
         lineCoverage: 0,
@@ -366,12 +369,12 @@ const calculateCoverage = (covered, total) => {
 };
 exports.calculateCoverage = calculateCoverage;
 const createCoverageModule = (name, threshold, files) => {
-    const linesTotal = files.reduce((summ, file) => summ + file.linesTotal, 0);
-    const linesCovered = files.reduce((summ, file) => summ + file.linesCovered, 0);
-    const coverage = (0, exports.calculateCoverage)(linesCovered, linesTotal);
+    const total = files.reduce((summ, file) => summ + file.linesTotal + file.branchesTotal, 0);
+    const covered = files.reduce((summ, file) => summ + file.linesCovered + file.linesCovered, 0);
+    const coverage = (0, exports.calculateCoverage)(covered, total);
     const success = !threshold || coverage >= threshold;
     const updatedFiles = files
-        .map(file => (Object.assign(Object.assign({}, file), { lineCoverage: (0, exports.calculateCoverage)(file.linesCovered, file.linesTotal), branchCoverage: (0, exports.calculateCoverage)(file.branchesCovered, file.branchesTotal) })))
+        .map(file => (Object.assign(Object.assign({}, file), { totalCoverage: (0, exports.calculateCoverage)(file.linesCovered + file.branchesCovered, file.linesTotal + file.branchesTotal), lineCoverage: (0, exports.calculateCoverage)(file.linesCovered, file.linesTotal), branchCoverage: (0, exports.calculateCoverage)(file.branchesCovered, file.branchesTotal) })))
         .sort((a, b) => a.name.localeCompare(b.name));
     return { name, coverage, success, files: updatedFiles };
 };
@@ -383,7 +386,7 @@ const parseCoverage = (filePath, threshold, parseSummary, parseModules) => __awa
     }
     const summary = parseSummary(file);
     const modules = parseModules(file, threshold);
-    const success = !threshold || summary.lineCoverage >= threshold;
+    const success = !threshold || summary.totalCoverage >= threshold;
     return Object.assign(Object.assign({ success }, summary), { modules });
 });
 exports.parseCoverage = parseCoverage;
@@ -410,7 +413,9 @@ const common_1 = __nccwpck_require__(9023);
 const parseOpencover = (filePath, threshold) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, parseSummary, parseModules); });
 const parseSummary = (file) => {
     const summary = file.CoverageSession.Summary[0]['$'];
+    const totalCoverage = (0, common_1.calculateCoverage)(summary.visitedSequencePoints + summary.visitedBranchPoints, summary.numSequencePoints + summary.numBranchPoints);
     return {
+        totalCoverage,
         linesTotal: Number(summary.numSequencePoints),
         linesCovered: Number(summary.visitedSequencePoints),
         lineCoverage: (0, common_1.calculateCoverage)(summary.visitedSequencePoints, summary.numSequencePoints),
@@ -455,6 +460,7 @@ const parseFiles = (moduleName, module) => {
         return ({
             id: String(file['$'].uid),
             name: (_a = String(file['$'].fullPath).split(`${moduleName}\\`).slice(-1).pop()) !== null && _a !== void 0 ? _a : '',
+            totalCoverage: 0,
             linesTotal: 0,
             linesCovered: 0,
             lineCoverage: 0,

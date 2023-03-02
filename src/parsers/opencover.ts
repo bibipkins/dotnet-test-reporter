@@ -6,8 +6,13 @@ const parseOpencover: CoverageParser = async (filePath: string, threshold: numbe
 
 const parseSummary = (file: any): ICoverageData => {
   const summary = file.CoverageSession.Summary[0]['$'];
+  const totalCoverage = calculateCoverage(
+    summary.visitedSequencePoints + summary.visitedBranchPoints,
+    summary.numSequencePoints + summary.numBranchPoints
+  );
 
   return {
+    totalCoverage,
     linesTotal: Number(summary.numSequencePoints),
     linesCovered: Number(summary.visitedSequencePoints),
     lineCoverage: calculateCoverage(summary.visitedSequencePoints, summary.numSequencePoints),
@@ -55,6 +60,7 @@ const parseFiles = (moduleName: string, module: any) => {
   return fileData.map(file => ({
     id: String(file['$'].uid),
     name: String(file['$'].fullPath).split(`${moduleName}\\`).slice(-1).pop() ?? '',
+    totalCoverage: 0,
     linesTotal: 0,
     linesCovered: 0,
     lineCoverage: 0,

@@ -23,10 +23,10 @@ export const formatResultMarkdown = (result: IResult): string => {
 };
 
 export const formatCoverageMarkdown = (coverage: ICoverage, min: number): string => {
-  const { linesCovered, linesTotal, lineCoverage, branchesTotal, branchesCovered, success } = coverage;
+  const { totalCoverage, linesCovered, linesTotal, branchesTotal, branchesCovered, success } = coverage;
 
   const title = `${min ? getStatusIcon(success) : '📝'} Coverage`;
-  const info = `**${lineCoverage}%**`;
+  const info = `**${totalCoverage}%**`;
   const status = min ? `- ${getStatusText(success)} with ${min}% threshold` : '';
 
   const lines = `📏 ${linesCovered} / ${linesTotal} lines covered`;

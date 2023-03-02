@@ -6,14 +6,15 @@ export const calculateCoverage = (covered: number, total: number): number => {
 };
 
 export const createCoverageModule = (name: string, threshold: number, files: ICoverageFile[]): ICoverageModule => {
-  const linesTotal = files.reduce((summ, file) => summ + file.linesTotal, 0);
-  const linesCovered = files.reduce((summ, file) => summ + file.linesCovered, 0);
-  const coverage = calculateCoverage(linesCovered, linesTotal);
+  const total = files.reduce((summ, file) => summ + file.linesTotal + file.branchesTotal, 0);
+  const covered = files.reduce((summ, file) => summ + file.linesCovered + file.branchesCovered, 0);
+  const coverage = calculateCoverage(covered, total);
   const success = !threshold || coverage >= threshold;
 
   const updatedFiles = files
     .map(file => ({
       ...file,
+      totalCoverage: calculateCoverage(file.linesCovered + file.branchesCovered, file.linesTotal + file.branchesTotal),
       lineCoverage: calculateCoverage(file.linesCovered, file.linesTotal),
       branchCoverage: calculateCoverage(file.branchesCovered, file.branchesTotal)
     }))
@@ -36,7 +37,7 @@ export const parseCoverage = async (
 
   const summary = parseSummary(file);
   const modules = parseModules(file, threshold);
-  const success = !threshold || summary.lineCoverage >= threshold;
+  const success = !threshold || summary.totalCoverage >= threshold;
 
   return { success, ...summary, modules };
 };
