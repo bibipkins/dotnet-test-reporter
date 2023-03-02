@@ -290,7 +290,7 @@ const common_1 = __nccwpck_require__(9023);
 const parseCobertura = (filePath, threshold) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, parseSummary, parseModules); });
 const parseSummary = (file) => {
     const summary = file.coverage['$'];
-    const totalCoverage = (0, common_1.calculateCoverage)(summary['lines-covered'] + summary['branches-covered'], summary['lines-valid'] + summary['branches-valid']);
+    const totalCoverage = (0, common_1.calculateCoverage)(Number(summary['lines-covered']) + Number(summary['branches-covered']), Number(summary['lines-valid']) + Number(summary['branches-valid']));
     return {
         totalCoverage,
         linesTotal: Number(summary['lines-valid']),
