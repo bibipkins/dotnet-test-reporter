@@ -290,7 +290,7 @@ const common_1 = __nccwpck_require__(9023);
 const parseCobertura = (filePath, threshold) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, parseSummary, parseModules); });
 const parseSummary = (file) => {
     const summary = file.coverage['$'];
-    const totalCoverage = (0, common_1.calculateCoverage)(summary['lines-covered'] + summary['branches-covered'], summary['lines-valid'] + summary['branches-valid']);
+    const totalCoverage = (0, common_1.calculateCoverage)(Number(summary['lines-covered']) + Number(summary['branches-covered']), Number(summary['lines-valid']) + Number(summary['branches-valid']));
     return {
         totalCoverage,
         linesTotal: Number(summary['lines-valid']),
@@ -370,7 +370,7 @@ const calculateCoverage = (covered, total) => {
 exports.calculateCoverage = calculateCoverage;
 const createCoverageModule = (name, threshold, files) => {
     const total = files.reduce((summ, file) => summ + file.linesTotal + file.branchesTotal, 0);
-    const covered = files.reduce((summ, file) => summ + file.linesCovered + file.linesCovered, 0);
+    const covered = files.reduce((summ, file) => summ + file.linesCovered + file.branchesCovered, 0);
     const coverage = (0, exports.calculateCoverage)(covered, total);
     const success = !threshold || coverage >= threshold;
     const updatedFiles = files
@@ -413,7 +413,7 @@ const common_1 = __nccwpck_require__(9023);
 const parseOpencover = (filePath, threshold) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, parseSummary, parseModules); });
 const parseSummary = (file) => {
     const summary = file.CoverageSession.Summary[0]['$'];
-    const totalCoverage = (0, common_1.calculateCoverage)(summary.visitedSequencePoints + summary.visitedBranchPoints, summary.numSequencePoints + summary.numBranchPoints);
+    const totalCoverage = (0, common_1.calculateCoverage)(Number(summary.visitedSequencePoints) + Number(summary.visitedBranchPoints), Number(summary.numSequencePoints) + Number(summary.numBranchPoints));
     return {
         totalCoverage,
         linesTotal: Number(summary.numSequencePoints),
