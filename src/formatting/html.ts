@@ -54,7 +54,7 @@ const formatCoverageModule = (module: ICoverageModule): string => {
       { name: 'Total', align: 'center' },
       { name: 'Line', align: 'center' },
       { name: 'Branch', align: 'center' },
-      { name: 'Complexity', align: 'center' }
+      { name: 'Complexity', align: 'center' },
       { name: 'Lines to Cover' }
     ],
     module.files.map(file => [
