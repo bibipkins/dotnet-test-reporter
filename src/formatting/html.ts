@@ -46,7 +46,7 @@ export const formatCoverageHtml = (coverage: ICoverage): string => {
 
 const formatCoverageModule = (module: ICoverageModule): string => {
   const icon = getStatusIcon(module.success);
-  const summary = `${icon} ${module.name} I should show always (${module.complexity}) - ${module.coverage}%`;
+  const summary = `${icon} ${module.name} (${module.complexity}) - ${module.coverage}%`;
 
   const table = formatTable(
     [

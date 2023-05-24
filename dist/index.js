@@ -107,18 +107,20 @@ const formatCoverageHtml = (coverage) => {
 exports.formatCoverageHtml = formatCoverageHtml;
 const formatCoverageModule = (module) => {
     const icon = (0, common_1.getStatusIcon)(module.success);
-    const summary = `${icon} ${module.name} - ${module.coverage}%`;
+    const summary = `${icon} ${module.name} (${module.complexity}) - ${module.coverage}%`;
     const table = formatTable([
         { name: 'File' },
         { name: 'Total', align: 'center' },
         { name: 'Line', align: 'center' },
         { name: 'Branch', align: 'center' },
+        { name: 'Complexity', align: 'center' },
         { name: 'Lines to Cover' }
     ], module.files.map(file => [
         file.name,
         `${file.linesCovered} / ${file.linesTotal}`,
         `${file.lineCoverage}%`,
         `${file.branchCoverage}%`,
+        `${file.complexity}%`,
         formatLinesToCover(file.linesToCover)
     ]));
     return formatDetails(summary, table);
@@ -309,6 +311,7 @@ const parseModules = (file, threshold) => {
         const name = String(module['$'].name);
         const classes = ((_a = module.classes[0].class) !== null && _a !== void 0 ? _a : []);
         const files = parseFiles(classes);
+        const complexity = Number(module['$'].complexity);
         classes.forEach(c => {
             var _a;
             const file = files.find(f => f.name === String(c['$'].filename));
@@ -323,9 +326,10 @@ const parseModules = (file, threshold) => {
                 file.branchesTotal += branchData.reduce((summ, branch) => summ + Number(branch[1]), 0);
                 file.branchesCovered += branchData.reduce((summ, branch) => summ + Number(branch[0]), 0);
                 file.linesToCover = file.linesToCover.concat(lines.filter(line => !Number(line['$'].hits)).map(line => Number(line['$'].number)));
+                file.complexity = Number(c['$'].complexity);
             }
         });
-        return (0, common_1.createCoverageModule)(name, threshold, files);
+        return (0, common_1.createCoverageModule)(name, threshold, files, complexity);
     });
 };
 const parseFiles = (classes) => {
@@ -339,7 +343,8 @@ const parseFiles = (classes) => {
         branchesTotal: 0,
         branchesCovered: 0,
         branchCoverage: 0,
-        linesToCover: Array()
+        linesToCover: Array(),
+        complexity: 0
     }));
 };
 exports["default"] = parseCobertura;
@@ -368,7 +373,7 @@ const calculateCoverage = (covered, total) => {
     return total ? Math.round((covered / total) * 10000) / 100 : 100;
 };
 exports.calculateCoverage = calculateCoverage;
-const createCoverageModule = (name, threshold, files) => {
+const createCoverageModule = (name, threshold, files, complexity = 0) => {
     const total = files.reduce((summ, file) => summ + file.linesTotal + file.branchesTotal, 0);
     const covered = files.reduce((summ, file) => summ + file.linesCovered + file.branchesCovered, 0);
     const coverage = (0, exports.calculateCoverage)(covered, total);
@@ -376,7 +381,7 @@ const createCoverageModule = (name, threshold, files) => {
     const updatedFiles = files
         .map(file => (Object.assign(Object.assign({}, file), { totalCoverage: (0, exports.calculateCoverage)(file.linesCovered + file.branchesCovered, file.linesTotal + file.branchesTotal), lineCoverage: (0, exports.calculateCoverage)(file.linesCovered, file.linesTotal), branchCoverage: (0, exports.calculateCoverage)(file.branchesCovered, file.branchesTotal) })))
         .sort((a, b) => a.name.localeCompare(b.name));
-    return { name, coverage, success, files: updatedFiles };
+    return { name, coverage, success, files: updatedFiles, complexity };
 };
 exports.createCoverageModule = createCoverageModule;
 const parseCoverage = (filePath, threshold, parseSummary, parseModules) => __awaiter(void 0, void 0, void 0, function* () {
@@ -446,10 +451,12 @@ const parseModules = (file, threshold) => {
                     file.branchesTotal += Number(summary.numBranchPoints);
                     file.branchesCovered += Number(summary.visitedBranchPoints);
                     file.linesToCover = file.linesToCover.concat(lines.filter(line => !Number(line['$'].vc)).map(line => Number(line['$'].sl)));
+                    file.complexity = 0;
                 }
             });
         });
-        return (0, common_1.createCoverageModule)(name, threshold, files);
+        const complexity = 0;
+        return (0, common_1.createCoverageModule)(name, threshold, files, complexity);
     });
 };
 const parseFiles = (moduleName, module) => {
@@ -467,7 +474,8 @@ const parseFiles = (moduleName, module) => {
             branchesTotal: 0,
             branchesCovered: 0,
             branchCoverage: 0,
-            linesToCover: Array()
+            linesToCover: Array(),
+            complexity: 0
         });
     });
 };
