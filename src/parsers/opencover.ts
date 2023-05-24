@@ -29,15 +29,17 @@ const parseModules = (file: any, threshold: number): ICoverageModule[] => {
     const name = String(module.ModuleName[0]);
     const files = parseFiles(name, module);
     const classes = (module.Classes[0].Class ?? []) as any[];
-    let complexity = 0;
+    let moduleComplexity = 0;
 
     classes.forEach(c => {
       const methods = (c.Methods[0].Method ?? []) as any[];
+      let complexity = 0;
 
       methods.forEach(m => {
         const file = files.find(f => f.id === m.FileRef[0]['$'].uid);
         const summary = m.Summary[0]['$'];
         const lines = (m.SequencePoints[0].SequencePoint ?? []) as any[];
+        complexity = complexity + summary.maxCyclomaticComplexity;
 
         if (file) {
           file.linesTotal += Number(summary.numSequencePoints);
@@ -47,12 +49,12 @@ const parseModules = (file: any, threshold: number): ICoverageModule[] => {
           file.linesToCover = file.linesToCover.concat(
             lines.filter(line => !Number(line['$'].vc)).map(line => Number(line['$'].sl))
           );
-          file.complexity = summary.maxCyclomaticComplexity;
+          file.complexity = complexity;
         }
-        complexity = complexity + summary.maxCyclomaticComplexity;
       });
+      moduleComplexity = complexity + moduleComplexity;
     });
-    return createCoverageModule(name, threshold, files, complexity);
+    return createCoverageModule(name, threshold, files, moduleComplexity);
   });
 };
 

@@ -437,27 +437,29 @@ const parseModules = (file, threshold) => {
         const name = String(module.ModuleName[0]);
         const files = parseFiles(name, module);
         const classes = ((_a = module.Classes[0].Class) !== null && _a !== void 0 ? _a : []);
-        let complexity = 0;
+        let moduleComplexity = 0;
         classes.forEach(c => {
             var _a;
             const methods = ((_a = c.Methods[0].Method) !== null && _a !== void 0 ? _a : []);
+            let complexity = 0;
             methods.forEach(m => {
                 var _a;
                 const file = files.find(f => f.id === m.FileRef[0]['$'].uid);
                 const summary = m.Summary[0]['$'];
                 const lines = ((_a = m.SequencePoints[0].SequencePoint) !== null && _a !== void 0 ? _a : []);
+                complexity = complexity + summary.maxCyclomaticComplexity;
                 if (file) {
                     file.linesTotal += Number(summary.numSequencePoints);
                     file.linesCovered += Number(summary.visitedSequencePoints);
                     file.branchesTotal += Number(summary.numBranchPoints);
                     file.branchesCovered += Number(summary.visitedBranchPoints);
                     file.linesToCover = file.linesToCover.concat(lines.filter(line => !Number(line['$'].vc)).map(line => Number(line['$'].sl)));
-                    file.complexity = summary.maxCyclomaticComplexity;
+                    file.complexity = complexity;
                 }
-                complexity = complexity + summary.maxCyclomaticComplexity;
             });
+            moduleComplexity = complexity + moduleComplexity;
         });
-        return (0, common_1.createCoverageModule)(name, threshold, files, complexity);
+        return (0, common_1.createCoverageModule)(name, threshold, files, moduleComplexity);
     });
 };
 const parseFiles = (moduleName, module) => {
