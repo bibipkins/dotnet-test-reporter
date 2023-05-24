@@ -437,6 +437,7 @@ const parseModules = (file, threshold) => {
         const name = String(module.ModuleName[0]);
         const files = parseFiles(name, module);
         const classes = ((_a = module.Classes[0].Class) !== null && _a !== void 0 ? _a : []);
+        let complexity = 0;
         classes.forEach(c => {
             var _a;
             const methods = ((_a = c.Methods[0].Method) !== null && _a !== void 0 ? _a : []);
@@ -451,11 +452,11 @@ const parseModules = (file, threshold) => {
                     file.branchesTotal += Number(summary.numBranchPoints);
                     file.branchesCovered += Number(summary.visitedBranchPoints);
                     file.linesToCover = file.linesToCover.concat(lines.filter(line => !Number(line['$'].vc)).map(line => Number(line['$'].sl)));
-                    file.complexity = 0;
+                    file.complexity = summary.maxCyclomaticComplexity;
                 }
+                complexity = complexity + summary.maxCyclomaticComplexity;
             });
         });
-        const complexity = 0;
         return (0, common_1.createCoverageModule)(name, threshold, files, complexity);
     });
 };
