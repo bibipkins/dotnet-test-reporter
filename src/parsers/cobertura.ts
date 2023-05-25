@@ -29,6 +29,7 @@ const parseModules = (file: any, threshold: number): ICoverageModule[] => {
     const name = String(module['$'].name);
     const classes = (module.classes[0].class ?? []) as any[];
     const files = parseFiles(classes);
+    const complexity = Number(module['$'].complexity)
 
     classes.forEach(c => {
       const file = files.find(f => f.name === String(c['$'].filename));
@@ -46,10 +47,11 @@ const parseModules = (file: any, threshold: number): ICoverageModule[] => {
         file.linesToCover = file.linesToCover.concat(
           lines.filter(line => !Number(line['$'].hits)).map(line => Number(line['$'].number))
         );
+        file.complexity = Number(c['$'].complexity)
       }
     });
 
-    return createCoverageModule(name, threshold, files);
+    return createCoverageModule(name, threshold, files, complexity);
   });
 };
 
@@ -65,7 +67,8 @@ const parseFiles = (classes: any[]) => {
     branchesTotal: 0,
     branchesCovered: 0,
     branchCoverage: 0,
-    linesToCover: Array<number>()
+    linesToCover: Array<number>(),
+    complexity: 0
   }));
 };
 
