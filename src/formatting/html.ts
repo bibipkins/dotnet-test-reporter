@@ -46,7 +46,7 @@ export const formatCoverageHtml = (coverage: ICoverage): string => {
 
 const formatCoverageModule = (module: ICoverageModule): string => {
   const icon = getStatusIcon(module.success);
-  const summary = `${icon} ${module.name} - ${module.coverage}%`;
+  const summary = `${icon} ${module.name} (${module.complexity}) - ${module.coverage}%`;
 
   const table = formatTable(
     [
@@ -54,6 +54,7 @@ const formatCoverageModule = (module: ICoverageModule): string => {
       { name: 'Total', align: 'center' },
       { name: 'Line', align: 'center' },
       { name: 'Branch', align: 'center' },
+      { name: 'Complexity', align: 'center' },
       { name: 'Lines to Cover' }
     ],
     module.files.map(file => [
@@ -61,6 +62,7 @@ const formatCoverageModule = (module: ICoverageModule): string => {
       `${file.linesCovered} / ${file.linesTotal}`,
       `${file.lineCoverage}%`,
       `${file.branchCoverage}%`,
+      `${file.complexity}`,
       formatLinesToCover(file.linesToCover)
     ])
   );
