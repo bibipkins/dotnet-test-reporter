@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { globSync } from 'glob';
 import path from 'path';
 import xml2js from 'xml2js';
 
@@ -18,6 +19,10 @@ export const readXmlFile = async (filePath: string): Promise<any> => {
 
 export const findFiles = (directoryPath: string, extension: string): string[] => {
   try {
+    console.log(globSync(directoryPath));
+    console.log(globSync('**/*.trx'));
+    console.log(globSync('**/*.xml'));
+
     if (!fs.existsSync(directoryPath)) {
       return [];
     }
