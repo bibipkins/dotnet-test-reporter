@@ -5,15 +5,15 @@ import { globSync } from 'glob';
 
 export const readXmlFile = async (path: string): Promise<any> => {
   try {
-    const paths = globSync(path, { withFileTypes: true });
+    const paths = globSync(path);
     console.log(paths);
 
     if (!paths.length) {
       return null;
     }
 
-    console.log(paths[0].path);
-    const file = fs.readFileSync(paths[0].path);
+    console.log(paths[0]);
+    const file = fs.readFileSync(paths[0]);
     const parser = new xml2js.Parser();
     return await parser.parseStringPromise(file);
   } catch {
