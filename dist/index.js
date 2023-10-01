@@ -887,9 +887,7 @@ const readXmlFile = (filePath) => __awaiter(void 0, void 0, void 0, function* ()
 exports.readXmlFile = readXmlFile;
 const findFiles = (directoryPath, extension) => {
     try {
-        console.log((0, glob_1.globSync)(directoryPath));
-        console.log((0, glob_1.globSync)('**/*.trx'));
-        console.log((0, glob_1.globSync)('**/*.xml'));
+        console.log((0, glob_1.globSync)(directoryPath, { withFileTypes: true }).map(p => `${p.fullpath()} ${p.isDirectory()}`));
         if (!fs_1.default.existsSync(directoryPath)) {
             return [];
         }

@@ -19,9 +19,7 @@ export const readXmlFile = async (filePath: string): Promise<any> => {
 
 export const findFiles = (directoryPath: string, extension: string): string[] => {
   try {
-    console.log(globSync(directoryPath));
-    console.log(globSync('**/*.trx'));
-    console.log(globSync('**/*.xml'));
+    console.log(globSync(directoryPath, { withFileTypes: true }).map(p => `${p.fullpath()} ${p.isDirectory()}`));
 
     if (!fs.existsSync(directoryPath)) {
       return [];
