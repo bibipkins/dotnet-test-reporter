@@ -1,15 +1,18 @@
 import fs from 'fs';
-import { globSync } from 'glob';
-import path from 'path';
 import xml2js from 'xml2js';
+import path from 'path';
+import { globSync } from 'glob';
 
-export const readXmlFile = async (filePath: string): Promise<any> => {
+export const readXmlFile = async (path: string): Promise<any> => {
   try {
-    if (!fs.existsSync(filePath)) {
+    const filePath = globSync(path, { withFileTypes: true });
+    console.log(filePath);
+
+    if (!filePath.length || !filePath[0].isFile()) {
       return null;
     }
 
-    const file = fs.readFileSync(filePath);
+    const file = fs.readFileSync(filePath[0].path);
     const parser = new xml2js.Parser();
     return await parser.parseStringPromise(file);
   } catch {
@@ -19,8 +22,6 @@ export const readXmlFile = async (filePath: string): Promise<any> => {
 
 export const findFiles = (directoryPath: string, extension: string): string[] => {
   try {
-    console.log(globSync(directoryPath, { withFileTypes: true }).map(p => `${p.fullpath()} ${p.isDirectory()}`));
-
     if (!fs.existsSync(directoryPath)) {
       return [];
     }

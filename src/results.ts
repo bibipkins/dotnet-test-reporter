@@ -7,7 +7,7 @@ export const processTestResults = async (resultsPath: string, allowFailedTests: 
   const filePaths = findFiles(resultsPath, '.trx');
 
   if (!filePaths.length) {
-    throw Error(`No test results found in ${resultsPath}`);
+    throw Error(`No test results found by ${resultsPath}`);
   }
 
   for (const path of filePaths) {

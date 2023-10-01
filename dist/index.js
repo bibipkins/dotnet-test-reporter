@@ -636,7 +636,7 @@ const processTestResults = (resultsPath, allowFailedTests) => __awaiter(void 0, 
     const aggregatedResult = getDefaultTestResult();
     const filePaths = (0, utils_1.findFiles)(resultsPath, '.trx');
     if (!filePaths.length) {
-        throw Error(`No test results found in ${resultsPath}`);
+        throw Error(`No test results found by ${resultsPath}`);
     }
     for (const path of filePaths) {
         yield processResult(path, aggregatedResult);
@@ -868,15 +868,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.findFiles = exports.readXmlFile = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(7147));
-const glob_1 = __nccwpck_require__(8211);
-const path_1 = __importDefault(__nccwpck_require__(1017));
 const xml2js_1 = __importDefault(__nccwpck_require__(6189));
-const readXmlFile = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
+const path_1 = __importDefault(__nccwpck_require__(1017));
+const glob_1 = __nccwpck_require__(8211);
+const readXmlFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (!fs_1.default.existsSync(filePath)) {
+        const filePath = (0, glob_1.globSync)(path, { withFileTypes: true });
+        console.log(filePath);
+        if (!filePath.length || !filePath[0].isFile()) {
             return null;
         }
-        const file = fs_1.default.readFileSync(filePath);
+        const file = fs_1.default.readFileSync(filePath[0].path);
         const parser = new xml2js_1.default.Parser();
         return yield parser.parseStringPromise(file);
     }
@@ -887,7 +889,6 @@ const readXmlFile = (filePath) => __awaiter(void 0, void 0, void 0, function* ()
 exports.readXmlFile = readXmlFile;
 const findFiles = (directoryPath, extension) => {
     try {
-        console.log((0, glob_1.globSync)(directoryPath, { withFileTypes: true }).map(p => `${p.fullpath()} ${p.isDirectory()}`));
         if (!fs_1.default.existsSync(directoryPath)) {
             return [];
         }
