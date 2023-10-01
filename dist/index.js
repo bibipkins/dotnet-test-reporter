@@ -873,12 +873,13 @@ const path_1 = __importDefault(__nccwpck_require__(1017));
 const glob_1 = __nccwpck_require__(8211);
 const readXmlFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const filePath = (0, glob_1.globSync)(path, { withFileTypes: true });
-        console.log(filePath);
-        if (!filePath.length || !filePath[0].isFile()) {
+        const paths = (0, glob_1.globSync)(path, { withFileTypes: true });
+        console.log(paths);
+        if (!paths.length) {
             return null;
         }
-        const file = fs_1.default.readFileSync(filePath[0].path);
+        console.log(paths[0].path);
+        const file = fs_1.default.readFileSync(paths[0].path);
         const parser = new xml2js_1.default.Parser();
         return yield parser.parseStringPromise(file);
     }
