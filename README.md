@@ -20,12 +20,12 @@ If a minimum coverage is provided and the coverage is not sufficient the action 
 **Required** - GitHub repository token.
 
 #### `results-path`
-**Required** - Path to the directory containing trx file(s).
-<br/>Example: `./TestResults/`
+**Required** - Path to the trx file(s) containing test results. Supports glob patterns.
+<br/>Examples: `./TestResults/result.trx`, `./**/*.trx`
 
 #### `coverage-path`
-**Optional** - Path to the file containing test coverage.
-<br/>Example: `./TestResults/coverage.xml`
+**Optional** - Path to the file containing test coverage. Supports glob patterns.
+<br/>Examples: `./TestResults/coverage.xml`, `./**/coverage.xml`
 
 #### `coverage-type`
 **Optional** - Coverage file type. Supported types are `opencover` and `cobertura`.
@@ -87,11 +87,11 @@ Branches covered
 ## Example usage
 
 ```yaml
-uses: bibipkins/dotnet-test-reporter@v1
+uses: bibipkins/dotnet-test-reporter@v1.3.0
 with:
   github-token: ${{ secrets.GITHUB_TOKEN }}
   comment-title: 'Unit Test Results'
-  results-path: ./TestResults/
+  results-path: ./TestResults/*.trx
   coverage-path: ./TestResults/coverage.xml
   coverage-threshold: 80
 ```

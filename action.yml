@@ -9,10 +9,10 @@ inputs:
     description: 'GitHub repository token'
     required: true
   results-path:
-    description: 'Path to the directory containing trx files'
+    description: 'Path to the trx file(s) containing test results. Supports glob patterns'
     required: true
   coverage-path:
-    description: 'Path to the file containing test coverage'
+    description: 'Path to the file containing test coverage. Supports glob patterns'
     required: false
   coverage-type:
     description: 'Coverage file type'
