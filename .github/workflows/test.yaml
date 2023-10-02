@@ -29,6 +29,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-title: Test Results All
           results-path: ./files/**/*.trx
+          allow-failed-tests: true
       - name: Test Results Success
         uses: ./
         with:
