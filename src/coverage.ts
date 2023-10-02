@@ -1,3 +1,4 @@
+import { glob } from 'glob';
 import { CoverageType, CoverageParser, ICoverage } from './data';
 import { setFailed, setCoverageOutputs, log } from './utils';
 import parseOpencover from './parsers/opencover';
@@ -13,14 +14,21 @@ export const processTestCoverage = async (
   coverageType: CoverageType,
   coverageThreshold: number
 ): Promise<ICoverage | null> => {
-  const coverage = await parsers[coverageType](coveragePath, coverageThreshold);
+  const filePaths = await glob(coveragePath, { nodir: true });
+
+  if (!filePaths.length) {
+    throw Error(`No coverage results found by ${coveragePath}`);
+  }
+
+  const filePath = filePaths[0];
+  const coverage = await parsers[coverageType](filePath, coverageThreshold);
 
   if (!coverage) {
-    log(`Failed parsing ${coveragePath}`);
+    log(`Failed parsing ${filePath}`);
     return null;
   }
 
-  log(`Processed ${coveragePath}`);
+  log(`Processed ${filePath}`);
   setCoverageOutputs(coverage);
 
   if (!coverage.success) {

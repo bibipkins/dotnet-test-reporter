@@ -20,6 +20,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.processTestCoverage = void 0;
+const glob_1 = __nccwpck_require__(8211);
 const utils_1 = __nccwpck_require__(7782);
 const opencover_1 = __importDefault(__nccwpck_require__(5867));
 const cobertura_1 = __importDefault(__nccwpck_require__(4240));
@@ -28,12 +29,17 @@ const parsers = {
     cobertura: cobertura_1.default
 };
 const processTestCoverage = (coveragePath, coverageType, coverageThreshold) => __awaiter(void 0, void 0, void 0, function* () {
-    const coverage = yield parsers[coverageType](coveragePath, coverageThreshold);
+    const filePaths = yield (0, glob_1.glob)(coveragePath, { nodir: true });
+    if (!filePaths.length) {
+        throw Error(`No coverage results found by ${coveragePath}`);
+    }
+    const filePath = filePaths[0];
+    const coverage = yield parsers[coverageType](filePath, coverageThreshold);
     if (!coverage) {
-        (0, utils_1.log)(`Failed parsing ${coveragePath}`);
+        (0, utils_1.log)(`Failed parsing ${filePath}`);
         return null;
     }
-    (0, utils_1.log)(`Processed ${coveragePath}`);
+    (0, utils_1.log)(`Processed ${filePath}`);
     (0, utils_1.setCoverageOutputs)(coverage);
     if (!coverage.success) {
         (0, utils_1.setFailed)('Coverage Failed');
@@ -630,15 +636,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.processTestResults = void 0;
+const glob_1 = __nccwpck_require__(8211);
 const utils_1 = __nccwpck_require__(7782);
 const trx_1 = __importDefault(__nccwpck_require__(8682));
 const processTestResults = (resultsPath, allowFailedTests) => __awaiter(void 0, void 0, void 0, function* () {
     const aggregatedResult = getDefaultTestResult();
-    const filePaths = (0, utils_1.findFiles)(resultsPath, '.trx');
-    if (!filePaths.length) {
+    const filePaths = yield (0, glob_1.glob)(resultsPath);
+    const trxPaths = filePaths.filter(path => path.endsWith('.trx'));
+    if (!trxPaths.length) {
         throw Error(`No test results found by ${resultsPath}`);
     }
-    for (const path of filePaths) {
+    for (const path of trxPaths) {
         yield processResult(path, aggregatedResult);
     }
     (0, utils_1.setResultOutputs)(aggregatedResult);
@@ -866,20 +874,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.findFiles = exports.readXmlFile = void 0;
+exports.readXmlFile = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const xml2js_1 = __importDefault(__nccwpck_require__(6189));
-const path_1 = __importDefault(__nccwpck_require__(1017));
-const glob_1 = __nccwpck_require__(8211);
-const readXmlFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
+const readXmlFile = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const paths = (0, glob_1.globSync)(path);
-        console.log(paths);
-        if (!paths.length) {
+        if (!fs_1.default.existsSync(filePath)) {
             return null;
         }
-        console.log(paths[0]);
-        const file = fs_1.default.readFileSync(paths[0]);
+        const file = fs_1.default.readFileSync(filePath);
         const parser = new xml2js_1.default.Parser();
         return yield parser.parseStringPromise(file);
     }
@@ -888,20 +891,6 @@ const readXmlFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.readXmlFile = readXmlFile;
-const findFiles = (directoryPath, extension) => {
-    try {
-        if (!fs_1.default.existsSync(directoryPath)) {
-            return [];
-        }
-        const fileNames = fs_1.default.readdirSync(directoryPath);
-        const filteredFileNames = fileNames.filter(fileName => fileName.endsWith(extension));
-        return filteredFileNames.map(fileName => path_1.default.join(directoryPath, fileName));
-    }
-    catch (_a) {
-        return [];
-    }
-};
-exports.findFiles = findFiles;
 
 
 /***/ }),

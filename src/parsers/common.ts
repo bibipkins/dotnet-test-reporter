@@ -5,7 +5,12 @@ export const calculateCoverage = (covered: number, total: number): number => {
   return total ? Math.round((covered / total) * 10000) / 100 : 100;
 };
 
-export const createCoverageModule = (name: string, threshold: number, files: ICoverageFile[], complexity: number=0,): ICoverageModule => {
+export const createCoverageModule = (
+  name: string,
+  threshold: number,
+  files: ICoverageFile[],
+  complexity: number = 0
+): ICoverageModule => {
   const total = files.reduce((summ, file) => summ + file.linesTotal + file.branchesTotal, 0);
   const covered = files.reduce((summ, file) => summ + file.linesCovered + file.branchesCovered, 0);
   const coverage = calculateCoverage(covered, total);
