@@ -101,10 +101,10 @@ const formatLinesToCover = (linesToCover: number[]): string => {
 const formatTestSuit = (suit: ITestSuit): string => {
   const icon = getStatusIcon(suit.success);
   const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
-  const hasOutput = suit.tests.some(test => (test.output && test.output != "") || test.error);
+  const hasOutput = suit.tests.some(test => (test.output && test.output !== '') || test.error);
 
   const table = formatTable(
-    [{ name: 'Result', align: 'center' }, { name: 'Test' }, ...(hasOutput ? [{ name: 'Output' }] : [])],
+    [{ name: 'Result-SM1', align: 'center' }, { name: 'Test' }, ...(hasOutput ? [{ name: 'Output' }] : [])],
         suit.tests.map(test => [outcomeIcons[test.outcome], test.name, ...(hasOutput ? [formatTestOutput(test)] : [])])
   );
 
