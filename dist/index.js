@@ -99,18 +99,21 @@ exports.formatTitleHtml = formatTitleHtml;
 const formatResultHtml = (result, onlyShowFailedTests, showTestOutput) => {
     let html = wrap('Tests', 'h3');
     html += formatTable([{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }, { name: '⏱️ Time' }], [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, (0, common_1.formatElapsedTime)(result.elapsed)]]);
+    console.log(onlyShowFailedTests);
+    console.log(showTestOutput);
+    // .map(suit => {
+    //   let filteredTests = 
+    //   sort(suit.tests).asc([u => u.outcome])
+    //   .filter(test => (onlyShowFailedTests && test.outcome === 'Failed') || !onlyShowFailedTests);
+    //   if(!showTestOutput) {
+    //     filteredTests.forEach(t => {
+    //       t.output = "";
+    //     })
+    //   }
+    //   suit.tests = filteredTests;
+    //   return suit;
     html += (0, fast_sort_1.sort)(result.suits).asc([s => s.tests.length == s.passed ? 1 : 0, s => s.name])
-        .map(suit => {
-        let filteredTests = (0, fast_sort_1.sort)(suit.tests).asc([u => u.outcome])
-            .filter(test => (onlyShowFailedTests && test.outcome === 'Failed') || !onlyShowFailedTests);
-        if (!showTestOutput) {
-            filteredTests.forEach(t => {
-                t.output = "";
-            });
-        }
-        suit.tests = filteredTests;
-        return suit;
-    }).map(formatTestSuit).join('');
+        .map(formatTestSuit).join('');
     return html;
 };
 exports.formatResultHtml = formatResultHtml;
