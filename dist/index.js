@@ -159,8 +159,6 @@ const formatTestSuit = (suit) => {
     const icon = (0, common_1.getStatusIcon)(suit.success);
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
     const hasOutput = suit.tests.some(test => test.output || test.error);
-    if (suit.tests.length == 0)
-        return "";
     const table = formatTable([{ name: 'Result', align: 'center' }, { name: 'Test' }, ...(hasOutput ? [{ name: 'Output' }] : [])], suit.tests.map(test => [outcomeIcons[test.outcome], test.name, ...(hasOutput ? [formatTestOutput(test)] : [])]));
     return formatDetails(summary, table);
 };
