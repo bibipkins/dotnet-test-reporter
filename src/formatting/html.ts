@@ -35,10 +35,10 @@ export const formatResultHtml = (result: IResult, onlyShowFailedTests:boolean, s
     sort(suit.tests).asc([u => u.outcome])
     .filter(test => (onlyShowFailedTests && test.outcome === 'Failed') || !onlyShowFailedTests);
 
-    if(!showTestOutput)
-      filteredTests.forEach(t => {
-        t.output = "";
-      })
+    // if(!showTestOutput)
+    //   filteredTests.forEach(t => {
+    //     t.output = "";
+    //   })
 
     suit.tests = filteredTests;
     return suit;
@@ -104,7 +104,7 @@ const formatTestSuit = (suit: ITestSuit): string => {
   const hasOutput = suit.tests.some(test => (test.output && test.output !== '') || test.error);
 
   const table = formatTable(
-    [{ name: 'Result-SM1', align: 'center' }, { name: 'Test' }, ...(hasOutput ? [{ name: 'Output' }] : [])],
+    [{ name: 'Result', align: 'center' }, { name: 'Test' }, ...(hasOutput ? [{ name: 'Output' }] : [])],
         suit.tests.map(test => [outcomeIcons[test.outcome], test.name, ...(hasOutput ? [formatTestOutput(test)] : [])])
   );
 
