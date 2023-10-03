@@ -30,20 +30,7 @@ export const formatResultHtml = (result: IResult, onlyShowFailedTests:boolean, s
   );
 
   html += sort(result.suits).asc([s=> s.tests.length == s.passed ? 1 : 0, s => s.name])
-  .map(suit => {
-    let filteredTests = 
-    sort(suit.tests).asc([u => u.outcome])
-    .filter(test => (onlyShowFailedTests && test.outcome === 'Failed') || !onlyShowFailedTests);
-
-    if(!showTestOutput) {
-      filteredTests.forEach(t => {
-        t.output = "";
-      })
-    }
-
-    suit.tests = filteredTests;
-    return suit;
-  }).map(formatTestSuit).join('');
+  .map(formatTestSuit).join('');
 
   return html;
 };
