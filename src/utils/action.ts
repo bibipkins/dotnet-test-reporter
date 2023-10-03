@@ -9,7 +9,9 @@ const inputs = {
   resultsPath: 'results-path',
   coveragePath: 'coverage-path',
   coverageType: 'coverage-type',
-  coverageThreshold: 'coverage-threshold'
+  coverageThreshold: 'coverage-threshold',
+  onlyShowFailedTests: 'only-show-failed-tests',
+  showTestOutput: 'show-test-output'
 };
 
 const outputs = {
@@ -36,7 +38,9 @@ export const getInputs = (): IActionInputs => {
     resultsPath: core.getInput(inputs.resultsPath),
     coveragePath: core.getInput(inputs.coveragePath),
     coverageType: core.getInput(inputs.coverageType) as CoverageType,
-    coverageThreshold: Number(core.getInput(inputs.coverageThreshold))
+    coverageThreshold: Number(core.getInput(inputs.coverageThreshold)),
+    onlyShowFailedTests: core.getBooleanInput(inputs.onlyShowFailedTests),
+    showTestOutput: core.getBooleanInput(inputs.showTestOutput)
   };
 };
 

@@ -1,5 +1,6 @@
 import { ICoverage, ICoverageModule, IResult, ITest, ITestSuit, TestOutcome } from '../data';
 import { formatElapsedTime, getSectionLink, getStatusIcon } from './common';
+import { sort } from 'fast-sort';
 
 interface Element {
   tag: string;
@@ -20,7 +21,7 @@ const outcomeIcons: { [key in TestOutcome]: string } = {
 export const formatTitleHtml = (title: string): string =>
   wrap(title, { tag: 'h1', attributes: { id: getSectionLink(title) } });
 
-export const formatResultHtml = (result: IResult): string => {
+export const formatResultHtml = (result: IResult, onlyShowFailedTests:boolean, showTestOutput:boolean): string => {
   let html = wrap('Tests', 'h3');
 
   html += formatTable(
@@ -28,7 +29,20 @@ export const formatResultHtml = (result: IResult): string => {
     [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, formatElapsedTime(result.elapsed)]]
   );
 
-  html += result.suits.map(formatTestSuit).join('');
+  html += sort(result.suits).asc([s=> s.tests.length == s.passed ? 1 : 0, s => s.name])
+  .map(suit => {
+    let filteredTests = 
+    sort(suit.tests).asc([u => u.outcome])
+    .filter(test => (onlyShowFailedTests && test.outcome === 'Failed') || !onlyShowFailedTests);
+
+    if(!showTestOutput)
+      filteredTests.forEach(t => {
+        t.output = "";
+      })
+
+    suit.tests = filteredTests;
+    return suit;
+  }).map(formatTestSuit).join('');
 
   return html;
 };
@@ -89,9 +103,12 @@ const formatTestSuit = (suit: ITestSuit): string => {
   const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
   const hasOutput = suit.tests.some(test => test.output || test.error);
 
+  if(suit.tests.length == 0)
+    return "";
+
   const table = formatTable(
     [{ name: 'Result', align: 'center' }, { name: 'Test' }, ...(hasOutput ? [{ name: 'Output' }] : [])],
-    suit.tests.map(test => [outcomeIcons[test.outcome], test.name, ...(hasOutput ? [formatTestOutput(test)] : [])])
+        suit.tests.map(test => [outcomeIcons[test.outcome], test.name, ...(hasOutput ? [formatTestOutput(test)] : [])])
   );
 
   return formatDetails(summary, table);

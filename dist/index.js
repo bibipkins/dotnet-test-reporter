@@ -88,6 +88,7 @@ exports.formatElapsedTime = formatElapsedTime;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.formatCoverageHtml = exports.formatResultHtml = exports.formatTitleHtml = void 0;
 const common_1 = __nccwpck_require__(9759);
+const fast_sort_1 = __nccwpck_require__(611);
 const outcomeIcons = {
     Passed: '✔️',
     Failed: '❌',
@@ -95,10 +96,20 @@ const outcomeIcons = {
 };
 const formatTitleHtml = (title) => wrap(title, { tag: 'h1', attributes: { id: (0, common_1.getSectionLink)(title) } });
 exports.formatTitleHtml = formatTitleHtml;
-const formatResultHtml = (result) => {
+const formatResultHtml = (result, onlyShowFailedTests, showTestOutput) => {
     let html = wrap('Tests', 'h3');
     html += formatTable([{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }, { name: '⏱️ Time' }], [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, (0, common_1.formatElapsedTime)(result.elapsed)]]);
-    html += result.suits.map(formatTestSuit).join('');
+    html += (0, fast_sort_1.sort)(result.suits).asc([s => s.tests.length == s.passed ? 1 : 0, s => s.name])
+        .map(suit => {
+        let filteredTests = (0, fast_sort_1.sort)(suit.tests).asc([u => u.outcome])
+            .filter(test => (onlyShowFailedTests && test.outcome === 'Failed') || !onlyShowFailedTests);
+        if (!showTestOutput)
+            filteredTests.forEach(t => {
+                t.output = "";
+            });
+        suit.tests = filteredTests;
+        return suit;
+    }).map(formatTestSuit).join('');
     return html;
 };
 exports.formatResultHtml = formatResultHtml;
@@ -148,6 +159,8 @@ const formatTestSuit = (suit) => {
     const icon = (0, common_1.getStatusIcon)(suit.success);
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
     const hasOutput = suit.tests.some(test => test.output || test.error);
+    if (suit.tests.length == 0)
+        return "";
     const table = formatTable([{ name: 'Result', align: 'center' }, { name: 'Test' }, ...(hasOutput ? [{ name: 'Output' }] : [])], suit.tests.map(test => [outcomeIcons[test.outcome], test.name, ...(hasOutput ? [formatTestOutput(test)] : [])]));
     return formatDetails(summary, table);
 };
@@ -256,12 +269,12 @@ const markdown_1 = __nccwpck_require__(2519);
 const html_1 = __nccwpck_require__(9339);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests } = (0, utils_1.getInputs)();
+        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, onlyShowFailedTests, showTestOutput } = (0, utils_1.getInputs)();
         let comment = '';
         let summary = (0, html_1.formatTitleHtml)(title);
         const testResult = yield (0, results_1.processTestResults)(resultsPath, allowFailedTests);
         comment += (0, markdown_1.formatResultMarkdown)(testResult);
-        summary += (0, html_1.formatResultHtml)(testResult);
+        summary += (0, html_1.formatResultHtml)(testResult, onlyShowFailedTests, showTestOutput);
         if (coveragePath) {
             const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold);
             comment += testCoverage ? (0, markdown_1.formatCoverageMarkdown)(testCoverage, coverageThreshold) : '';
@@ -734,7 +747,9 @@ const inputs = {
     resultsPath: 'results-path',
     coveragePath: 'coverage-path',
     coverageType: 'coverage-type',
-    coverageThreshold: 'coverage-threshold'
+    coverageThreshold: 'coverage-threshold',
+    onlyShowFailedTests: 'only-show-failed-tests',
+    showTestOutput: 'show-test-output'
 };
 const outputs = {
     total: 'tests-total',
@@ -758,7 +773,9 @@ const getInputs = () => {
         resultsPath: core.getInput(inputs.resultsPath),
         coveragePath: core.getInput(inputs.coveragePath),
         coverageType: core.getInput(inputs.coverageType),
-        coverageThreshold: Number(core.getInput(inputs.coverageThreshold))
+        coverageThreshold: Number(core.getInput(inputs.coverageThreshold)),
+        onlyShowFailedTests: core.getBooleanInput(inputs.onlyShowFailedTests),
+        showTestOutput: core.getBooleanInput(inputs.showTestOutput)
     };
 };
 exports.getInputs = getInputs;
@@ -5540,6 +5557,139 @@ class Deprecation extends Error {
 }
 
 exports.Deprecation = Deprecation;
+
+
+/***/ }),
+
+/***/ 611:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+// >>> INTERFACES <<<
+// >>> HELPERS <<<
+var castComparer = function (comparer) { return function (a, b, order) { return comparer(a, b, order) * order; }; };
+var throwInvalidConfigErrorIfTrue = function (condition, context) {
+    if (condition)
+        throw Error("Invalid sort config: " + context);
+};
+var unpackObjectSorter = function (sortByObj) {
+    var _a = sortByObj || {}, asc = _a.asc, desc = _a.desc;
+    var order = asc ? 1 : -1;
+    var sortBy = (asc || desc);
+    // Validate object config
+    throwInvalidConfigErrorIfTrue(!sortBy, 'Expected `asc` or `desc` property');
+    throwInvalidConfigErrorIfTrue(asc && desc, 'Ambiguous object with `asc` and `desc` config properties');
+    var comparer = sortByObj.comparer && castComparer(sortByObj.comparer);
+    return { order: order, sortBy: sortBy, comparer: comparer };
+};
+// >>> SORTERS <<<
+var multiPropertySorterProvider = function (defaultComparer) {
+    return function multiPropertySorter(sortBy, sortByArr, depth, order, comparer, a, b) {
+        var valA;
+        var valB;
+        if (typeof sortBy === 'string') {
+            valA = a[sortBy];
+            valB = b[sortBy];
+        }
+        else if (typeof sortBy === 'function') {
+            valA = sortBy(a);
+            valB = sortBy(b);
+        }
+        else {
+            var objectSorterConfig = unpackObjectSorter(sortBy);
+            return multiPropertySorter(objectSorterConfig.sortBy, sortByArr, depth, objectSorterConfig.order, objectSorterConfig.comparer || defaultComparer, a, b);
+        }
+        var equality = comparer(valA, valB, order);
+        if ((equality === 0 || (valA == null && valB == null)) &&
+            sortByArr.length > depth) {
+            return multiPropertySorter(sortByArr[depth], sortByArr, depth + 1, order, comparer, a, b);
+        }
+        return equality;
+    };
+};
+function getSortStrategy(sortBy, comparer, order) {
+    // Flat array sorter
+    if (sortBy === undefined || sortBy === true) {
+        return function (a, b) { return comparer(a, b, order); };
+    }
+    // Sort list of objects by single object key
+    if (typeof sortBy === 'string') {
+        throwInvalidConfigErrorIfTrue(sortBy.includes('.'), 'String syntax not allowed for nested properties.');
+        return function (a, b) { return comparer(a[sortBy], b[sortBy], order); };
+    }
+    // Sort list of objects by single function sorter
+    if (typeof sortBy === 'function') {
+        return function (a, b) { return comparer(sortBy(a), sortBy(b), order); };
+    }
+    // Sort by multiple properties
+    if (Array.isArray(sortBy)) {
+        var multiPropSorter_1 = multiPropertySorterProvider(comparer);
+        return function (a, b) { return multiPropSorter_1(sortBy[0], sortBy, 1, order, comparer, a, b); };
+    }
+    // Unpack object config to get actual sorter strategy
+    var objectSorterConfig = unpackObjectSorter(sortBy);
+    return getSortStrategy(objectSorterConfig.sortBy, objectSorterConfig.comparer || comparer, objectSorterConfig.order);
+}
+var sortArray = function (order, ctx, sortBy, comparer) {
+    var _a;
+    if (!Array.isArray(ctx)) {
+        return ctx;
+    }
+    // Unwrap sortBy if array with only 1 value to get faster sort strategy
+    if (Array.isArray(sortBy) && sortBy.length < 2) {
+        _a = sortBy, sortBy = _a[0];
+    }
+    return ctx.sort(getSortStrategy(sortBy, comparer, order));
+};
+function createNewSortInstance(opts) {
+    var comparer = castComparer(opts.comparer);
+    return function (arrayToSort) {
+        var ctx = Array.isArray(arrayToSort) && !opts.inPlaceSorting
+            ? arrayToSort.slice()
+            : arrayToSort;
+        return {
+            asc: function (sortBy) {
+                return sortArray(1, ctx, sortBy, comparer);
+            },
+            desc: function (sortBy) {
+                return sortArray(-1, ctx, sortBy, comparer);
+            },
+            by: function (sortBy) {
+                return sortArray(1, ctx, sortBy, comparer);
+            },
+        };
+    };
+}
+var defaultComparer = function (a, b, order) {
+    if (a == null)
+        return order;
+    if (b == null)
+        return -order;
+    if (typeof a !== typeof b) {
+        return typeof a < typeof b ? -1 : 1;
+    }
+    if (a < b)
+        return -1;
+    if (a > b)
+        return 1;
+    return 0;
+};
+var sort = createNewSortInstance({
+    comparer: defaultComparer,
+});
+var inPlaceSort = createNewSortInstance({
+    comparer: defaultComparer,
+    inPlaceSorting: true,
+});
+
+exports.createNewSortInstance = createNewSortInstance;
+exports.defaultComparer = defaultComparer;
+exports.inPlaceSort = inPlaceSort;
+exports.sort = sort;
 
 
 /***/ }),
