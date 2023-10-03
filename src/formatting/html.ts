@@ -35,10 +35,11 @@ export const formatResultHtml = (result: IResult, onlyShowFailedTests:boolean, s
     sort(suit.tests).asc([u => u.outcome])
     .filter(test => (onlyShowFailedTests && test.outcome === 'Failed') || !onlyShowFailedTests);
 
-    // if(!showTestOutput)
-    //   filteredTests.forEach(t => {
-    //     t.output = "";
-    //   })
+    if(!showTestOutput) {
+      filteredTests.forEach(t => {
+        t.output = "";
+      })
+    }
 
     suit.tests = filteredTests;
     return suit;
