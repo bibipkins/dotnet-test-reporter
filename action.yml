@@ -33,6 +33,14 @@ inputs:
     description: 'Boolean flag. Set to true to prevent failed tests from failing the job'
     required: false
     default: false
+  only-show-failed-tests:
+    description: 'Boolean flag. Show only failed tests in summary. Useful for when test count is large and the details are truncated'
+    required: false
+    default: true
+  show-test-output:
+    description: 'Boolean flag. Show the output of the tests. Useful if there is too much output leading to truncation on the summary'
+    required: false
+    default: true
 outputs:
   tests-total:
     description: 'Total number of tests'

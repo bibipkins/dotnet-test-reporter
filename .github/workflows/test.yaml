@@ -60,3 +60,29 @@ jobs:
           coverage-path: ./files/success/test_coverage_cobertura.xml
           coverage-type: cobertura
           coverage-threshold: 44
+      - name: Test Hide Success
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Test Hide Success
+          results-path: ./files/**/*.trx
+          allow-failed-tests: true
+          only-show-failed-tests : true
+      - name: Test Hide Output
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Test Hide Output
+          results-path: ./files/**/test_result.trx
+          allow-failed-tests: true
+          only-show-failed-tests: false
+          show-test-output: false
+      - name: Test Show Output
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Test Show Output
+          results-path: ./files/**/test_result.trx
+          allow-failed-tests: true
+          only-show-failed-tests: false
+          show-test-output: true
