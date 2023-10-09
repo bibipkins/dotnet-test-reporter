@@ -540,6 +540,9 @@ const parseSummary = (file) => {
     };
 };
 const parseResults = (file) => {
+    if (!file.TestRun.Results || !file.TestRun.Results[0].UnitTestResult) {
+        return [];
+    }
     const results = file.TestRun.Results[0].UnitTestResult;
     return results.map((result) => {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
@@ -562,6 +565,9 @@ const parseResults = (file) => {
     });
 };
 const parseDefinitions = (file) => {
+    if (!file.TestRun.TestDefinitions || !file.TestRun.TestDefinitions[0].UnitTest) {
+        return [];
+    }
     const definitions = file.TestRun.TestDefinitions[0].UnitTest;
     return definitions.map(definition => {
         var _a;
