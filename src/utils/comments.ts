@@ -1,5 +1,5 @@
+import { context, getOctokit } from '@actions/github/lib/github';
 import { GitHub } from '@actions/github/lib/utils';
-import { getOctokit, context } from '@actions/github/lib/github';
 import { formatFooterMarkdown, formatHeaderMarkdown, formatSummaryLinkMarkdown } from '../formatting/markdown';
 import { log } from './action';
 
@@ -54,12 +54,22 @@ const getContext = (): IContext => {
   return { owner, repo, issueNumber, commit: after, runId };
 };
 
+const tryGetUserLogin = async (octokit: Octokit) => {
+  try {
+    const username = await octokit.rest.users.getAuthenticated();
+    return username.data?.login;
+  } catch {
+    // when token doesn't have user scope
+    return undefined;
+  }
+};
+
 const getExistingComment = async (octokit: Octokit, context: IContext, header: string) => {
   const { owner, repo, issueNumber } = context;
   const comments = await octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber });
-
+  const userLogin = await tryGetUserLogin(octokit);
   return comments.data?.find(comment => {
-    const isBotUserType = comment.user?.type === 'Bot';
+    const isBotUserType = comment.user?.type === 'Bot' || comment.user?.login === userLogin;
     const startsWithHeader = comment.body?.startsWith(header);
 
     return isBotUserType && startsWithHeader;
