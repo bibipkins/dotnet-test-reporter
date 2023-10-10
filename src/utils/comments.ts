@@ -59,6 +59,7 @@ const tryGetUserLogin = async (octokit: Octokit) => {
     const username = await octokit.rest.users.getAuthenticated();
     return username.data?.login;
   } catch {
+    log('⚠️ Failed to get username without user scope, will check comment with user type instead');
     // when token doesn't have user scope
     return undefined;
   }
