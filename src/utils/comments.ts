@@ -69,6 +69,7 @@ const getExistingComment = async (octokit: Octokit, context: IContext, header: s
   const { owner, repo, issueNumber } = context;
   const comments = await octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber });
   const userLogin = await tryGetUserLogin(octokit);
+
   return comments.data?.find(comment => {
     const isBotUserType = comment.user?.type === 'Bot' || comment.user?.login === userLogin;
     const startsWithHeader = comment.body?.startsWith(header);
