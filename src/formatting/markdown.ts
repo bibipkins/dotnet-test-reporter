@@ -4,7 +4,7 @@ import { formatElapsedTime, getSectionLink, getStatusIcon } from './common';
 export const formatHeaderMarkdown = (header: string): string => `## ${header}\n`;
 
 export const formatFooterMarkdown = (commit: string): string =>
-  `<br/>_✏️ updated for commit ${commit.substring(0, 8)}_`;
+  `<br/>_✏️ updated for commit ${commit.substring(0, 7)}_`;
 
 export const formatSummaryLinkMarkdown = (owner: string, repo: string, runId: number, title: string): string => {
   const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#user-content-${getSectionLink(title)}`;
