@@ -42,7 +42,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-title: Test Results Fail
           results-path: ./files/fail/*
-          allow-failed-tests: true
+          allow-failed-tests: false
       - name: Test Coverage OpenCover
         uses: ./
         with:
