@@ -1,11 +1,13 @@
+import { context } from '@actions/github';
 import { ICoverage, IResult } from '../data';
 import { formatElapsedTime, getSectionLink, getStatusIcon } from './common';
 
 export const formatHeaderMarkdown = (header: string): string => `## ${header}\n`;
 
-export const formatFooterMarkdown = (commit: string): string =>
-  `<br/>_✏️ updated for commit ${commit.substring(0, 7)}_`;
-
+export const formatFooterMarkdown = (commit: string): string => {
+  const workflowLink = `[Workflow](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`;
+  return `<br/>_✏️ updated for commit ${commit.substring(0, 7)} by ${workflowLink}_`;
+};
 export const formatSummaryLinkMarkdown = (owner: string, repo: string, runId: number, title: string): string => {
   const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#user-content-${getSectionLink(title)}`;
   return `🔍 click [here](${url}) for more details\n`;

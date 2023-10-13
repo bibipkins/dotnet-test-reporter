@@ -200,10 +200,14 @@ const formatTable = (headers, rows) => {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.formatCoverageMarkdown = exports.formatResultMarkdown = exports.formatSummaryLinkMarkdown = exports.formatFooterMarkdown = exports.formatHeaderMarkdown = void 0;
+const github_1 = __nccwpck_require__(5438);
 const common_1 = __nccwpck_require__(9759);
 const formatHeaderMarkdown = (header) => `## ${header}\n`;
 exports.formatHeaderMarkdown = formatHeaderMarkdown;
-const formatFooterMarkdown = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 7)}_`;
+const formatFooterMarkdown = (commit) => {
+    const workflowLink = `[Workflow](https://github.com/${github_1.context.repo.owner}/${github_1.context.repo.repo}/actions/runs/${github_1.context.runId})`;
+    return `<br/>_✏️ updated for commit ${commit.substring(0, 7)} by ${workflowLink}_`;
+};
 exports.formatFooterMarkdown = formatFooterMarkdown;
 const formatSummaryLinkMarkdown = (owner, repo, runId, title) => {
     const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#user-content-${(0, common_1.getSectionLink)(title)}`;
