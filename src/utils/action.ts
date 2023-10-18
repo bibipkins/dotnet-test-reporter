@@ -10,7 +10,7 @@ const inputs = {
   coveragePath: 'coverage-path',
   coverageType: 'coverage-type',
   coverageThreshold: 'coverage-threshold',
-  onlyShowFailedTests: 'only-show-failed-tests',
+  onlyShowFailedTests: 'show-failed-tests-only',
   showTestOutput: 'show-test-output'
 };
 

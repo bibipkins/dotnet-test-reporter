@@ -84,5 +84,5 @@ jobs:
           comment-title: Test Show Output
           results-path: ./files/**/test_result.trx
           allow-failed-tests: true
-          only-show-failed-tests: false
           show-test-output: true
+          show-failed-tests-only: false
