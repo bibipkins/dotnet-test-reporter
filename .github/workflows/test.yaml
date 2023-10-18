@@ -67,7 +67,7 @@ jobs:
           comment-title: Test Hide Success
           results-path: ./files/**/*.trx
           allow-failed-tests: true
-          how-failed-tests-only : true
+          show-failed-tests-only : true
       - name: Test Hide Output
         uses: ./
         with:
@@ -75,7 +75,7 @@ jobs:
           comment-title: Test Hide Output
           results-path: ./files/**/test_result.trx
           allow-failed-tests: true
-          how-failed-tests-only: false
+          show-failed-tests-only: false
           show-test-output: false
       - name: Test Show Output
         uses: ./
