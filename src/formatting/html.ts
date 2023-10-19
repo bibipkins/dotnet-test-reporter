@@ -1,5 +1,6 @@
 import { ICoverage, ICoverageModule, IResult, ITest, ITestSuit, TestOutcome } from '../data';
 import { formatElapsedTime, getSectionLink, getStatusIcon } from './common';
+import { sort } from 'fast-sort';
 
 interface Element {
   tag: string;
@@ -20,7 +21,7 @@ const outcomeIcons: { [key in TestOutcome]: string } = {
 export const formatTitleHtml = (title: string): string =>
   wrap(title, { tag: 'h1', attributes: { id: getSectionLink(title) } });
 
-export const formatResultHtml = (result: IResult): string => {
+export const formatResultHtml = (result: IResult, onlyShowFailedTests:boolean, showTestOutput:boolean): string => {
   let html = wrap('Tests', 'h3');
 
   html += formatTable(
@@ -28,7 +29,23 @@ export const formatResultHtml = (result: IResult): string => {
     [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, formatElapsedTime(result.elapsed)]]
   );
 
-  html += result.suits.map(formatTestSuit).join('');
+  let filteredSuits = sort(result.suits).asc([s=> s.tests.filter(t=> t.outcome === 'Failed').length > 0 ? 0 : 1, s => s.name]);
+  
+  filteredSuits.forEach(suit => {
+    let filteredTests =
+      sort(suit.tests).asc([u => u.outcome])
+      .filter(test => (onlyShowFailedTests && test.outcome === 'Failed') || !onlyShowFailedTests);
+
+    if(!showTestOutput) {
+      filteredTests.forEach(t => {
+        t.output = "";
+      })
+    }
+
+    suit.tests = filteredTests;
+  })
+
+  html += filteredSuits.map(formatTestSuit).join('');
 
   return html;
 };
@@ -87,11 +104,11 @@ const formatLinesToCover = (linesToCover: number[]): string => {
 const formatTestSuit = (suit: ITestSuit): string => {
   const icon = getStatusIcon(suit.success);
   const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
-  const hasOutput = suit.tests.some(test => test.output || test.error);
+  const hasOutput = suit.tests.some(test => (test.output && test.output !== '') || test.error);
 
   const table = formatTable(
     [{ name: 'Result', align: 'center' }, { name: 'Test' }, ...(hasOutput ? [{ name: 'Output' }] : [])],
-    suit.tests.map(test => [outcomeIcons[test.outcome], test.name, ...(hasOutput ? [formatTestOutput(test)] : [])])
+        suit.tests.map(test => [outcomeIcons[test.outcome], test.name, ...(hasOutput ? [formatTestOutput(test)] : [])])
   );
 
   return formatDetails(summary, table);
@@ -140,12 +157,18 @@ const formatColumn = (column: string, header: Header): string =>
 
 const formatTable = (headers: Header[], rows: string[][]): string => {
   const headerNames = headers.map(h => h.name);
-  const headersData = wrapMany(headerNames, 'th');
-  const headersHtml = wrap(headersData, 'tr');
 
-  const rowsData = rows.map(row => row.map((column, i) => formatColumn(column, headers[i])).join(''));
-  const rowsHtml = wrapMany(rowsData, 'tr');
-  const bodyHtml = wrap(`${headersHtml}${rowsHtml}`, 'tbody');
+  if(rows.length > 0) {
+    const headersData = wrapMany(headerNames, 'th');
+    const headersHtml = wrap(headersData, 'tr');
 
-  return wrap(bodyHtml, { tag: 'table', attributes: { role: 'table' } });
+    const rowsData = rows.map(row => row.map((column, i) => formatColumn(column, headers[i])).join(''));
+    const rowsHtml = wrapMany(rowsData, 'tr');
+    const bodyHtml = wrap(`${headersHtml}${rowsHtml}`, 'tbody');
+
+    return wrap(bodyHtml, { tag: 'table', attributes: { role: 'table' } });
+  }
+  else {
+    return ""
+  }
 };

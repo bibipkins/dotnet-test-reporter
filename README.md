@@ -52,6 +52,17 @@ Set to `true` to prevent failed tests from failing the job.
 Set to `false` or leave blank to fail the job if there are any failed tests (recommended).
 <br/>Default: `false`
 
+#### `show-failed-tests-only`
+**Optional** - Boolean flag. 
+Set to `true` to show only the failed tests. This is useful if you you have many tests and the results exceed the markdown comment limit in github
+Set to `false` or leave blank to show all the test results (recommended).
+<br/>Default: `false`
+
+#### `show-test-output`
+**Optional** - Boolean flag. 
+Set to `true` or leave blank to show the output of the tests. (recommended).
+Set to `false` if there is too much output leading to truncation on the summary
+<br/>Default: `true`
 ## Outputs
 
 #### `tests-total`
