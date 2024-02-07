@@ -67,5 +67,5 @@ outputs:
   coverage-branches-covered:
     description: 'Branches covered'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
