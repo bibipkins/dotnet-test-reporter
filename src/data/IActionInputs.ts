@@ -9,6 +9,6 @@ export default interface IActionInputs {
   coverageThreshold: number;
   postNewComment: boolean;
   allowFailedTests: boolean;
-  onlyShowFailedTests: boolean;
+  showFailedTestsOnly: boolean;
   showTestOutput: boolean;
 }

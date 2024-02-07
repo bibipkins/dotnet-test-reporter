@@ -96,21 +96,14 @@ const outcomeIcons = {
 };
 const formatTitleHtml = (title) => wrap(title, { tag: 'h1', attributes: { id: (0, common_1.getSectionLink)(title) } });
 exports.formatTitleHtml = formatTitleHtml;
-const formatResultHtml = (result, onlyShowFailedTests, showTestOutput) => {
+const formatResultHtml = (result, showFailedTestsOnly, showTestOutput) => {
     let html = wrap('Tests', 'h3');
     html += formatTable([{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }, { name: '⏱️ Time' }], [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, (0, common_1.formatElapsedTime)(result.elapsed)]]);
-    let filteredSuits = (0, fast_sort_1.sort)(result.suits).asc([s => s.tests.filter(t => t.outcome === 'Failed').length > 0 ? 0 : 1, s => s.name]);
-    filteredSuits.forEach(suit => {
-        let filteredTests = (0, fast_sort_1.sort)(suit.tests).asc([u => u.outcome])
-            .filter(test => (onlyShowFailedTests && test.outcome === 'Failed') || !onlyShowFailedTests);
-        if (!showTestOutput) {
-            filteredTests.forEach(t => {
-                t.output = "";
-            });
-        }
-        suit.tests = filteredTests;
-    });
-    html += filteredSuits.map(formatTestSuit).join('');
+    const sortedSuits = (0, fast_sort_1.sort)(result.suits).asc([
+        s => (s.tests.filter(t => t.outcome === 'Failed').length > 0 ? 0 : 1),
+        s => s.name
+    ]);
+    html += sortedSuits.map(suit => formatTestSuit(suit, showFailedTestsOnly, showTestOutput)).join('');
     return html;
 };
 exports.formatResultHtml = formatResultHtml;
@@ -156,15 +149,21 @@ const formatLinesToCover = (linesToCover) => {
         .map(group => (group.length < 3 ? group.join(', ') : `${group[0]}-${group[group.length - 1]}`))
         .join(', ');
 };
-const formatTestSuit = (suit) => {
+const formatTestSuit = (suit, showFailedTestsOnly, showTestOutput) => {
     const icon = (0, common_1.getStatusIcon)(suit.success);
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
-    const hasOutput = suit.tests.some(test => (test.output && test.output !== '') || test.error);
-    const table = formatTable([{ name: 'Result', align: 'center' }, { name: 'Test' }, ...(hasOutput ? [{ name: 'Output' }] : [])], suit.tests.map(test => [outcomeIcons[test.outcome], test.name, ...(hasOutput ? [formatTestOutput(test)] : [])]));
-    return formatDetails(summary, table);
+    const sortedTests = (0, fast_sort_1.sort)(suit.tests).asc([test => test.outcome]);
+    const filteredTests = sortedTests.filter(test => !showFailedTestsOnly || test.outcome === 'Failed');
+    const showOutput = filteredTests.some(test => (test.output && showTestOutput) || test.error);
+    const table = formatTable([{ name: 'Result', align: 'center' }, { name: 'Test' }, ...(showOutput ? [{ name: 'Output' }] : [])], filteredTests.map(test => [
+        outcomeIcons[test.outcome],
+        test.name,
+        ...(showOutput ? [formatTestOutput(test, showTestOutput)] : [])
+    ]));
+    return filteredTests.length ? formatDetails(summary, table) : summary;
 };
-const formatTestOutput = (test) => {
-    let output = test.output;
+const formatTestOutput = (test, showTestOutput) => {
+    let output = showTestOutput ? test.output : '';
     if (test.error) {
         output += `${output ? '<br/><br/>' : ''}<b>Error Message</b><br/>${test.error}`;
     }
@@ -194,17 +193,12 @@ const formatDetails = (summary, details) => wrap(`${wrap(summary, 'summary')}<br
 const formatColumn = (column, header) => wrap(column, { tag: 'td', attributes: header.align ? { align: header.align } : undefined });
 const formatTable = (headers, rows) => {
     const headerNames = headers.map(h => h.name);
-    if (rows.length > 0) {
-        const headersData = wrapMany(headerNames, 'th');
-        const headersHtml = wrap(headersData, 'tr');
-        const rowsData = rows.map(row => row.map((column, i) => formatColumn(column, headers[i])).join(''));
-        const rowsHtml = wrapMany(rowsData, 'tr');
-        const bodyHtml = wrap(`${headersHtml}${rowsHtml}`, 'tbody');
-        return wrap(bodyHtml, { tag: 'table', attributes: { role: 'table' } });
-    }
-    else {
-        return "";
-    }
+    const headersData = wrapMany(headerNames, 'th');
+    const headersHtml = wrap(headersData, 'tr');
+    const rowsData = rows.map(row => row.map((column, i) => formatColumn(column, headers[i])).join(''));
+    const rowsHtml = wrapMany(rowsData, 'tr');
+    const bodyHtml = wrap(`${headersHtml}${rowsHtml}`, 'tbody');
+    return wrap(bodyHtml, { tag: 'table', attributes: { role: 'table' } });
 };
 
 
@@ -273,12 +267,12 @@ const markdown_1 = __nccwpck_require__(2519);
 const html_1 = __nccwpck_require__(9339);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, onlyShowFailedTests, showTestOutput } = (0, utils_1.getInputs)();
+        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, showFailedTestsOnly, showTestOutput } = (0, utils_1.getInputs)();
         let comment = '';
         let summary = (0, html_1.formatTitleHtml)(title);
         const testResult = yield (0, results_1.processTestResults)(resultsPath, allowFailedTests);
         comment += (0, markdown_1.formatResultMarkdown)(testResult);
-        summary += (0, html_1.formatResultHtml)(testResult, onlyShowFailedTests, showTestOutput);
+        summary += (0, html_1.formatResultHtml)(testResult, showFailedTestsOnly, showTestOutput);
         if (coveragePath) {
             const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold);
             comment += testCoverage ? (0, markdown_1.formatCoverageMarkdown)(testCoverage, coverageThreshold) : '';
@@ -754,7 +748,7 @@ const inputs = {
     coveragePath: 'coverage-path',
     coverageType: 'coverage-type',
     coverageThreshold: 'coverage-threshold',
-    onlyShowFailedTests: 'show-failed-tests-only',
+    showFailedTestsOnly: 'show-failed-tests-only',
     showTestOutput: 'show-test-output'
 };
 const outputs = {
@@ -780,7 +774,7 @@ const getInputs = () => {
         coveragePath: core.getInput(inputs.coveragePath),
         coverageType: core.getInput(inputs.coverageType),
         coverageThreshold: Number(core.getInput(inputs.coverageThreshold)),
-        onlyShowFailedTests: core.getBooleanInput(inputs.onlyShowFailedTests),
+        showFailedTestsOnly: core.getBooleanInput(inputs.showFailedTestsOnly),
         showTestOutput: core.getBooleanInput(inputs.showTestOutput)
     };
 };

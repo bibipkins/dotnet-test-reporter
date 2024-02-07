@@ -21,7 +21,7 @@ const outcomeIcons: { [key in TestOutcome]: string } = {
 export const formatTitleHtml = (title: string): string =>
   wrap(title, { tag: 'h1', attributes: { id: getSectionLink(title) } });
 
-export const formatResultHtml = (result: IResult, onlyShowFailedTests:boolean, showTestOutput:boolean): string => {
+export const formatResultHtml = (result: IResult, showFailedTestsOnly: boolean, showTestOutput: boolean): string => {
   let html = wrap('Tests', 'h3');
 
   html += formatTable(
@@ -29,23 +29,12 @@ export const formatResultHtml = (result: IResult, onlyShowFailedTests:boolean, s
     [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, formatElapsedTime(result.elapsed)]]
   );
 
-  let filteredSuits = sort(result.suits).asc([s=> s.tests.filter(t=> t.outcome === 'Failed').length > 0 ? 0 : 1, s => s.name]);
-  
-  filteredSuits.forEach(suit => {
-    let filteredTests =
-      sort(suit.tests).asc([u => u.outcome])
-      .filter(test => (onlyShowFailedTests && test.outcome === 'Failed') || !onlyShowFailedTests);
+  const sortedSuits = sort(result.suits).asc([
+    s => (s.tests.filter(t => t.outcome === 'Failed').length > 0 ? 0 : 1),
+    s => s.name
+  ]);
 
-    if(!showTestOutput) {
-      filteredTests.forEach(t => {
-        t.output = "";
-      })
-    }
-
-    suit.tests = filteredTests;
-  })
-
-  html += filteredSuits.map(formatTestSuit).join('');
+  html += sortedSuits.map(suit => formatTestSuit(suit, showFailedTestsOnly, showTestOutput)).join('');
 
   return html;
 };
@@ -101,21 +90,27 @@ const formatLinesToCover = (linesToCover: number[]): string => {
     .join(', ');
 };
 
-const formatTestSuit = (suit: ITestSuit): string => {
+const formatTestSuit = (suit: ITestSuit, showFailedTestsOnly: boolean, showTestOutput: boolean): string => {
   const icon = getStatusIcon(suit.success);
   const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
-  const hasOutput = suit.tests.some(test => (test.output && test.output !== '') || test.error);
+  const sortedTests = sort(suit.tests).asc([test => test.outcome]);
+  const filteredTests = sortedTests.filter(test => !showFailedTestsOnly || test.outcome === 'Failed');
+  const showOutput = filteredTests.some(test => (test.output && showTestOutput) || test.error);
 
   const table = formatTable(
-    [{ name: 'Result', align: 'center' }, { name: 'Test' }, ...(hasOutput ? [{ name: 'Output' }] : [])],
-        suit.tests.map(test => [outcomeIcons[test.outcome], test.name, ...(hasOutput ? [formatTestOutput(test)] : [])])
+    [{ name: 'Result', align: 'center' }, { name: 'Test' }, ...(showOutput ? [{ name: 'Output' }] : [])],
+    filteredTests.map(test => [
+      outcomeIcons[test.outcome],
+      test.name,
+      ...(showOutput ? [formatTestOutput(test, showTestOutput)] : [])
+    ])
   );
 
-  return formatDetails(summary, table);
+  return filteredTests.length ? formatDetails(summary, table) : summary;
 };
 
-const formatTestOutput = (test: ITest): string => {
-  let output = test.output;
+const formatTestOutput = (test: ITest, showTestOutput: boolean): string => {
+  let output = showTestOutput ? test.output : '';
 
   if (test.error) {
     output += `${output ? '<br/><br/>' : ''}<b>Error Message</b><br/>${test.error}`;
@@ -157,18 +152,12 @@ const formatColumn = (column: string, header: Header): string =>
 
 const formatTable = (headers: Header[], rows: string[][]): string => {
   const headerNames = headers.map(h => h.name);
+  const headersData = wrapMany(headerNames, 'th');
+  const headersHtml = wrap(headersData, 'tr');
 
-  if(rows.length > 0) {
-    const headersData = wrapMany(headerNames, 'th');
-    const headersHtml = wrap(headersData, 'tr');
+  const rowsData = rows.map(row => row.map((column, i) => formatColumn(column, headers[i])).join(''));
+  const rowsHtml = wrapMany(rowsData, 'tr');
+  const bodyHtml = wrap(`${headersHtml}${rowsHtml}`, 'tbody');
 
-    const rowsData = rows.map(row => row.map((column, i) => formatColumn(column, headers[i])).join(''));
-    const rowsHtml = wrapMany(rowsData, 'tr');
-    const bodyHtml = wrap(`${headersHtml}${rowsHtml}`, 'tbody');
-
-    return wrap(bodyHtml, { tag: 'table', attributes: { role: 'table' } });
-  }
-  else {
-    return ""
-  }
+  return wrap(bodyHtml, { tag: 'table', attributes: { role: 'table' } });
 };
