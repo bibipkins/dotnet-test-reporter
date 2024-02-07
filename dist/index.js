@@ -557,10 +557,8 @@ const parseSummary = (file) => {
     };
 };
 const parseResults = (file) => {
-    if (!file.TestRun.Results || !file.TestRun.Results[0].UnitTestResult) {
-        return [];
-    }
-    const results = file.TestRun.Results[0].UnitTestResult;
+    var _a, _b, _c, _d;
+    const results = ((_d = (_c = (_b = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.Results) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.UnitTestResult) !== null && _d !== void 0 ? _d : []);
     return results.map((result) => {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
         return ({
@@ -582,10 +580,8 @@ const parseResults = (file) => {
     });
 };
 const parseDefinitions = (file) => {
-    if (!file.TestRun.TestDefinitions || !file.TestRun.TestDefinitions[0].UnitTest) {
-        return [];
-    }
-    const definitions = file.TestRun.TestDefinitions[0].UnitTest;
+    var _a, _b, _c, _d;
+    const definitions = ((_d = (_c = (_b = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.TestDefinitions) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.UnitTest) !== null && _d !== void 0 ? _d : []);
     return definitions.map(definition => {
         var _a;
         return ({
@@ -876,7 +872,6 @@ const tryGetUserLogin = (octokit) => __awaiter(void 0, void 0, void 0, function*
     }
     catch (_b) {
         (0, action_1.log)('⚠️ Failed to get username without user scope, will check comment with user type instead');
-        // when token doesn't have user scope
         return undefined;
     }
 });
