@@ -106,7 +106,7 @@ const formatTestSuit = (suit: ITestSuit, showFailedTestsOnly: boolean, showTestO
     ])
   );
 
-  return filteredTests.length ? formatDetails(summary, table) : `${summary}<br/><br/>`;
+  return formatDetails(summary, filteredTests.length ? table : '');
 };
 
 const formatTestOutput = (test: ITest, showTestOutput: boolean): string => {
