@@ -160,7 +160,7 @@ const formatTestSuit = (suit, showFailedTestsOnly, showTestOutput) => {
         test.name,
         ...(showOutput ? [formatTestOutput(test, showTestOutput)] : [])
     ]));
-    return filteredTests.length ? formatDetails(summary, table) : summary;
+    return filteredTests.length ? formatDetails(summary, table) : `${summary}<br/><br/>`;
 };
 const formatTestOutput = (test, showTestOutput) => {
     let output = showTestOutput ? test.output : '';
