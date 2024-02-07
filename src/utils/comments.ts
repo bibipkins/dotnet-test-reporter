@@ -60,7 +60,6 @@ const tryGetUserLogin = async (octokit: Octokit) => {
     return username.data?.login;
   } catch {
     log('⚠️ Failed to get username without user scope, will check comment with user type instead');
-    // when token doesn't have user scope
     return undefined;
   }
 };
@@ -73,7 +72,6 @@ const getExistingComment = async (octokit: Octokit, context: IContext, header: s
   return comments.data?.find(comment => {
     const isBotUserType = comment.user?.type === 'Bot' || comment.user?.login === userLogin;
     const startsWithHeader = comment.body?.startsWith(header);
-
     return isBotUserType && startsWithHeader;
   });
 };
