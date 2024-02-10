@@ -28,3 +28,6 @@ jobs:
           comment-title: Test - Results All
           results-path: ./files/dotnet-results/**/*.trx
           allow-failed-tests: false
+          coverage-path: ./files/dotnet-results/TestResults/coverage.xml
+          coverage-threshold: 10
+          coverage-type: opencover
