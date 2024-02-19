@@ -17,7 +17,8 @@ export const processTestCoverage = async (
   const filePaths = await glob(coveragePath, { nodir: true });
 
   if (!filePaths.length) {
-    throw Error(`No coverage results found by ${coveragePath}`);
+    log(`No coverage results found by ${coveragePath}`);
+    return null;
   }
 
   const filePath = filePaths[0];
