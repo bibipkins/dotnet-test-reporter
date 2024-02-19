@@ -31,7 +31,8 @@ const parsers = {
 const processTestCoverage = (coveragePath, coverageType, coverageThreshold) => __awaiter(void 0, void 0, void 0, function* () {
     const filePaths = yield (0, glob_1.glob)(coveragePath, { nodir: true });
     if (!filePaths.length) {
-        throw Error(`No coverage results found by ${coveragePath}`);
+        (0, utils_1.log)(`No coverage results found by ${coveragePath}`);
+        return null;
     }
     const filePath = filePaths[0];
     const coverage = yield parsers[coverageType](filePath, coverageThreshold);
