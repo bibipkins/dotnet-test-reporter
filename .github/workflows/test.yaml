@@ -21,12 +21,56 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Test
+      - name: Test - Results All
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-title: Test
-          results-path: ./files/fail/*
-          coverage-path: ./files/fail/coverage.xml
+          comment-title: Test - Results All
+          results-path: ./files/**/*.trx
           allow-failed-tests: true
+      - name: Test - Results Success
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Test - Results Success
+          results-path: ./files/success/*
+      - name: Test - Results Fail
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Test - Results Fail
+          results-path: ./files/fail/*
+          allow-failed-tests: true
+      - name: Test - Coverage OpenCover
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Test - Coverage OpenCover
+          results-path: ./files/success/*
+          coverage-path: ./files/success/test_coverage_opencover.xml
           coverage-threshold: 44
+      - name: Test - Coverage Cobertura
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Test - Coverage Cobertura
+          results-path: ./files/success/*
+          coverage-path: ./files/success/test_coverage_cobertura.xml
+          coverage-type: cobertura
+          coverage-threshold: 44
+      - name: Test - Show Failed Tests Only
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Test - Hide Success
+          results-path: ./files/**/*.trx
+          allow-failed-tests: true
+          show-failed-tests-only: true
+      - name: Test - Hide Test Output
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Test - Hide Output
+          results-path: ./files/**/test_result.trx
+          allow-failed-tests: true
+          show-test-output: false
