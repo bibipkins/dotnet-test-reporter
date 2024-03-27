@@ -3,6 +3,8 @@ import { processTestCoverage } from './coverage';
 import { getInputs, publishComment, setFailed, setSummary, log } from './utils';
 import { formatCoverageMarkdown, formatResultMarkdown } from './formatting/markdown';
 import { formatCoverageHtml, formatResultHtml, formatTitleHtml } from './formatting/html';
+import { DefaultArtifactClient } from '@actions/artifact'
+import { writeFileSync } from 'fs';
 
 const run = async (): Promise<void> => {
   try {
@@ -37,7 +39,13 @@ const run = async (): Promise<void> => {
     const summaryKb = summaryBytes / 1024;
 
     if ( summaryKb > 1024 ) {
-      log(`The summary exceeds the 1024K limit of the step summary and will be skipped`);
+      log(`The summary exceeds the 1024K limit of the step summary and will upload the results as testResults.md`);
+      writeFileSync("testResults.md", summary);
+      let artifactClient = new DefaultArtifactClient();
+      artifactClient.uploadArtifact("testResults",
+                                    ["testResults.md"],
+                                    '.',
+                                    { retentionDays: 2 });
     }
     else {
       await setSummary(summary);
