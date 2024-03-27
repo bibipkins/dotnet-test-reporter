@@ -279,8 +279,15 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             comment += testCoverage ? (0, markdown_1.formatCoverageMarkdown)(testCoverage, coverageThreshold) : '';
             summary += testCoverage ? (0, html_1.formatCoverageHtml)(testCoverage) : '';
         }
-        yield (0, utils_1.setSummary)(summary);
         yield (0, utils_1.publishComment)(token, title, comment, postNewComment);
+        const summaryBytes = new Blob([summary]).size;
+        const summaryKb = summaryBytes / 1024;
+        if (summaryKb > 1024) {
+            (0, utils_1.log)(`The summary exceeds the 1024K limit of the step summary and will be skipped`);
+        }
+        else {
+            yield (0, utils_1.setSummary)(summary);
+        }
     }
     catch (error) {
         (0, utils_1.setFailed)(error.message);
