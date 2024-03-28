@@ -1,8 +1,10 @@
 import { processTestResults } from './results';
 import { processTestCoverage } from './coverage';
-import { getInputs, publishComment, setFailed, setSummary } from './utils';
+import { getInputs, publishComment, setFailed, setSummary, log } from './utils';
 import { formatCoverageMarkdown, formatResultMarkdown } from './formatting/markdown';
 import { formatCoverageHtml, formatResultHtml, formatTitleHtml } from './formatting/html';
+import { DefaultArtifactClient } from '@actions/artifact'
+import { writeFileSync } from 'fs';
 
 const run = async (): Promise<void> => {
   try {
@@ -32,8 +34,23 @@ const run = async (): Promise<void> => {
       summary += testCoverage ? formatCoverageHtml(testCoverage) : '';
     }
 
-    await setSummary(summary);
     await publishComment(token, title, comment, postNewComment);
+    const summaryBytes = new Blob([summary]).size;
+    const summaryKb = summaryBytes / 1024;
+
+    if ( summaryKb > 1024 ) {
+      log(`The summary exceeds the 1024K limit of the step summary and will upload the results as testResults.md`);
+      writeFileSync("testResults.md", summary);
+      let artifactClient = new DefaultArtifactClient();
+      artifactClient.uploadArtifact("testResults",
+                                    ["testResults.md"],
+                                    '.',
+                                    { retentionDays: 2 });
+    }
+    else {
+      await setSummary(summary);
+    }
+
   } catch (error) {
     setFailed((error as Error).message);
   }
