@@ -22,8 +22,6 @@ jobs:
     needs: [build]
     steps:
       - uses: actions/checkout@v4
-      - run: npm ci
-      - run: npm run build
       - name: Test - Results All
         uses: ./
         with:
