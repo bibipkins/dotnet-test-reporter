@@ -21,6 +21,10 @@ inputs:
   coverage-threshold:
     description: 'Minimum allowed coverage (from 0.00 to 100.00)'
     required: false
+  changed-files-and-line-numbers:
+    description: 'Array of changed files and lines numbers'
+    required: false
+    default: '[]'
   comment-title:
     description: 'Pull Request comment title'
     required: false
