@@ -17,6 +17,7 @@ const run = async (): Promise<void> => {
       allowFailedTests,
       changedFilesAndLineNumbers,
       showFailedTestsOnly,
+      showFailedSuitesOnly,
       showTestOutput
     } = getInputs();
 
@@ -25,14 +26,14 @@ const run = async (): Promise<void> => {
 
     const testResult = await processTestResults(resultsPath, allowFailedTests);
     comment += formatResultMarkdown(testResult);
-    summary += formatResultHtml(testResult, showFailedTestsOnly, showTestOutput);
+    summary += formatResultHtml(testResult, showFailedSuitesOnly, showFailedTestsOnly, showTestOutput);
 
     if (coveragePath) {
       const testCoverage = await processTestCoverage(coveragePath, coverageType, coverageThreshold, changedFilesAndLineNumbers);
       comment += testCoverage ? formatCoverageMarkdown(testCoverage, coverageThreshold) : '';
       summary += testCoverage ? formatCoverageHtml(testCoverage) : '';
       if (testCoverage) {
-        for(let myMod of testCoverage.modules) {
+        for(const myMod of testCoverage.modules) {
           const changedFiles = myMod.files.filter(f => f.changedLinesTotal > 0);
           const tempComment = formatChangedFileCoverageMarkdown(changedFiles);
           await publishComment(token, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);

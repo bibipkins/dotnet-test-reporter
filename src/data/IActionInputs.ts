@@ -1,4 +1,4 @@
-import CoverageType from './CoverageType';
+import type CoverageType from './CoverageType';
 
 export type ChangedFileWithLineNumbers = {
   name: string;
@@ -16,5 +16,6 @@ export default interface IActionInputs {
   allowFailedTests: boolean;
   changedFilesAndLineNumbers: ChangedFileWithLineNumbers[];
   showFailedTestsOnly: boolean;
+  showFailedSuitesOnly: boolean;
   showTestOutput: boolean;
 }
