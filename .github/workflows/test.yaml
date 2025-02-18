@@ -69,6 +69,7 @@ jobs:
           results-path: ./files/**/*.trx
           allow-failed-tests: true
           show-failed-tests-only: true
+          show-failed-suites-only: true
       - name: Test - Hide Test Output
         uses: ./
         with:
