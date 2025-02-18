@@ -296,8 +296,10 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             if (testCoverage) {
                 for (const myMod of testCoverage.modules) {
                     const changedFiles = myMod.files.filter(f => f.changedLinesTotal > 0);
-                    const tempComment = (0, markdown_1.formatChangedFileCoverageMarkdown)(changedFiles);
-                    yield (0, utils_1.publishComment)(token, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);
+                    if (changedFiles.length > 0) {
+                        const tempComment = (0, markdown_1.formatChangedFileCoverageMarkdown)(changedFiles);
+                        yield (0, utils_1.publishComment)(token, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);
+                    }
                 }
             }
         }

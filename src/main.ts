@@ -35,8 +35,10 @@ const run = async (): Promise<void> => {
       if (testCoverage) {
         for(const myMod of testCoverage.modules) {
           const changedFiles = myMod.files.filter(f => f.changedLinesTotal > 0);
-          const tempComment = formatChangedFileCoverageMarkdown(changedFiles);
-          await publishComment(token, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);
+          if (changedFiles.length > 0) {
+            const tempComment = formatChangedFileCoverageMarkdown(changedFiles);
+            await publishComment(token, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);
+          }
         }
       }
     }
