@@ -96,7 +96,7 @@ const formatTestSuit = (suit: ITestSuit, showFailedSuitesOnly: boolean, showFail
   const icon = getStatusIcon(suit.success);
   const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
   const sortedTests = sort(suit.tests).asc([test => test.outcome]);
-  const filteredTests = sortedTests.filter(test => !showFailedTestsOnly || test.outcome === 'Failed');
+  const filteredTests = sortedTests.filter(test => (!showFailedTestsOnly) || test.outcome === 'Failed');
   const showOutput = filteredTests.some(test => (test.output && showTestOutput) || test.error);
 
   const table = formatTable(
@@ -108,7 +108,7 @@ const formatTestSuit = (suit: ITestSuit, showFailedSuitesOnly: boolean, showFail
     ])
   );
 
-  if (showFailedSuitesOnly && filteredTests.length === 0) {
+  if (showFailedSuitesOnly && suit.success) {
     return '';
   }
 

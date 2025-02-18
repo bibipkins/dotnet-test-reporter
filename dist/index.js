@@ -156,14 +156,14 @@ const formatTestSuit = (suit, showFailedSuitesOnly, showFailedTestsOnly, showTes
     const icon = (0, common_1.getStatusIcon)(suit.success);
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
     const sortedTests = (0, fast_sort_1.sort)(suit.tests).asc([test => test.outcome]);
-    const filteredTests = sortedTests.filter(test => !showFailedTestsOnly || test.outcome === 'Failed');
+    const filteredTests = sortedTests.filter(test => (!showFailedTestsOnly) || test.outcome === 'Failed');
     const showOutput = filteredTests.some(test => (test.output && showTestOutput) || test.error);
     const table = formatTable([{ name: 'Result', align: 'center' }, { name: 'Test' }, ...(showOutput ? [{ name: 'Output' }] : [])], filteredTests.map(test => [
         outcomeIcons[test.outcome],
         test.name,
         ...(showOutput ? [formatTestOutput(test, showTestOutput)] : [])
     ]));
-    if (showFailedSuitesOnly && filteredTests.length === 0) {
+    if (showFailedSuitesOnly && suit.success) {
         return '';
     }
     return formatDetails(summary, filteredTests.length ? table : '');
