@@ -1,4 +1,4 @@
-import { ICoverage, ICoverageModule, IResult, ITest, ITestSuit, TestOutcome } from '../data';
+import type { ICoverage, ICoverageModule, IResult, ITest, ITestSuit, TestOutcome } from '../data';
 import { formatElapsedTime, getSectionLink, getStatusIcon } from './common';
 import { sort } from 'fast-sort';
 
@@ -21,7 +21,7 @@ const outcomeIcons: { [key in TestOutcome]: string } = {
 export const formatTitleHtml = (title: string): string =>
   wrap(title, { tag: 'h1', attributes: { id: getSectionLink(title) } });
 
-export const formatResultHtml = (result: IResult, showFailedTestsOnly: boolean, showTestOutput: boolean): string => {
+export const formatResultHtml = (result: IResult, showFailedSuitesOnly: boolean, showFailedTestsOnly: boolean, showTestOutput: boolean): string => {
   let html = wrap('Tests', 'h3');
 
   html += formatTable(
@@ -34,7 +34,7 @@ export const formatResultHtml = (result: IResult, showFailedTestsOnly: boolean, 
     s => s.name
   ]);
 
-  html += sortedSuits.map(suit => formatTestSuit(suit, showFailedTestsOnly, showTestOutput)).join('');
+  html += sortedSuits.map(suit => formatTestSuit(suit, showFailedSuitesOnly, showFailedTestsOnly, showTestOutput)).join('');
 
   return html;
 };
@@ -92,11 +92,11 @@ const formatLinesToCover = (linesToCover: number[]): string => {
     .join(', ');
 };
 
-const formatTestSuit = (suit: ITestSuit, showFailedTestsOnly: boolean, showTestOutput: boolean): string => {
+const formatTestSuit = (suit: ITestSuit, showFailedSuitesOnly: boolean, showFailedTestsOnly: boolean, showTestOutput: boolean): string => {
   const icon = getStatusIcon(suit.success);
   const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
   const sortedTests = sort(suit.tests).asc([test => test.outcome]);
-  const filteredTests = sortedTests.filter(test => !showFailedTestsOnly || test.outcome === 'Failed');
+  const filteredTests = sortedTests.filter(test => (!showFailedTestsOnly) || test.outcome === 'Failed');
   const showOutput = filteredTests.some(test => (test.output && showTestOutput) || test.error);
 
   const table = formatTable(
@@ -107,6 +107,10 @@ const formatTestSuit = (suit: ITestSuit, showFailedTestsOnly: boolean, showTestO
       ...(showOutput ? [formatTestOutput(test, showTestOutput)] : [])
     ])
   );
+
+  if (showFailedSuitesOnly && suit.success) {
+    return '';
+  }
 
   return formatDetails(summary, filteredTests.length ? table : '');
 };
@@ -126,8 +130,8 @@ const formatTestOutput = (test: ITest, showTestOutput: boolean): string => {
 };
 
 const wrap = (item: string, element: string | Element): string => {
-  let tag: string = '';
-  let attributes: string = '';
+  let tag = '';
+  let attributes = '';
 
   if (typeof element === 'string') {
     tag = element;

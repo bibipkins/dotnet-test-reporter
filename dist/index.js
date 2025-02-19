@@ -97,14 +97,14 @@ const outcomeIcons = {
 };
 const formatTitleHtml = (title) => wrap(title, { tag: 'h1', attributes: { id: (0, common_1.getSectionLink)(title) } });
 exports.formatTitleHtml = formatTitleHtml;
-const formatResultHtml = (result, showFailedTestsOnly, showTestOutput) => {
+const formatResultHtml = (result, showFailedSuitesOnly, showFailedTestsOnly, showTestOutput) => {
     let html = wrap('Tests', 'h3');
     html += formatTable([{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }, { name: '⏱️ Time' }], [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, (0, common_1.formatElapsedTime)(result.elapsed)]]);
     const sortedSuits = (0, fast_sort_1.sort)(result.suits).asc([
         s => (s.tests.filter(t => t.outcome === 'Failed').length > 0 ? 0 : 1),
         s => s.name
     ]);
-    html += sortedSuits.map(suit => formatTestSuit(suit, showFailedTestsOnly, showTestOutput)).join('');
+    html += sortedSuits.map(suit => formatTestSuit(suit, showFailedSuitesOnly, showFailedTestsOnly, showTestOutput)).join('');
     return html;
 };
 exports.formatResultHtml = formatResultHtml;
@@ -152,17 +152,20 @@ const formatLinesToCover = (linesToCover) => {
         .map(group => (group.length < 3 ? group.join(', ') : `${group[0]}-${group[group.length - 1]}`))
         .join(', ');
 };
-const formatTestSuit = (suit, showFailedTestsOnly, showTestOutput) => {
+const formatTestSuit = (suit, showFailedSuitesOnly, showFailedTestsOnly, showTestOutput) => {
     const icon = (0, common_1.getStatusIcon)(suit.success);
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
     const sortedTests = (0, fast_sort_1.sort)(suit.tests).asc([test => test.outcome]);
-    const filteredTests = sortedTests.filter(test => !showFailedTestsOnly || test.outcome === 'Failed');
+    const filteredTests = sortedTests.filter(test => (!showFailedTestsOnly) || test.outcome === 'Failed');
     const showOutput = filteredTests.some(test => (test.output && showTestOutput) || test.error);
     const table = formatTable([{ name: 'Result', align: 'center' }, { name: 'Test' }, ...(showOutput ? [{ name: 'Output' }] : [])], filteredTests.map(test => [
         outcomeIcons[test.outcome],
         test.name,
         ...(showOutput ? [formatTestOutput(test, showTestOutput)] : [])
     ]));
+    if (showFailedSuitesOnly && suit.success) {
+        return '';
+    }
     return formatDetails(summary, filteredTests.length ? table : '');
 };
 const formatTestOutput = (test, showTestOutput) => {
@@ -247,8 +250,6 @@ const formatChangedFileCoverageMarkdown = (files) => {
     let table = '| Filename | Lines Covered | Changed Lines Covered |\n';
     table += '|----------|---------------|-----------------------|\n';
     for (let file of files) {
-        // const { name, changedLineCoverage, changedLinesTotal, changedLinesCovered } = file;
-        // table += `| ${name} | ${changedLinesCovered} / ${changedLinesTotal} | ${changedLineCoverage}% |\n`
         const { name, changedLineCoverage, changedLinesTotal, changedLinesCovered, linesCovered, linesTotal, lineCoverage } = file;
         table += `| ${name} | ${linesCovered} / ${linesTotal} (${lineCoverage}%) | ${changedLinesCovered} / ${changedLinesTotal} (${changedLineCoverage}%) |\n`;
     }
@@ -282,21 +283,23 @@ const markdown_1 = __nccwpck_require__(2519);
 const html_1 = __nccwpck_require__(9339);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFilesAndLineNumbers, showFailedTestsOnly, showTestOutput } = (0, utils_1.getInputs)();
+        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFilesAndLineNumbers, showFailedTestsOnly, showFailedSuitesOnly, showTestOutput } = (0, utils_1.getInputs)();
         let comment = '';
         let summary = (0, html_1.formatTitleHtml)(title);
         const testResult = yield (0, results_1.processTestResults)(resultsPath, allowFailedTests);
         comment += (0, markdown_1.formatResultMarkdown)(testResult);
-        summary += (0, html_1.formatResultHtml)(testResult, showFailedTestsOnly, showTestOutput);
+        summary += (0, html_1.formatResultHtml)(testResult, showFailedSuitesOnly, showFailedTestsOnly, showTestOutput);
         if (coveragePath) {
             const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold, changedFilesAndLineNumbers);
             comment += testCoverage ? (0, markdown_1.formatCoverageMarkdown)(testCoverage, coverageThreshold) : '';
             summary += testCoverage ? (0, html_1.formatCoverageHtml)(testCoverage) : '';
             if (testCoverage) {
-                for (let myMod of testCoverage.modules) {
+                for (const myMod of testCoverage.modules) {
                     const changedFiles = myMod.files.filter(f => f.changedLinesTotal > 0);
-                    const tempComment = (0, markdown_1.formatChangedFileCoverageMarkdown)(changedFiles);
-                    yield (0, utils_1.publishComment)(token, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);
+                    if (changedFiles.length > 0) {
+                        const tempComment = (0, markdown_1.formatChangedFileCoverageMarkdown)(changedFiles);
+                        yield (0, utils_1.publishComment)(token, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);
+                    }
                 }
             }
         }
@@ -376,9 +379,8 @@ const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
                 file.branchesCovered += branchData.reduce((summ, branch) => summ + Number(branch[0]), 0);
                 file.linesToCover = file.linesToCover.concat(lines.filter(line => !Number(line['$'].hits)).map(line => Number(line['$'].number)));
                 const unCoveredChangedLines = (changedLines === null || changedLines === void 0 ? void 0 : changedLines.filter(line => !Number(line['$'].hits)).map(line => Number(line['$'].number))) || [];
-                file.changedLinesTotal = changedLines.length;
-                file.changedLinesCovered = changedLines.length - unCoveredChangedLines.length;
-                file.changedLineCoverage = (0, common_1.calculateCoverage)(file.changedLinesCovered, changedLines.length);
+                file.changedLinesTotal += changedLines.length;
+                file.changedLinesCovered += changedLines.length - unCoveredChangedLines.length;
                 file.complexity = Number(c['$'].complexity);
             }
         });
@@ -436,7 +438,7 @@ const createCoverageModule = (name, threshold, files, complexity = 0) => {
     const coverage = (0, exports.calculateCoverage)(covered, total);
     const success = !threshold || coverage >= threshold;
     const updatedFiles = files
-        .map(file => (Object.assign(Object.assign({}, file), { totalCoverage: (0, exports.calculateCoverage)(file.linesCovered + file.branchesCovered, file.linesTotal + file.branchesTotal), lineCoverage: (0, exports.calculateCoverage)(file.linesCovered, file.linesTotal), branchCoverage: (0, exports.calculateCoverage)(file.branchesCovered, file.branchesTotal) })))
+        .map(file => (Object.assign(Object.assign({}, file), { totalCoverage: (0, exports.calculateCoverage)(file.linesCovered + file.branchesCovered, file.linesTotal + file.branchesTotal), lineCoverage: (0, exports.calculateCoverage)(file.linesCovered, file.linesTotal), branchCoverage: (0, exports.calculateCoverage)(file.branchesCovered, file.branchesTotal), changedLineCoverage: (0, exports.calculateCoverage)(file.changedLinesCovered, file.changedLinesTotal) })))
         .sort((a, b) => a.name.localeCompare(b.name));
     return { name, coverage, success, files: updatedFiles, complexity };
 };
@@ -807,6 +809,7 @@ const inputs = {
     coverageThreshold: 'coverage-threshold',
     changedFilesAndLineNumbers: 'changed-files-and-line-numbers',
     showFailedTestsOnly: 'show-failed-tests-only',
+    showFailedSuitesOnly: 'show-failed-suites-only',
     showTestOutput: 'show-test-output'
 };
 const outputs = {
@@ -834,6 +837,7 @@ const getInputs = () => {
         coverageThreshold: Number(core.getInput(inputs.coverageThreshold)),
         changedFilesAndLineNumbers: JSON.parse(core.getInput(inputs.changedFilesAndLineNumbers)),
         showFailedTestsOnly: core.getBooleanInput(inputs.showFailedTestsOnly),
+        showFailedSuitesOnly: core.getBooleanInput(inputs.showFailedSuitesOnly),
         showTestOutput: core.getBooleanInput(inputs.showTestOutput)
     };
 };
