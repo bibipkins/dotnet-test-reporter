@@ -1,6 +1,5 @@
 import { CoverageParser, ICoverageData, ICoverageFile, ICoverageModule, ChangedFileWithLineNumbers } from '../data';
 import { calculateCoverage, createCoverageModule, parseCoverage } from './common';
-import { log } from '../utils';
 
 const parseCobertura: CoverageParser = async (filePath: string, threshold: number, changedFilesAndLineNumbers: ChangedFileWithLineNumbers[]) =>
   parseCoverage(filePath, threshold, changedFilesAndLineNumbers, parseSummary, parseModules);
@@ -51,13 +50,7 @@ const parseModules = (file: any, threshold: number, changedFilesAndLineNumbers: 
 
       if (file) {
         const changedFile = changedFilesAndLineNumbers.find(f => (f.name === file.name) || (f.name === file.fullPath));
-        if (changedFile) {
-          log(`changedFile name: ${changedFile.name}`);
-        }
         const changedLineNumbers = changedFile?.lineNumbers.filter(ln => coverableLines.includes(Number(ln))) || [];
-        if (changedLineNumbers) {
-          log(`changed line numbers: ${changedLineNumbers}`)
-        }
         const changedLines = lines.filter(l => changedLineNumbers.includes(Number(l['$'].number)));
         file.linesTotal += Number(lines.length);
         file.linesCovered += Number(lines.filter(l => Number(l['$'].hits) > 0).length);

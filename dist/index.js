@@ -331,7 +331,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const common_1 = __nccwpck_require__(9023);
-const utils_1 = __nccwpck_require__(7782);
 const parseCobertura = (filePath, threshold, changedFilesAndLineNumbers) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, changedFilesAndLineNumbers, parseSummary, parseModules); });
 const parseSummary = (file, modules) => {
     const summary = file.coverage['$'];
@@ -372,13 +371,7 @@ const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
             const coverableLines = lines.map(line => Number(line['$'].number));
             if (file) {
                 const changedFile = changedFilesAndLineNumbers.find(f => (f.name === file.name) || (f.name === file.fullPath));
-                if (changedFile) {
-                    (0, utils_1.log)(`changedFile name: ${changedFile.name}`);
-                }
                 const changedLineNumbers = (changedFile === null || changedFile === void 0 ? void 0 : changedFile.lineNumbers.filter(ln => coverableLines.includes(Number(ln)))) || [];
-                if (changedLineNumbers) {
-                    (0, utils_1.log)(`changed line numbers: ${changedLineNumbers}`);
-                }
                 const changedLines = lines.filter(l => changedLineNumbers.includes(Number(l['$'].number)));
                 file.linesTotal += Number(lines.length);
                 file.linesCovered += Number(lines.filter(l => Number(l['$'].hits) > 0).length);
