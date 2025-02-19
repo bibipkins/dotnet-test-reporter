@@ -371,12 +371,14 @@ const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
                 .map(l => { var _a, _b; return (_b = (_a = branchRegex.exec(String(l['$']['condition-coverage']))) === null || _a === void 0 ? void 0 : _a[1].split('/')) !== null && _b !== void 0 ? _b : []; });
             const coverableLines = lines.map(line => Number(line['$'].number));
             if (file) {
-                (0, utils_1.log)(file.name);
-                (0, utils_1.log)(file.fullPath);
-                changedFilesAndLineNumbers.forEach(cf => (0, utils_1.log)(cf.name));
                 const changedFile = changedFilesAndLineNumbers.find(f => (f.name === file.name) || (f.name === file.fullPath));
-                (0, utils_1.log)(`changedFile name: ${changedFile === null || changedFile === void 0 ? void 0 : changedFile.name}`);
+                if (changedFile) {
+                    (0, utils_1.log)(`changedFile name: ${changedFile.name}`);
+                }
                 const changedLineNumbers = (changedFile === null || changedFile === void 0 ? void 0 : changedFile.lineNumbers.filter(ln => coverableLines.includes(Number(ln)))) || [];
+                if (changedLineNumbers) {
+                    (0, utils_1.log)(`changed line numbers: ${changedLineNumbers}`);
+                }
                 const changedLines = lines.filter(l => changedLineNumbers.includes(Number(l['$'].number)));
                 file.linesTotal += Number(lines.length);
                 file.linesCovered += Number(lines.filter(l => Number(l['$'].hits) > 0).length);
