@@ -374,6 +374,7 @@ const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
                 (0, utils_1.log)(file.name);
                 (0, utils_1.log)(file.fullPath);
                 const changedFile = changedFilesAndLineNumbers.find(f => (f.name === file.name) || (f.name === file.fullPath));
+                (0, utils_1.log)(`changedFile name: ${changedFile === null || changedFile === void 0 ? void 0 : changedFile.name}`);
                 const changedLineNumbers = (changedFile === null || changedFile === void 0 ? void 0 : changedFile.lineNumbers.filter(ln => coverableLines.includes(Number(ln)))) || [];
                 const changedLines = lines.filter(l => changedLineNumbers.includes(Number(l['$'].number)));
                 file.linesTotal += Number(lines.length);
