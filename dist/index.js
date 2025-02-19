@@ -331,6 +331,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const common_1 = __nccwpck_require__(9023);
+const utils_1 = __nccwpck_require__(7782);
 const parseCobertura = (filePath, threshold, changedFilesAndLineNumbers) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, changedFilesAndLineNumbers, parseSummary, parseModules); });
 const parseSummary = (file, modules) => {
     const summary = file.coverage['$'];
@@ -370,6 +371,8 @@ const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
                 .map(l => { var _a, _b; return (_b = (_a = branchRegex.exec(String(l['$']['condition-coverage']))) === null || _a === void 0 ? void 0 : _a[1].split('/')) !== null && _b !== void 0 ? _b : []; });
             const coverableLines = lines.map(line => Number(line['$'].number));
             if (file) {
+                (0, utils_1.log)(file.name);
+                (0, utils_1.log)(file.fullPath);
                 const changedFile = changedFilesAndLineNumbers.find(f => (f.name === file.name) || (f.name === file.fullPath));
                 const changedLineNumbers = (changedFile === null || changedFile === void 0 ? void 0 : changedFile.lineNumbers.filter(ln => coverableLines.includes(Number(ln)))) || [];
                 const changedLines = lines.filter(l => changedLineNumbers.includes(Number(l['$'].number)));
