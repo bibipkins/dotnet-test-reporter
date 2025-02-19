@@ -386,9 +386,8 @@ const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
                 file.branchesCovered += branchData.reduce((summ, branch) => summ + Number(branch[0]), 0);
                 file.linesToCover = file.linesToCover.concat(lines.filter(line => !Number(line['$'].hits)).map(line => Number(line['$'].number)));
                 const unCoveredChangedLines = (changedLines === null || changedLines === void 0 ? void 0 : changedLines.filter(line => !Number(line['$'].hits)).map(line => Number(line['$'].number))) || [];
-                file.changedLinesTotal = changedLines.length;
-                file.changedLinesCovered = changedLines.length - unCoveredChangedLines.length;
-                file.changedLineCoverage = (0, common_1.calculateCoverage)(file.changedLinesCovered, changedLines.length);
+                file.changedLinesTotal += changedLines.length;
+                file.changedLinesCovered += changedLines.length - unCoveredChangedLines.length;
                 file.complexity = Number(c['$'].complexity);
             }
         });
@@ -446,7 +445,7 @@ const createCoverageModule = (name, threshold, files, complexity = 0) => {
     const coverage = (0, exports.calculateCoverage)(covered, total);
     const success = !threshold || coverage >= threshold;
     const updatedFiles = files
-        .map(file => (Object.assign(Object.assign({}, file), { totalCoverage: (0, exports.calculateCoverage)(file.linesCovered + file.branchesCovered, file.linesTotal + file.branchesTotal), lineCoverage: (0, exports.calculateCoverage)(file.linesCovered, file.linesTotal), branchCoverage: (0, exports.calculateCoverage)(file.branchesCovered, file.branchesTotal) })))
+        .map(file => (Object.assign(Object.assign({}, file), { totalCoverage: (0, exports.calculateCoverage)(file.linesCovered + file.branchesCovered, file.linesTotal + file.branchesTotal), lineCoverage: (0, exports.calculateCoverage)(file.linesCovered, file.linesTotal), branchCoverage: (0, exports.calculateCoverage)(file.branchesCovered, file.branchesTotal), changedLineCoverage: (0, exports.calculateCoverage)(file.changedLinesCovered, file.changedLinesTotal) })))
         .sort((a, b) => a.name.localeCompare(b.name));
     return { name, coverage, success, files: updatedFiles, complexity };
 };

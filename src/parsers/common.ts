@@ -21,7 +21,8 @@ export const createCoverageModule = (
       ...file,
       totalCoverage: calculateCoverage(file.linesCovered + file.branchesCovered, file.linesTotal + file.branchesTotal),
       lineCoverage: calculateCoverage(file.linesCovered, file.linesTotal),
-      branchCoverage: calculateCoverage(file.branchesCovered, file.branchesTotal)
+      branchCoverage: calculateCoverage(file.branchesCovered, file.branchesTotal),
+      changedLineCoverage: calculateCoverage(file.changedLinesCovered, file.changedLinesTotal)
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 

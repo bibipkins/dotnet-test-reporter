@@ -67,9 +67,8 @@ const parseModules = (file: any, threshold: number, changedFilesAndLineNumbers: 
           lines.filter(line => !Number(line['$'].hits)).map(line => Number(line['$'].number))
         );
         const unCoveredChangedLines = changedLines?.filter(line => !Number(line['$'].hits)).map(line => Number(line['$'].number)) || [];
-        file.changedLinesTotal = changedLines.length;
-        file.changedLinesCovered = changedLines.length - unCoveredChangedLines.length;
-        file.changedLineCoverage = calculateCoverage(file.changedLinesCovered, changedLines.length);
+        file.changedLinesTotal += changedLines.length;
+        file.changedLinesCovered += changedLines.length - unCoveredChangedLines.length;
         file.complexity = Number(c['$'].complexity)
       }
     });
