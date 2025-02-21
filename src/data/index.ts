@@ -1,4 +1,4 @@
-export type { default as IActionInputs } from './IActionInputs';
+export type { default as IActionInputs, ChangedFileWithLineNumbers } from './IActionInputs';
 export type { default as CoverageType } from './CoverageType';
 export type { default as CoverageParser } from './CoverageParser';
 export type { default as ICoverage } from './ICoverage';

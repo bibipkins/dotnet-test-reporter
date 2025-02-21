@@ -21,6 +21,10 @@ inputs:
   coverage-threshold:
     description: 'Minimum allowed coverage (from 0.00 to 100.00)'
     required: false
+  changed-files-and-line-numbers:
+    description: 'Array of changed files and lines numbers'
+    required: false
+    default: '[]'
   comment-title:
     description: 'Pull Request comment title'
     required: false
@@ -36,6 +40,12 @@ inputs:
   show-failed-tests-only:
     description:
       'Boolean flag. Show only failed tests in summary. Useful for when test count is large and the details are
+      truncated'
+    required: false
+    default: false
+  show-failed-suites-only:
+    description:
+      'Boolean flag. Show only failed tests suites in summary. Useful for when test count is large and the details are
       truncated'
     required: false
     default: false

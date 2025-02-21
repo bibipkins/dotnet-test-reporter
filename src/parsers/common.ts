@@ -1,4 +1,4 @@
-import { ICoverage, ICoverageData, ICoverageFile, ICoverageModule } from '../data';
+import { ICoverage, ICoverageData, ICoverageFile, ICoverageModule, ChangedFileWithLineNumbers } from '../data';
 import { readXmlFile } from '../utils';
 
 export const calculateCoverage = (covered: number, total: number): number => {
@@ -21,7 +21,8 @@ export const createCoverageModule = (
       ...file,
       totalCoverage: calculateCoverage(file.linesCovered + file.branchesCovered, file.linesTotal + file.branchesTotal),
       lineCoverage: calculateCoverage(file.linesCovered, file.linesTotal),
-      branchCoverage: calculateCoverage(file.branchesCovered, file.branchesTotal)
+      branchCoverage: calculateCoverage(file.branchesCovered, file.branchesTotal),
+      changedLineCoverage: calculateCoverage(file.changedLinesCovered, file.changedLinesTotal)
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -31,8 +32,9 @@ export const createCoverageModule = (
 export const parseCoverage = async (
   filePath: string,
   threshold: number,
-  parseSummary: (file: any) => ICoverageData,
-  parseModules: (file: any, threshold: number) => ICoverageModule[]
+  changedFilesAndLineNumbers: ChangedFileWithLineNumbers[],
+  parseSummary: (file: any, modules: ICoverageModule[]) => ICoverageData,
+  parseModules: (file: any, threshold: number, changedFilesAndLineNumbers: ChangedFileWithLineNumbers[]) => ICoverageModule[]
 ): Promise<ICoverage | null> => {
   const file = await readXmlFile(filePath);
 
@@ -40,8 +42,8 @@ export const parseCoverage = async (
     return null;
   }
 
-  const summary = parseSummary(file);
-  const modules = parseModules(file, threshold);
+  const modules = parseModules(file, threshold, changedFilesAndLineNumbers);
+  const summary = parseSummary(file, modules);
   const success = !threshold || summary.totalCoverage >= threshold;
 
   return { success, ...summary, modules };

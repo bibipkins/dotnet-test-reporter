@@ -64,6 +64,12 @@ Set to `false` or leave blank to show all the test results (recommended).
 Set to `true` or leave blank to show the output of the tests. (recommended).
 Set to `false` if there is too much output leading to truncation on the summary
 <br/>Default: `true`
+
+#### `change-files-and-line-numbers`
+**Optional** - Array of changed files and lines numbers. 
+<br/>Examples: `[{"name":"Specifications\\BaseSpecification.cs","lineNumbers":[17,18,19]}]`
+<br/>Default: `[]`
+
 ## Outputs
 
 #### `tests-total`
