@@ -5,6 +5,13 @@ export const calculateCoverage = (covered: number, total: number): number => {
   return total ? Math.round((covered / total) * 10000) / 100 : 100;
 };
 
+export const  calculateChangedLineTotals = (modules: ICoverageModule[]): number => {
+  return Number(modules.reduce((summ, m) => summ + Number(m.files.reduce((summ2, f) => summ2 + Number(f.changedLinesTotal), 0)), 0))
+}
+export const  calculateChangedLinesCovered = (modules: ICoverageModule[]): number => {
+  return Number(modules.reduce((summ, m) => summ + Number(m.files.reduce((summ2, f) => summ2 + Number(f.changedLinesCovered), 0)), 0))
+}
+
 export const createCoverageModule = (
   name: string,
   threshold: number,
