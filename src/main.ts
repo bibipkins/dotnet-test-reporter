@@ -43,7 +43,6 @@ const run = async (): Promise<void> => {
       }
     }
 
-
     await setSummary(summary);
     await publishComment(token, title, comment, postNewComment);
   } catch (error) {
