@@ -1,4 +1,4 @@
-import { ICoverage, ICoverageModule, IResult, ITest, ITestSuit, TestOutcome } from '../data';
+import type { ICoverage, ICoverageModule, IResult, ITest, ITestSuit, TestOutcome } from '../data';
 import { formatElapsedTime, getSectionLink, getStatusIcon } from './common';
 import { sort } from 'fast-sort';
 
@@ -29,10 +29,12 @@ export const formatResultHtml = (result: IResult, showFailedTestsOnly: boolean, 
     [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, formatElapsedTime(result.elapsed)]]
   );
 
-  const sortedSuits = sort(result.suits).asc([
+  let sortedSuits = sort(result.suits).asc([
     s => (s.tests.filter(t => t.outcome === 'Failed').length > 0 ? 0 : 1),
     s => s.name
   ]);
+
+  sortedSuits = sortedSuits.filter(s => (!showFailedTestsOnly) || !s.success);
 
   html += sortedSuits.map(suit => formatTestSuit(suit, showFailedTestsOnly, showTestOutput)).join('');
 
@@ -61,6 +63,7 @@ const formatCoverageModule = (module: ICoverageModule): string => {
       { name: 'Line', align: 'center' },
       { name: 'Branch', align: 'center' },
       { name: 'Complexity', align: 'center' },
+      { name: 'Changed Lines', align: 'center' },
       { name: 'Lines to Cover' }
     ],
     module.files.map(file => [
@@ -69,6 +72,7 @@ const formatCoverageModule = (module: ICoverageModule): string => {
       `${file.lineCoverage}%`,
       `${file.branchCoverage}%`,
       `${file.complexity}`,
+      `${file.changedLinesCovered} / ${file.changedLinesTotal} (${file.changedLineCoverage}%)`,
       formatLinesToCover(file.linesToCover)
     ])
   );
@@ -94,7 +98,7 @@ const formatTestSuit = (suit: ITestSuit, showFailedTestsOnly: boolean, showTestO
   const icon = getStatusIcon(suit.success);
   const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
   const sortedTests = sort(suit.tests).asc([test => test.outcome]);
-  const filteredTests = sortedTests.filter(test => !showFailedTestsOnly || test.outcome === 'Failed');
+  const filteredTests = sortedTests.filter(test => (!showFailedTestsOnly) || test.outcome === 'Failed');
   const showOutput = filteredTests.some(test => (test.output && showTestOutput) || test.error);
 
   const table = formatTable(
@@ -105,6 +109,7 @@ const formatTestSuit = (suit: ITestSuit, showFailedTestsOnly: boolean, showTestO
       ...(showOutput ? [formatTestOutput(test, showTestOutput)] : [])
     ])
   );
+
 
   return formatDetails(summary, filteredTests.length ? table : '');
 };
@@ -124,8 +129,8 @@ const formatTestOutput = (test: ITest, showTestOutput: boolean): string => {
 };
 
 const wrap = (item: string, element: string | Element): string => {
-  let tag: string = '';
-  let attributes: string = '';
+  let tag = '';
+  let attributes = '';
 
   if (typeof element === 'string') {
     tag = element;

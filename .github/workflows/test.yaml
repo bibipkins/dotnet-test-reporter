@@ -19,6 +19,7 @@ jobs:
       - run: npm run build
   test:
     runs-on: ubuntu-latest
+    needs: [build]
     steps:
       - uses: actions/checkout@v4
       - name: Test - Results All
@@ -49,6 +50,7 @@ jobs:
           results-path: ./files/success/*
           coverage-path: ./files/success/test_coverage_opencover.xml
           coverage-threshold: 44
+          changed-files-and-line-numbers: '[{"name":"Specifications\\BaseSpecification.cs","lineNumbers":[17,18,19]}]'
       - name: Test - Coverage Cobertura
         uses: ./
         with:
@@ -58,6 +60,7 @@ jobs:
           coverage-path: ./files/success/test_coverage_cobertura.xml
           coverage-type: cobertura
           coverage-threshold: 44
+          changed-files-and-line-numbers: '[{"name": "Specifications\\BaseSpecification.cs", "lineNumbers": [17,18,19]}]'
       - name: Test - Show Failed Tests Only
         uses: ./
         with:
