@@ -29,10 +29,12 @@ export const formatResultHtml = (result: IResult, showFailedTestsOnly: boolean, 
     [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, formatElapsedTime(result.elapsed)]]
   );
 
-  const sortedSuits = sort(result.suits).asc([
+  let sortedSuits = sort(result.suits).asc([
     s => (s.tests.filter(t => t.outcome === 'Failed').length > 0 ? 0 : 1),
     s => s.name
   ]);
+
+  sortedSuits = sortedSuits.filter(s => (!showFailedTestsOnly) || !s.success);
 
   html += sortedSuits.map(suit => formatTestSuit(suit, showFailedTestsOnly, showTestOutput)).join('');
 
@@ -108,10 +110,6 @@ const formatTestSuit = (suit: ITestSuit, showFailedTestsOnly: boolean, showTestO
     ])
   );
 
-  // TODO: Filter out suites
-  if (showFailedTestsOnly && suit.success) {
-    return '';
-  }
 
   return formatDetails(summary, filteredTests.length ? table : '');
 };
