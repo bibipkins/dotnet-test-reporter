@@ -21,7 +21,7 @@ const outcomeIcons: { [key in TestOutcome]: string } = {
 export const formatTitleHtml = (title: string): string =>
   wrap(title, { tag: 'h1', attributes: { id: getSectionLink(title) } });
 
-export const formatResultHtml = (result: IResult, showFailedSuitesOnly: boolean, showFailedTestsOnly: boolean, showTestOutput: boolean): string => {
+export const formatResultHtml = (result: IResult, showFailedTestsOnly: boolean, showTestOutput: boolean): string => {
   let html = wrap('Tests', 'h3');
 
   html += formatTable(
@@ -34,7 +34,7 @@ export const formatResultHtml = (result: IResult, showFailedSuitesOnly: boolean,
     s => s.name
   ]);
 
-  html += sortedSuits.map(suit => formatTestSuit(suit, showFailedSuitesOnly, showFailedTestsOnly, showTestOutput)).join('');
+  html += sortedSuits.map(suit => formatTestSuit(suit, showFailedTestsOnly, showTestOutput)).join('');
 
   return html;
 };
@@ -92,7 +92,7 @@ const formatLinesToCover = (linesToCover: number[]): string => {
     .join(', ');
 };
 
-const formatTestSuit = (suit: ITestSuit, showFailedSuitesOnly: boolean, showFailedTestsOnly: boolean, showTestOutput: boolean): string => {
+const formatTestSuit = (suit: ITestSuit, showFailedTestsOnly: boolean, showTestOutput: boolean): string => {
   const icon = getStatusIcon(suit.success);
   const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
   const sortedTests = sort(suit.tests).asc([test => test.outcome]);
@@ -108,7 +108,8 @@ const formatTestSuit = (suit: ITestSuit, showFailedSuitesOnly: boolean, showFail
     ])
   );
 
-  if (showFailedSuitesOnly && suit.success) {
+  // TODO: Filter out suites
+  if (showFailedTestsOnly && suit.success) {
     return '';
   }
 
