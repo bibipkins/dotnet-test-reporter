@@ -97,14 +97,15 @@ const outcomeIcons = {
 };
 const formatTitleHtml = (title) => wrap(title, { tag: 'h1', attributes: { id: (0, common_1.getSectionLink)(title) } });
 exports.formatTitleHtml = formatTitleHtml;
-const formatResultHtml = (result, showFailedSuitesOnly, showFailedTestsOnly, showTestOutput) => {
+const formatResultHtml = (result, showFailedTestsOnly, showTestOutput) => {
     let html = wrap('Tests', 'h3');
     html += formatTable([{ name: '✔️ Passed' }, { name: '❌ Failed' }, { name: '⚠️ Skipped' }, { name: '⏱️ Time' }], [[`${result.passed}`, `${result.failed}`, `${result.skipped}`, (0, common_1.formatElapsedTime)(result.elapsed)]]);
-    const sortedSuits = (0, fast_sort_1.sort)(result.suits).asc([
+    let sortedSuits = (0, fast_sort_1.sort)(result.suits).asc([
         s => (s.tests.filter(t => t.outcome === 'Failed').length > 0 ? 0 : 1),
         s => s.name
     ]);
-    html += sortedSuits.map(suit => formatTestSuit(suit, showFailedSuitesOnly, showFailedTestsOnly, showTestOutput)).join('');
+    sortedSuits = sortedSuits.filter(s => (!showFailedTestsOnly) || !s.success);
+    html += sortedSuits.map(suit => formatTestSuit(suit, showFailedTestsOnly, showTestOutput)).join('');
     return html;
 };
 exports.formatResultHtml = formatResultHtml;
@@ -152,7 +153,7 @@ const formatLinesToCover = (linesToCover) => {
         .map(group => (group.length < 3 ? group.join(', ') : `${group[0]}-${group[group.length - 1]}`))
         .join(', ');
 };
-const formatTestSuit = (suit, showFailedSuitesOnly, showFailedTestsOnly, showTestOutput) => {
+const formatTestSuit = (suit, showFailedTestsOnly, showTestOutput) => {
     const icon = (0, common_1.getStatusIcon)(suit.success);
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
     const sortedTests = (0, fast_sort_1.sort)(suit.tests).asc([test => test.outcome]);
@@ -163,9 +164,6 @@ const formatTestSuit = (suit, showFailedSuitesOnly, showFailedTestsOnly, showTes
         test.name,
         ...(showOutput ? [formatTestOutput(test, showTestOutput)] : [])
     ]));
-    if (showFailedSuitesOnly && suit.success) {
-        return '';
-    }
     return formatDetails(summary, filteredTests.length ? table : '');
 };
 const formatTestOutput = (test, showTestOutput) => {
@@ -283,12 +281,12 @@ const markdown_1 = __nccwpck_require__(2519);
 const html_1 = __nccwpck_require__(9339);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFilesAndLineNumbers, showFailedTestsOnly, showFailedSuitesOnly, showTestOutput } = (0, utils_1.getInputs)();
+        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFilesAndLineNumbers, showFailedTestsOnly, showTestOutput } = (0, utils_1.getInputs)();
         let comment = '';
         let summary = (0, html_1.formatTitleHtml)(title);
         const testResult = yield (0, results_1.processTestResults)(resultsPath, allowFailedTests);
         comment += (0, markdown_1.formatResultMarkdown)(testResult);
-        summary += (0, html_1.formatResultHtml)(testResult, showFailedSuitesOnly, showFailedTestsOnly, showTestOutput);
+        summary += (0, html_1.formatResultHtml)(testResult, showFailedTestsOnly, showTestOutput);
         if (coveragePath) {
             const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold, changedFilesAndLineNumbers);
             comment += testCoverage ? (0, markdown_1.formatCoverageMarkdown)(testCoverage, coverageThreshold) : '';
@@ -335,8 +333,8 @@ const parseCobertura = (filePath, threshold, changedFilesAndLineNumbers) => __aw
 const parseSummary = (file, modules) => {
     const summary = file.coverage['$'];
     const totalCoverage = (0, common_1.calculateCoverage)(Number(summary['lines-covered']) + Number(summary['branches-covered']), Number(summary['lines-valid']) + Number(summary['branches-valid']));
-    const changedLinesTotal = Number(modules.reduce((summ, m) => summ + Number(m.files.reduce((summ2, f) => summ2 + Number(f.changedLinesTotal), 0)), 0));
-    const changedLinesCovered = Number(modules.reduce((summ, m) => summ + Number(m.files.reduce((summ2, f) => summ2 + Number(f.changedLinesCovered), 0)), 0));
+    const changedLinesTotal = (0, common_1.calculateChangedLineTotals)(modules);
+    const changedLinesCovered = (0, common_1.calculateChangedLinesCovered)(modules);
     return {
         totalCoverage,
         changedLinesTotal,
@@ -426,12 +424,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseCoverage = exports.createCoverageModule = exports.calculateCoverage = void 0;
+exports.parseCoverage = exports.createCoverageModule = exports.calculateChangedLinesCovered = exports.calculateChangedLineTotals = exports.calculateCoverage = void 0;
 const utils_1 = __nccwpck_require__(7782);
 const calculateCoverage = (covered, total) => {
     return total ? Math.round((covered / total) * 10000) / 100 : 100;
 };
 exports.calculateCoverage = calculateCoverage;
+const calculateChangedLineTotals = (modules) => {
+    return Number(modules.reduce((summ, m) => summ + Number(m.files.reduce((summ2, f) => summ2 + Number(f.changedLinesTotal), 0)), 0));
+};
+exports.calculateChangedLineTotals = calculateChangedLineTotals;
+const calculateChangedLinesCovered = (modules) => {
+    return Number(modules.reduce((summ, m) => summ + Number(m.files.reduce((summ2, f) => summ2 + Number(f.changedLinesCovered), 0)), 0));
+};
+exports.calculateChangedLinesCovered = calculateChangedLinesCovered;
 const createCoverageModule = (name, threshold, files, complexity = 0) => {
     const total = files.reduce((summ, file) => summ + file.linesTotal + file.branchesTotal, 0);
     const covered = files.reduce((summ, file) => summ + file.linesCovered + file.branchesCovered, 0);
@@ -478,8 +484,8 @@ const parseOpencover = (filePath, threshold, changedFilesAndLineNumbers) => __aw
 const parseSummary = (file, modules) => {
     const summary = file.CoverageSession.Summary[0]['$'];
     const totalCoverage = (0, common_1.calculateCoverage)(Number(summary.visitedSequencePoints) + Number(summary.visitedBranchPoints), Number(summary.numSequencePoints) + Number(summary.numBranchPoints));
-    const changedLinesTotal = Number(modules.reduce((summ, m) => summ + Number(m.files.reduce((summ2, f) => summ2 + Number(f.changedLinesTotal), 0)), 0));
-    const changedLinesCovered = Number(modules.reduce((summ, m) => summ + Number(m.files.reduce((summ2, f) => summ2 + Number(f.changedLinesCovered), 0)), 0));
+    const changedLinesTotal = (0, common_1.calculateChangedLineTotals)(modules);
+    const changedLinesCovered = (0, common_1.calculateChangedLinesCovered)(modules);
     return {
         totalCoverage,
         changedLinesTotal,
@@ -809,7 +815,6 @@ const inputs = {
     coverageThreshold: 'coverage-threshold',
     changedFilesAndLineNumbers: 'changed-files-and-line-numbers',
     showFailedTestsOnly: 'show-failed-tests-only',
-    showFailedSuitesOnly: 'show-failed-suites-only',
     showTestOutput: 'show-test-output'
 };
 const outputs = {
@@ -837,7 +842,6 @@ const getInputs = () => {
         coverageThreshold: Number(core.getInput(inputs.coverageThreshold)),
         changedFilesAndLineNumbers: JSON.parse(core.getInput(inputs.changedFilesAndLineNumbers)),
         showFailedTestsOnly: core.getBooleanInput(inputs.showFailedTestsOnly),
-        showFailedSuitesOnly: core.getBooleanInput(inputs.showFailedSuitesOnly),
         showTestOutput: core.getBooleanInput(inputs.showTestOutput)
     };
 };
