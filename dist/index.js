@@ -251,7 +251,7 @@ const formatChangedFileCoverageMarkdown = (files) => {
         const { name, complexity, changedLineCoverage, changedLinesTotal, changedLinesCovered, linesCovered, linesTotal, lineCoverage } = file;
         table += `| ${name} | ${complexity} | ${linesCovered} / ${linesTotal} (${lineCoverage}%) | ${changedLinesCovered} / ${changedLinesTotal} (${changedLineCoverage}%) |\n`;
     }
-    return `<details><summary>Results</summary>${table}</details>\n`;
+    return `<details>\n<summary>Results</summary>\n\n${table}\n\n</details>\n\n`;
 };
 exports.formatChangedFileCoverageMarkdown = formatChangedFileCoverageMarkdown;
 const getStatusText = (success) => (success ? '**passed**' : '**failed**');
