@@ -43,7 +43,7 @@ export const formatChangedFileCoverageMarkdown = (files: ICoverageFile[]): strin
     table += `| ${name} | ${complexity} | ${linesCovered} / ${linesTotal} (${lineCoverage}%) | ${changedLinesCovered} / ${changedLinesTotal} (${changedLineCoverage}%) |\n`;
   }
 
-  return `${table}\n`;
+  return `<details>\n<summary>Results</summary>\n\n${table}\n\n</details>\n\n`;
 }
 
 const getStatusText = (success: boolean) => (success ? '**passed**' : '**failed**');
