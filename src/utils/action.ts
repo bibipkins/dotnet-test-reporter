@@ -67,6 +67,7 @@ export const setFailed = (message: string): void => {
 };
 
 export const setSummary = async (text: string): Promise<void> => {
+  log(`Setting action summary...`);
   await core.summary.addRaw(text).write();
 };
 

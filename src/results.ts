@@ -26,14 +26,15 @@ export const processTestResults = async (resultsPath: string, allowFailedTests: 
 };
 
 const processResult = async (path: string, aggregatedResult: IResult): Promise<void> => {
+  log(`Processing ${path}...`);
   const result = await parseTrx(path);
 
   if (!result) {
     throw Error(`Failed parsing ${path}`);
   }
 
-  log(`Processed ${path}`);
   mergeTestResults(aggregatedResult, result);
+  log(`Successfully processed ${path}`);
 };
 
 const mergeTestResults = (result1: IResult, result2: IResult): void => {

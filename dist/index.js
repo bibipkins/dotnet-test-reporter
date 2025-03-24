@@ -34,13 +34,14 @@ const processTestCoverage = (coveragePath, coverageType, coverageThreshold, chan
         (0, utils_1.log)(`No coverage results found by ${coveragePath}`);
         return null;
     }
-    const filePath = filePaths[0];
-    const coverage = yield parsers[coverageType](coveragePath, coverageThreshold, changedFilesAndLineNumbers);
+    const path = filePaths[0];
+    (0, utils_1.log)(`Processing ${path}...`);
+    const coverage = yield parsers[coverageType](path, coverageThreshold, changedFilesAndLineNumbers);
     if (!coverage) {
-        (0, utils_1.log)(`Failed parsing ${filePath}`);
+        (0, utils_1.log)(`Failed parsing ${path}`);
         return null;
     }
-    (0, utils_1.log)(`Processed ${filePath}`);
+    (0, utils_1.log)(`Successfully processed ${path}`);
     (0, utils_1.setCoverageOutputs)(coverage);
     if (!coverage.success) {
         (0, utils_1.setFailed)('Coverage Failed');
@@ -735,12 +736,13 @@ const processTestResults = (resultsPath, allowFailedTests) => __awaiter(void 0, 
 });
 exports.processTestResults = processTestResults;
 const processResult = (path, aggregatedResult) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, utils_1.log)(`Processing ${path}...`);
     const result = yield (0, trx_1.default)(path);
     if (!result) {
         throw Error(`Failed parsing ${path}`);
     }
-    (0, utils_1.log)(`Processed ${path}`);
     mergeTestResults(aggregatedResult, result);
+    (0, utils_1.log)(`Successfully processed ${path}`);
 });
 const mergeTestResults = (result1, result2) => {
     result1.success = result1.success && result2.success;
@@ -867,6 +869,7 @@ const setFailed = (message) => {
 };
 exports.setFailed = setFailed;
 const setSummary = (text) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, exports.log)(`Setting action summary...`);
     yield core.summary.addRaw(text).write();
 });
 exports.setSummary = setSummary;
@@ -911,15 +914,18 @@ const publishComment = (token, title, message, postNew) => __awaiter(void 0, voi
     const footer = commit ? (0, markdown_1.formatFooterMarkdown)(commit) : '';
     const body = `${header}${message}${summaryLink}${footer}`;
     if (existingComment && !postNew) {
+        (0, action_1.log)(`Updating existing PR comment...`);
         yield octokit.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
     }
     else {
+        (0, action_1.log)(`Publishing new PR comment...`);
         yield octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
     }
 });
 exports.publishComment = publishComment;
 const getContext = () => {
     var _a, _b;
+    (0, action_1.log)(`Reading action context...`);
     const { runId, payload: { pull_request, repository, after } } = github_1.context;
     const issueNumber = (_a = pull_request === null || pull_request === void 0 ? void 0 : pull_request.number) !== null && _a !== void 0 ? _a : -1;
     const [owner, repo] = ((_b = repository === null || repository === void 0 ? void 0 : repository.full_name) === null || _b === void 0 ? void 0 : _b.split('/')) || [];
@@ -938,6 +944,7 @@ const tryGetUserLogin = (octokit) => __awaiter(void 0, void 0, void 0, function*
 });
 const getExistingComment = (octokit, context, header) => __awaiter(void 0, void 0, void 0, function* () {
     var _c;
+    (0, action_1.log)(`Looking for existing PR comment...`);
     const { owner, repo, issueNumber } = context;
     const comments = yield octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber });
     const userLogin = yield tryGetUserLogin(octokit);

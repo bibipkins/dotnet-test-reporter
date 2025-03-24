@@ -22,15 +22,17 @@ export const processTestCoverage = async (
     return null;
   }
 
-  const filePath = filePaths[0];
-  const coverage = await parsers[coverageType](coveragePath, coverageThreshold, changedFilesAndLineNumbers);
+  const path = filePaths[0];
+  log(`Processing ${path}...`);
+
+  const coverage = await parsers[coverageType](path, coverageThreshold, changedFilesAndLineNumbers);
 
   if (!coverage) {
-    log(`Failed parsing ${filePath}`);
+    log(`Failed parsing ${path}`);
     return null;
   }
 
-  log(`Processed ${filePath}`);
+  log(`Successfully processed ${path}`);
   setCoverageOutputs(coverage);
 
   if (!coverage.success) {

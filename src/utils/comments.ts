@@ -30,19 +30,22 @@ export const publishComment = async (
   const header = formatHeaderMarkdown(title);
   const octokit = getOctokit(token);
   const existingComment = await getExistingComment(octokit, context, header);
-
   const summaryLink = formatSummaryLinkMarkdown(owner, repo, runId, title);
   const footer = commit ? formatFooterMarkdown(commit) : '';
   const body = `${header}${message}${summaryLink}${footer}`;
 
   if (existingComment && !postNew) {
+    log(`Updating existing PR comment...`);
     await octokit.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
   } else {
+    log(`Publishing new PR comment...`);
     await octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
   }
 };
 
 const getContext = (): IContext => {
+  log(`Reading action context...`);
+
   const {
     runId,
     payload: { pull_request, repository, after }
@@ -65,6 +68,7 @@ const tryGetUserLogin = async (octokit: Octokit) => {
 };
 
 const getExistingComment = async (octokit: Octokit, context: IContext, header: string) => {
+  log(`Looking for existing PR comment...`);
   const { owner, repo, issueNumber } = context;
   const comments = await octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber });
   const userLogin = await tryGetUserLogin(octokit);
