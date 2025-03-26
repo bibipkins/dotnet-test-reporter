@@ -61,6 +61,16 @@ jobs:
           coverage-type: cobertura
           coverage-threshold: 44
           changed-files-and-line-numbers: '[{"name": "Specifications\\BaseSpecification.cs", "lineNumbers": [17,18,19]}]'
+      - name: Test - Coverage Cobertura - No Sources
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Test - Coverage Cobertura - No Sources
+          results-path: ./files/success/*
+          coverage-path: ./files/success/test_coverage_cobertura_no_sources.xml
+          coverage-type: cobertura
+          coverage-threshold: 44
+          changed-files-and-line-numbers: '[{"name": "Specifications\\BaseSpecification.cs", "lineNumbers": [17,18,19]}]'
       - name: Test - Show Failed Tests Only
         uses: ./
         with:
