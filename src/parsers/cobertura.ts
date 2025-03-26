@@ -29,7 +29,7 @@ const parseSummary = (file: any, modules: ICoverageModule[]): ICoverageData => {
 };
 
 const parseModules = (file: any, threshold: number, changedFilesAndLineNumbers: ChangedFileWithLineNumbers[]): ICoverageModule[] => {
-  const fileFullDirPath = file.coverage.sources[0].source;
+  const fileFullDirPath = file.coverage.sources?.[0].source ?? '';
   const modules = (file.coverage.packages[0].package ?? []) as any[];
 
   return modules.map(module => {
