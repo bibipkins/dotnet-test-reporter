@@ -350,9 +350,9 @@ const parseSummary = (file, modules) => {
     };
 };
 const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
-    var _a;
-    const fileFullDirPath = file.coverage.sources[0].source;
-    const modules = ((_a = file.coverage.packages[0].package) !== null && _a !== void 0 ? _a : []);
+    var _a, _b, _c;
+    const fileFullDirPath = (_b = (_a = file.coverage.sources) === null || _a === void 0 ? void 0 : _a[0].source) !== null && _b !== void 0 ? _b : '';
+    const modules = ((_c = file.coverage.packages[0].package) !== null && _c !== void 0 ? _c : []);
     return modules.map(module => {
         var _a;
         const name = String(module['$'].name);
