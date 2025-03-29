@@ -19,6 +19,8 @@ jobs:
       - run: npm run build
   test:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     needs: [build]
     steps:
       - uses: actions/checkout@v4
