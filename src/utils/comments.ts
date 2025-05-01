@@ -15,6 +15,7 @@ interface IContext {
 
 export const publishComment = async (
   token: string,
+  serverUrl: string,
   title: string,
   message: string,
   postNew: boolean
@@ -30,7 +31,7 @@ export const publishComment = async (
   const header = formatHeaderMarkdown(title);
   const octokit = getOctokit(token);
   const existingComment = await getExistingComment(octokit, context, header);
-  const summaryLink = formatSummaryLinkMarkdown(owner, repo, runId, title);
+  const summaryLink = formatSummaryLinkMarkdown(serverUrl, context. owner, repo, runId, title);
   const footer = commit ? formatFooterMarkdown(commit) : '';
   const body = `${header}${message}${summaryLink}${footer}`;
 
