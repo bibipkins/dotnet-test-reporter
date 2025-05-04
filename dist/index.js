@@ -221,8 +221,8 @@ const formatHeaderMarkdown = (header) => `## ${header}\n`;
 exports.formatHeaderMarkdown = formatHeaderMarkdown;
 const formatFooterMarkdown = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 7)}_`;
 exports.formatFooterMarkdown = formatFooterMarkdown;
-const formatSummaryLinkMarkdown = (owner, repo, runId, title) => {
-    const url = `https://github.com/${owner}/${repo}/actions/runs/${runId}#user-content-${(0, common_1.getSectionLink)(title)}`;
+const formatSummaryLinkMarkdown = (server_url, owner, repo, runId, title) => {
+    const url = `${server_url}/${owner}/${repo}/actions/runs/${runId}#user-content-${(0, common_1.getSectionLink)(title)}`;
     return `🔍 click [here](${url}) for more details\n`;
 };
 exports.formatSummaryLinkMarkdown = formatSummaryLinkMarkdown;
@@ -282,7 +282,7 @@ const markdown_1 = __nccwpck_require__(2519);
 const html_1 = __nccwpck_require__(9339);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFilesAndLineNumbers, showFailedTestsOnly, showTestOutput } = (0, utils_1.getInputs)();
+        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFilesAndLineNumbers, showFailedTestsOnly, showTestOutput, serverUrl } = (0, utils_1.getInputs)();
         let comment = '';
         let summary = (0, html_1.formatTitleHtml)(title);
         const testResult = yield (0, results_1.processTestResults)(resultsPath, allowFailedTests);
@@ -297,13 +297,13 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
                     const changedFiles = myMod.files.filter(f => f.changedLinesTotal > 0);
                     if (changedFiles.length > 0) {
                         const tempComment = (0, markdown_1.formatChangedFileCoverageMarkdown)(changedFiles);
-                        yield (0, utils_1.publishComment)(token, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);
+                        yield (0, utils_1.publishComment)(token, serverUrl, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);
                     }
                 }
             }
         }
         yield (0, utils_1.setSummary)(summary);
-        yield (0, utils_1.publishComment)(token, title, comment, postNewComment);
+        yield (0, utils_1.publishComment)(token, serverUrl, title, comment, postNewComment);
     }
     catch (error) {
         (0, utils_1.setFailed)(error.message);
@@ -817,7 +817,8 @@ const inputs = {
     coverageThreshold: 'coverage-threshold',
     changedFilesAndLineNumbers: 'changed-files-and-line-numbers',
     showFailedTestsOnly: 'show-failed-tests-only',
-    showTestOutput: 'show-test-output'
+    showTestOutput: 'show-test-output',
+    serverUrl: 'server-url'
 };
 const outputs = {
     total: 'tests-total',
@@ -844,7 +845,8 @@ const getInputs = () => {
         coverageThreshold: Number(core.getInput(inputs.coverageThreshold)),
         changedFilesAndLineNumbers: JSON.parse(core.getInput(inputs.changedFilesAndLineNumbers)),
         showFailedTestsOnly: core.getBooleanInput(inputs.showFailedTestsOnly),
-        showTestOutput: core.getBooleanInput(inputs.showTestOutput)
+        showTestOutput: core.getBooleanInput(inputs.showTestOutput),
+        serverUrl: core.getInput('server-url')
     };
 };
 exports.getInputs = getInputs;
@@ -900,7 +902,7 @@ exports.publishComment = void 0;
 const github_1 = __nccwpck_require__(5438);
 const markdown_1 = __nccwpck_require__(2519);
 const action_1 = __nccwpck_require__(2216);
-const publishComment = (token, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
+const publishComment = (token, serverUrl, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
     const context = getContext();
     const { owner, repo, runId, issueNumber, commit } = context;
     if (!token || !owner || !repo || issueNumber === -1) {
@@ -910,7 +912,7 @@ const publishComment = (token, title, message, postNew) => __awaiter(void 0, voi
     const header = (0, markdown_1.formatHeaderMarkdown)(title);
     const octokit = (0, github_1.getOctokit)(token);
     const existingComment = yield getExistingComment(octokit, context, header);
-    const summaryLink = (0, markdown_1.formatSummaryLinkMarkdown)(owner, repo, runId, title);
+    const summaryLink = (0, markdown_1.formatSummaryLinkMarkdown)(serverUrl, context.owner, repo, runId, title);
     const footer = commit ? (0, markdown_1.formatFooterMarkdown)(commit) : '';
     const body = `${header}${message}${summaryLink}${footer}`;
     if (existingComment && !postNew) {

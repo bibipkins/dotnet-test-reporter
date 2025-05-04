@@ -47,6 +47,11 @@ inputs:
       'Boolean flag. Show the output of the tests. Useful if there is too much output leading to truncation on the summary'
     required: false
     default: true
+  server-url:
+    description: 'Github server URL. Defaults to getting the server URL from the github.server_url context'
+    required: false
+    default: ${{ github.server_url }}
+
 outputs:
   tests-total:
     description: 'Total number of tests'

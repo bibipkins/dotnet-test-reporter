@@ -17,4 +17,5 @@ export default interface IActionInputs {
   changedFilesAndLineNumbers: ChangedFileWithLineNumbers[];
   showFailedTestsOnly: boolean;
   showTestOutput: boolean;
+  serverUrl: string;
 }
