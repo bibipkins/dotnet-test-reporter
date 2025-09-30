@@ -13,6 +13,7 @@ export default interface IActionInputs {
   coverageType: CoverageType;
   coverageThreshold: number;
   postNewComment: boolean;
+  refreshMessagePosition: boolean;
   allowFailedTests: boolean;
   changedFilesAndLineNumbers: ChangedFileWithLineNumbers[];
   showFailedTestsOnly: boolean;

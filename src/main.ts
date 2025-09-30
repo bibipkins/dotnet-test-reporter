@@ -14,6 +14,7 @@ const run = async (): Promise<void> => {
       coverageType,
       coverageThreshold,
       postNewComment,
+      refreshMessagePosition,
       allowFailedTests,
       changedFilesAndLineNumbers,
       showFailedTestsOnly,
@@ -37,14 +38,14 @@ const run = async (): Promise<void> => {
           const changedFiles = myMod.files.filter(f => f.changedLinesTotal > 0);
           if (changedFiles.length > 0) {
             const tempComment = formatChangedFileCoverageMarkdown(changedFiles);
-            await publishComment(token, serverUrl, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);
+            await publishComment(token, serverUrl, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment, refreshMessagePosition);
           }
         }
       }
     }
 
     await setSummary(summary);
-    await publishComment(token, serverUrl, title, comment, postNewComment);
+    await publishComment(token, serverUrl, title, comment, postNewComment, refreshMessagePosition);
   } catch (error) {
     setFailed((error as Error).message);
   }
