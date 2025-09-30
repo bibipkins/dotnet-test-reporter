@@ -18,7 +18,8 @@ export const publishComment = async (
   serverUrl: string,
   title: string,
   message: string,
-  postNew: boolean
+  postNew: boolean,
+  refreshMessagePosition: boolean,
 ): Promise<void> => {
   const context = getContext();
   const { owner, repo, runId, issueNumber, commit } = context;
@@ -36,8 +37,15 @@ export const publishComment = async (
   const body = `${header}${message}${summaryLink}${footer}`;
 
   if (existingComment && !postNew) {
-    log(`Updating existing PR comment...`);
-    await octokit.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
+    if(refreshMessagePosition) {
+      log(`Deleting existing PR comment...`);
+      await octokit.rest.issues.deleteComment({owner, repo, comment_id: existingComment.id})
+      log(`Publishing new PR comment...`);
+      await octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body })
+    } else {
+      log(`Updating existing PR comment...`);
+      await octokit.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
+    }
   } else {
     log(`Publishing new PR comment...`);
     await octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });

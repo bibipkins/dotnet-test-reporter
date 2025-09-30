@@ -33,6 +33,10 @@ inputs:
     description: 'Boolean flag. Set to true to post a new comment after each run'
     required: false
     default: false
+  refresh-message-position:
+    description: 'If a message with the same id, this option allow to refresh the position of the message to be the last one posted'
+    required: false
+    default: false
   allow-failed-tests:
     description: 'Boolean flag. Set to true to prevent failed tests from failing the job'
     required: false

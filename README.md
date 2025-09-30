@@ -47,6 +47,11 @@ Set to `true` to post a new comment after each run.
 Set to `false` or leave blank to only update an existing comment.
 <br/>Default: `false`
 
+#### `refresh-message-position`
+**Optional** - Boolean flag. 
+Set to `true` to for message be the last one in the PR's feed..
+<br/>Default: `false`
+
 #### `allow-failed-tests`
 **Optional** - Boolean flag. 
 Set to `true` to prevent failed tests from failing the job.

@@ -282,7 +282,7 @@ const markdown_1 = __nccwpck_require__(2519);
 const html_1 = __nccwpck_require__(9339);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFilesAndLineNumbers, showFailedTestsOnly, showTestOutput, serverUrl } = (0, utils_1.getInputs)();
+        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, refreshMessagePosition, allowFailedTests, changedFilesAndLineNumbers, showFailedTestsOnly, showTestOutput, serverUrl } = (0, utils_1.getInputs)();
         let comment = '';
         let summary = (0, html_1.formatTitleHtml)(title);
         const testResult = yield (0, results_1.processTestResults)(resultsPath, allowFailedTests);
@@ -297,13 +297,13 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
                     const changedFiles = myMod.files.filter(f => f.changedLinesTotal > 0);
                     if (changedFiles.length > 0) {
                         const tempComment = (0, markdown_1.formatChangedFileCoverageMarkdown)(changedFiles);
-                        yield (0, utils_1.publishComment)(token, serverUrl, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);
+                        yield (0, utils_1.publishComment)(token, serverUrl, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment, refreshMessagePosition);
                     }
                 }
             }
         }
         yield (0, utils_1.setSummary)(summary);
-        yield (0, utils_1.publishComment)(token, serverUrl, title, comment, postNewComment);
+        yield (0, utils_1.publishComment)(token, serverUrl, title, comment, postNewComment, refreshMessagePosition);
     }
     catch (error) {
         (0, utils_1.setFailed)(error.message);
@@ -810,6 +810,7 @@ const inputs = {
     token: 'github-token',
     title: 'comment-title',
     postNewComment: 'post-new-comment',
+    refreshMessagePosition: 'refresh-message-position',
     allowFailedTests: 'allow-failed-tests',
     resultsPath: 'results-path',
     coveragePath: 'coverage-path',
@@ -839,6 +840,7 @@ const getInputs = () => {
         title: core.getInput(inputs.title),
         postNewComment: core.getBooleanInput(inputs.postNewComment),
         allowFailedTests: core.getBooleanInput(inputs.allowFailedTests),
+        refreshMessagePosition: core.getBooleanInput(inputs.refreshMessagePosition),
         resultsPath: core.getInput(inputs.resultsPath),
         coveragePath: core.getInput(inputs.coveragePath),
         coverageType: core.getInput(inputs.coverageType),
@@ -902,7 +904,7 @@ exports.publishComment = void 0;
 const github_1 = __nccwpck_require__(5438);
 const markdown_1 = __nccwpck_require__(2519);
 const action_1 = __nccwpck_require__(2216);
-const publishComment = (token, serverUrl, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
+const publishComment = (token, serverUrl, title, message, postNew, refreshMessagePosition) => __awaiter(void 0, void 0, void 0, function* () {
     const context = getContext();
     const { owner, repo, runId, issueNumber, commit } = context;
     if (!token || !owner || !repo || issueNumber === -1) {
@@ -916,8 +918,16 @@ const publishComment = (token, serverUrl, title, message, postNew) => __awaiter(
     const footer = commit ? (0, markdown_1.formatFooterMarkdown)(commit) : '';
     const body = `${header}${message}${summaryLink}${footer}`;
     if (existingComment && !postNew) {
-        (0, action_1.log)(`Updating existing PR comment...`);
-        yield octokit.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
+        if (refreshMessagePosition) {
+            (0, action_1.log)(`Deleting existing PR comment...`);
+            yield octokit.rest.issues.deleteComment({ owner, repo, comment_id: existingComment.id });
+            (0, action_1.log)(`Publishing new PR comment...`);
+            yield octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
+        }
+        else {
+            (0, action_1.log)(`Updating existing PR comment...`);
+            yield octokit.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
+        }
     }
     else {
         (0, action_1.log)(`Publishing new PR comment...`);
