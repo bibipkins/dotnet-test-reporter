@@ -1,6 +1,6 @@
 import { processTestResults } from './results';
 import { processTestCoverage } from './coverage';
-import { getInputs, publishComment, setFailed, setSummary } from './utils';
+import { getInputs, publishComment, setFailed, setSummary, createTestStatusCheck } from './utils';
 import { formatChangedFileCoverageMarkdown, formatCoverageMarkdown, formatResultMarkdown } from './formatting/markdown';
 import { formatCoverageHtml, formatResultHtml, formatTitleHtml } from './formatting/html';
 
@@ -18,15 +18,17 @@ const run = async (): Promise<void> => {
       changedFilesAndLineNumbers,
       showFailedTestsOnly,
       showTestOutput,
-      serverUrl
+      serverUrl,
+      pullRequestCheck
     } = getInputs();
 
     let comment = '';
     let summary = formatTitleHtml(title);
 
     const testResult = await processTestResults(resultsPath, allowFailedTests);
+    const resultHtml = formatResultHtml(testResult, showFailedTestsOnly, showTestOutput);
     comment += formatResultMarkdown(testResult);
-    summary += formatResultHtml(testResult, showFailedTestsOnly, showTestOutput);
+    summary += resultHtml;
 
     if (coveragePath) {
       const testCoverage = await processTestCoverage(coveragePath, coverageType, coverageThreshold, changedFilesAndLineNumbers);
@@ -45,6 +47,10 @@ const run = async (): Promise<void> => {
 
     await setSummary(summary);
     await publishComment(token, serverUrl, title, comment, postNewComment);
+
+    if (pullRequestCheck) {
+      await createTestStatusCheck(token, testResult.success, resultHtml, title);
+    }
   } catch (error) {
     setFailed((error as Error).message);
   }

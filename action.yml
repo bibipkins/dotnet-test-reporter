@@ -51,6 +51,10 @@ inputs:
     description: 'Github server URL. Defaults to getting the server URL from the github.server_url context'
     required: false
     default: ${{ github.server_url }}
+  pull-request-check:
+    description: 'Boolean flag. Set to true to create GitHub status checks on the commit/PR for test results'
+    required: false
+    default: false
 
 outputs:
   tests-total:

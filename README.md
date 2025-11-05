@@ -70,6 +70,12 @@ Set to `false` if there is too much output leading to truncation on the summary
 <br/>Examples: `[{"name":"Specifications\\BaseSpecification.cs","lineNumbers":[17,18,19]}]`
 <br/>Default: `[]`
 
+#### `pull-request-check`
+**Optional** - Boolean flag. 
+Set to `true` to create GitHub status checks on the commit/PR for test results. These checks appear in the PR's "Checks" tab and can be used in branch protection rules.
+Set to `false` or leave blank to skip creating status checks.
+<br/>Default: `false`
+
 ## Outputs
 
 #### `tests-total`

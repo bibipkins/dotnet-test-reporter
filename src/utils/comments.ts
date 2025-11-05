@@ -1,17 +1,10 @@
-import { context, getOctokit } from '@actions/github/lib/github';
+import { getOctokit } from '@actions/github/lib/github';
 import { GitHub } from '@actions/github/lib/utils';
 import { formatFooterMarkdown, formatHeaderMarkdown, formatSummaryLinkMarkdown } from '../formatting/markdown';
 import { log } from './action';
+import { getContext, IContext } from './github';
 
 type Octokit = InstanceType<typeof GitHub>;
-
-interface IContext {
-  owner: string;
-  repo: string;
-  commit: string;
-  issueNumber: number;
-  runId: number;
-}
 
 export const publishComment = async (
   token: string,
@@ -21,7 +14,7 @@ export const publishComment = async (
   postNew: boolean
 ): Promise<void> => {
   const context = getContext();
-  const { owner, repo, runId, issueNumber, commit } = context;
+  const { owner, repo, runId, issueNumber, sha } = context;
 
   if (!token || !owner || !repo || issueNumber === -1) {
     log('Failed to post a comment');
@@ -31,8 +24,8 @@ export const publishComment = async (
   const header = formatHeaderMarkdown(title);
   const octokit = getOctokit(token);
   const existingComment = await getExistingComment(octokit, context, header);
-  const summaryLink = formatSummaryLinkMarkdown(serverUrl, context. owner, repo, runId, title);
-  const footer = commit ? formatFooterMarkdown(commit) : '';
+  const summaryLink = formatSummaryLinkMarkdown(serverUrl, owner, repo, runId, title);
+  const footer = sha ? formatFooterMarkdown(sha) : '';
   const body = `${header}${message}${summaryLink}${footer}`;
 
   if (existingComment && !postNew) {
@@ -42,20 +35,6 @@ export const publishComment = async (
     log(`Publishing new PR comment...`);
     await octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
   }
-};
-
-const getContext = (): IContext => {
-  log(`Reading action context...`);
-
-  const {
-    runId,
-    payload: { pull_request, repository, after }
-  } = context;
-
-  const issueNumber = pull_request?.number ?? -1;
-  const [owner, repo] = repository?.full_name?.split('/') || [];
-
-  return { owner, repo, issueNumber, commit: after, runId };
 };
 
 const tryGetUserLogin = async (octokit: Octokit) => {

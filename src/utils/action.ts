@@ -13,7 +13,8 @@ const inputs = {
   changedFilesAndLineNumbers: 'changed-files-and-line-numbers',
   showFailedTestsOnly: 'show-failed-tests-only',
   showTestOutput: 'show-test-output',
-  serverUrl: 'server-url'
+  serverUrl: 'server-url',
+  pullRequestCheck: 'pull-request-check'
 };
 
 const outputs = {
@@ -44,7 +45,8 @@ export const getInputs = (): IActionInputs => {
     changedFilesAndLineNumbers: JSON.parse(core.getInput(inputs.changedFilesAndLineNumbers)) as ChangedFileWithLineNumbers[],
     showFailedTestsOnly: core.getBooleanInput(inputs.showFailedTestsOnly),
     showTestOutput: core.getBooleanInput(inputs.showTestOutput),
-    serverUrl: core.getInput('server-url')
+    serverUrl: core.getInput('server-url'),
+    pullRequestCheck: core.getBooleanInput(inputs.pullRequestCheck)
   };
 };
 
