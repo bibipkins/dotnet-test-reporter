@@ -26,10 +26,10 @@ const run = async (): Promise<void> => {
     let summary = formatTitleHtml(title);
 
     const testResult = await processTestResults(resultsPath, allowFailedTests);
+    const resultHtml = formatResultHtml(testResult, showFailedTestsOnly, showTestOutput);
     comment += formatResultMarkdown(testResult);
-    summary += formatResultHtml(testResult, showFailedTestsOnly, showTestOutput);
+    summary += resultHtml;
 
-    
     if (coveragePath) {
       const testCoverage = await processTestCoverage(coveragePath, coverageType, coverageThreshold, changedFilesAndLineNumbers);
       comment += testCoverage ? formatCoverageMarkdown(testCoverage, coverageThreshold) : '';
@@ -48,10 +48,8 @@ const run = async (): Promise<void> => {
     await setSummary(summary);
     await publishComment(token, serverUrl, title, comment, postNewComment);
 
-    // Create status checks if enabled
     if (pullRequestCheck) {
-      const testSummary = formatResultHtml(testResult, showFailedTestsOnly, showTestOutput);
-      await createTestStatusCheck(token, testResult, testSummary, title);
+      await createTestStatusCheck(token, testResult.success, resultHtml, title);
     }
   } catch (error) {
     setFailed((error as Error).message);

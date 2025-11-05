@@ -1,16 +1,10 @@
-import { context, getOctokit } from '@actions/github/lib/github';
-import type { IResult } from '../data';
+import { getOctokit } from '@actions/github/lib/github';
 import { log } from './action';
-
-interface IContext {
-  owner: string;
-  repo: string;
-  sha: string;
-}
+import { getContext } from './github';
 
 export const createTestStatusCheck = async (
   token: string,
-  result: IResult,
+  success: boolean,
   formattedSummary: string,
   title: string
 ): Promise<void> => {
@@ -22,7 +16,6 @@ export const createTestStatusCheck = async (
   }
 
   const octokit = getOctokit(token);
-  const { success } = result;
 
   const conclusion = success ? 'success' : 'failure';
   const status = 'completed';
@@ -45,18 +38,4 @@ export const createTestStatusCheck = async (
   } catch (error) {
     log(`Failed to create test status check: ${(error as Error).message}`);
   }
-};
-
-const getContext = (): IContext => {
-  log(`Reading context for status checks...`);
-
-  const {
-    payload: { pull_request, repository, after }
-  } = context;
-
-  // For PR events, use the head SHA; for push events, use the after SHA  
-  const sha = pull_request?.head?.sha || after || context.sha;
-  const [owner, repo] = repository?.full_name?.split('/') || [];
-
-  return { owner, repo, sha };
 };

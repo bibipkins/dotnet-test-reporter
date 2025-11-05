@@ -286,8 +286,9 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         let comment = '';
         let summary = (0, html_1.formatTitleHtml)(title);
         const testResult = yield (0, results_1.processTestResults)(resultsPath, allowFailedTests);
+        const resultHtml = (0, html_1.formatResultHtml)(testResult, showFailedTestsOnly, showTestOutput);
         comment += (0, markdown_1.formatResultMarkdown)(testResult);
-        summary += (0, html_1.formatResultHtml)(testResult, showFailedTestsOnly, showTestOutput);
+        summary += resultHtml;
         if (coveragePath) {
             const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold, changedFilesAndLineNumbers);
             comment += testCoverage ? (0, markdown_1.formatCoverageMarkdown)(testCoverage, coverageThreshold) : '';
@@ -304,10 +305,8 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         }
         yield (0, utils_1.setSummary)(summary);
         yield (0, utils_1.publishComment)(token, serverUrl, title, comment, postNewComment);
-        // Create status checks if enabled
         if (pullRequestCheck) {
-            const testSummary = (0, html_1.formatResultHtml)(testResult, showFailedTestsOnly, showTestOutput);
-            yield (0, utils_1.createTestStatusCheck)(token, testResult, testSummary, title);
+            yield (0, utils_1.createTestStatusCheck)(token, testResult.success, resultHtml, title);
         }
     }
     catch (error) {
@@ -909,9 +908,10 @@ exports.publishComment = void 0;
 const github_1 = __nccwpck_require__(5438);
 const markdown_1 = __nccwpck_require__(2519);
 const action_1 = __nccwpck_require__(2216);
+const github_2 = __nccwpck_require__(9361);
 const publishComment = (token, serverUrl, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
-    const context = getContext();
-    const { owner, repo, runId, issueNumber, commit } = context;
+    const context = (0, github_2.getContext)();
+    const { owner, repo, runId, issueNumber, sha } = context;
     if (!token || !owner || !repo || issueNumber === -1) {
         (0, action_1.log)('Failed to post a comment');
         return;
@@ -919,8 +919,8 @@ const publishComment = (token, serverUrl, title, message, postNew) => __awaiter(
     const header = (0, markdown_1.formatHeaderMarkdown)(title);
     const octokit = (0, github_1.getOctokit)(token);
     const existingComment = yield getExistingComment(octokit, context, header);
-    const summaryLink = (0, markdown_1.formatSummaryLinkMarkdown)(serverUrl, context.owner, repo, runId, title);
-    const footer = commit ? (0, markdown_1.formatFooterMarkdown)(commit) : '';
+    const summaryLink = (0, markdown_1.formatSummaryLinkMarkdown)(serverUrl, owner, repo, runId, title);
+    const footer = sha ? (0, markdown_1.formatFooterMarkdown)(sha) : '';
     const body = `${header}${message}${summaryLink}${footer}`;
     if (existingComment && !postNew) {
         (0, action_1.log)(`Updating existing PR comment...`);
@@ -932,14 +932,6 @@ const publishComment = (token, serverUrl, title, message, postNew) => __awaiter(
     }
 });
 exports.publishComment = publishComment;
-const getContext = () => {
-    var _a, _b;
-    (0, action_1.log)(`Reading action context...`);
-    const { runId, payload: { pull_request, repository, after } } = github_1.context;
-    const issueNumber = (_a = pull_request === null || pull_request === void 0 ? void 0 : pull_request.number) !== null && _a !== void 0 ? _a : -1;
-    const [owner, repo] = ((_b = repository === null || repository === void 0 ? void 0 : repository.full_name) === null || _b === void 0 ? void 0 : _b.split('/')) || [];
-    return { owner, repo, issueNumber, commit: after, runId };
-};
 const tryGetUserLogin = (octokit) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
@@ -1007,6 +999,29 @@ exports.readXmlFile = readXmlFile;
 
 /***/ }),
 
+/***/ 9361:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getContext = void 0;
+const github_1 = __nccwpck_require__(5438);
+const action_1 = __nccwpck_require__(2216);
+const getContext = () => {
+    var _a, _b, _c;
+    (0, action_1.log)(`Reading GitHub context...`);
+    const { runId, payload: { pull_request, repository, after } } = github_1.context;
+    const issueNumber = (_a = pull_request === null || pull_request === void 0 ? void 0 : pull_request.number) !== null && _a !== void 0 ? _a : -1;
+    const [owner, repo] = ((_b = repository === null || repository === void 0 ? void 0 : repository.full_name) === null || _b === void 0 ? void 0 : _b.split('/')) || [];
+    const sha = ((_c = pull_request === null || pull_request === void 0 ? void 0 : pull_request.head) === null || _c === void 0 ? void 0 : _c.sha) || after || github_1.context.sha;
+    return { owner, repo, sha, issueNumber, runId };
+};
+exports.getContext = getContext;
+
+
+/***/ }),
+
 /***/ 7782:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -1031,6 +1046,7 @@ __exportStar(__nccwpck_require__(3451), exports);
 __exportStar(__nccwpck_require__(396), exports);
 __exportStar(__nccwpck_require__(2216), exports);
 __exportStar(__nccwpck_require__(3039), exports);
+__exportStar(__nccwpck_require__(9361), exports);
 
 
 /***/ }),
@@ -1053,14 +1069,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createTestStatusCheck = void 0;
 const github_1 = __nccwpck_require__(5438);
 const action_1 = __nccwpck_require__(2216);
-const createTestStatusCheck = (token, result, formattedSummary, title) => __awaiter(void 0, void 0, void 0, function* () {
-    const { owner, repo, sha } = getContext();
+const github_2 = __nccwpck_require__(9361);
+const createTestStatusCheck = (token, success, formattedSummary, title) => __awaiter(void 0, void 0, void 0, function* () {
+    const { owner, repo, sha } = (0, github_2.getContext)();
     if (!token || !owner || !repo || !sha) {
         (0, action_1.log)('Failed to create status check - missing required context');
         return;
     }
     const octokit = (0, github_1.getOctokit)(token);
-    const { success } = result;
     const conclusion = success ? 'success' : 'failure';
     const status = 'completed';
     const name = `${title} - Tests`;
@@ -1085,15 +1101,6 @@ const createTestStatusCheck = (token, result, formattedSummary, title) => __awai
     }
 });
 exports.createTestStatusCheck = createTestStatusCheck;
-const getContext = () => {
-    var _a, _b;
-    (0, action_1.log)(`Reading context for status checks...`);
-    const { payload: { pull_request, repository, after } } = github_1.context;
-    // For PR events, use the head SHA; for push events, use the after SHA  
-    const sha = ((_a = pull_request === null || pull_request === void 0 ? void 0 : pull_request.head) === null || _a === void 0 ? void 0 : _a.sha) || after || github_1.context.sha;
-    const [owner, repo] = ((_b = repository === null || repository === void 0 ? void 0 : repository.full_name) === null || _b === void 0 ? void 0 : _b.split('/')) || [];
-    return { owner, repo, sha };
-};
 
 
 /***/ }),
