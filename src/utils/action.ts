@@ -14,7 +14,8 @@ const inputs = {
   showFailedTestsOnly: 'show-failed-tests-only',
   showTestOutput: 'show-test-output',
   serverUrl: 'server-url',
-  pullRequestCheck: 'pull-request-check'
+  pullRequestCheck: 'pull-request-check',
+  pullRequestCheckName: 'pull-request-check-name'
 };
 
 const outputs = {
@@ -46,7 +47,8 @@ export const getInputs = (): IActionInputs => {
     showFailedTestsOnly: core.getBooleanInput(inputs.showFailedTestsOnly),
     showTestOutput: core.getBooleanInput(inputs.showTestOutput),
     serverUrl: core.getInput('server-url'),
-    pullRequestCheck: core.getBooleanInput(inputs.pullRequestCheck)
+    pullRequestCheck: core.getBooleanInput(inputs.pullRequestCheck),
+    pullRequestCheckName: core.getInput(inputs.pullRequestCheckName)
   };
 };
 

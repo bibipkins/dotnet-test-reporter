@@ -19,4 +19,5 @@ export default interface IActionInputs {
   showTestOutput: boolean;
   serverUrl: string;
   pullRequestCheck: boolean;
+  pullRequestCheckName: string;
 }

@@ -282,7 +282,7 @@ const markdown_1 = __nccwpck_require__(2519);
 const html_1 = __nccwpck_require__(9339);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFilesAndLineNumbers, showFailedTestsOnly, showTestOutput, serverUrl, pullRequestCheck } = (0, utils_1.getInputs)();
+        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFilesAndLineNumbers, showFailedTestsOnly, showTestOutput, serverUrl, pullRequestCheck, pullRequestCheckName } = (0, utils_1.getInputs)();
         let comment = '';
         let summary = (0, html_1.formatTitleHtml)(title);
         const testResult = yield (0, results_1.processTestResults)(resultsPath, allowFailedTests);
@@ -306,7 +306,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         yield (0, utils_1.setSummary)(summary);
         yield (0, utils_1.publishComment)(token, serverUrl, title, comment, postNewComment);
         if (pullRequestCheck) {
-            yield (0, utils_1.createTestStatusCheck)(token, testResult.success, resultHtml, title);
+            yield (0, utils_1.createTestStatusCheck)(token, testResult.success, resultHtml, pullRequestCheckName);
         }
     }
     catch (error) {
@@ -823,7 +823,8 @@ const inputs = {
     showFailedTestsOnly: 'show-failed-tests-only',
     showTestOutput: 'show-test-output',
     serverUrl: 'server-url',
-    pullRequestCheck: 'pull-request-check'
+    pullRequestCheck: 'pull-request-check',
+    pullRequestCheckName: 'pull-request-check-name'
 };
 const outputs = {
     total: 'tests-total',
@@ -852,7 +853,8 @@ const getInputs = () => {
         showFailedTestsOnly: core.getBooleanInput(inputs.showFailedTestsOnly),
         showTestOutput: core.getBooleanInput(inputs.showTestOutput),
         serverUrl: core.getInput('server-url'),
-        pullRequestCheck: core.getBooleanInput(inputs.pullRequestCheck)
+        pullRequestCheck: core.getBooleanInput(inputs.pullRequestCheck),
+        pullRequestCheckName: core.getInput(inputs.pullRequestCheckName)
     };
 };
 exports.getInputs = getInputs;
@@ -1070,7 +1072,7 @@ exports.createTestStatusCheck = void 0;
 const github_1 = __nccwpck_require__(5438);
 const action_1 = __nccwpck_require__(2216);
 const github_2 = __nccwpck_require__(9361);
-const createTestStatusCheck = (token, success, formattedSummary, title) => __awaiter(void 0, void 0, void 0, function* () {
+const createTestStatusCheck = (token, success, formattedSummary, checkName) => __awaiter(void 0, void 0, void 0, function* () {
     const { owner, repo, sha } = (0, github_2.getContext)();
     if (!token || !owner || !repo || !sha) {
         (0, action_1.log)('Failed to create status check - missing required context');
@@ -1079,7 +1081,7 @@ const createTestStatusCheck = (token, success, formattedSummary, title) => __awa
     const octokit = (0, github_1.getOctokit)(token);
     const conclusion = success ? 'success' : 'failure';
     const status = 'completed';
-    const name = `${title} - Tests`;
+    const name = checkName;
     try {
         (0, action_1.log)(`Creating test status check: ${name}`);
         yield octokit.rest.checks.create({

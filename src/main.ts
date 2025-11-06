@@ -19,7 +19,8 @@ const run = async (): Promise<void> => {
       showFailedTestsOnly,
       showTestOutput,
       serverUrl,
-      pullRequestCheck
+      pullRequestCheck,
+      pullRequestCheckName
     } = getInputs();
 
     let comment = '';
@@ -49,7 +50,7 @@ const run = async (): Promise<void> => {
     await publishComment(token, serverUrl, title, comment, postNewComment);
 
     if (pullRequestCheck) {
-      await createTestStatusCheck(token, testResult.success, resultHtml, title);
+      await createTestStatusCheck(token, testResult.success, resultHtml, pullRequestCheckName);
     }
   } catch (error) {
     setFailed((error as Error).message);

@@ -6,7 +6,7 @@ export const createTestStatusCheck = async (
   token: string,
   success: boolean,
   formattedSummary: string,
-  title: string
+  checkName: string
 ): Promise<void> => {
   const { owner, repo, sha } = getContext();
 
@@ -19,7 +19,7 @@ export const createTestStatusCheck = async (
 
   const conclusion = success ? 'success' : 'failure';
   const status = 'completed';
-  const name = `${title} - Tests`;
+  const name = checkName;
   try {
     log(`Creating test status check: ${name}`);
     await octokit.rest.checks.create({
