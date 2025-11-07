@@ -76,6 +76,11 @@ Set to `true` to create GitHub status checks on the commit/PR for test results. 
 Set to `false` or leave blank to skip creating status checks.
 <br/>Default: `false`
 
+#### `pull-request-check-name`
+**Optional** - Name of the GitHub status check for test results. Only used when `pull-request-check` is set to `true`.
+<br/>Example: `My Custom Test Check`
+<br/>Default: `Test Results`
+
 ## Outputs
 
 #### `tests-total`

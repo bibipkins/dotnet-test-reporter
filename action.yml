@@ -55,6 +55,10 @@ inputs:
     description: 'Boolean flag. Set to true to create GitHub status checks on the commit/PR for test results'
     required: false
     default: false
+  pull-request-check-name:
+    description: 'Name of the GitHub status check for test results'
+    required: false
+    default: 'Test Results'
 
 outputs:
   tests-total:
