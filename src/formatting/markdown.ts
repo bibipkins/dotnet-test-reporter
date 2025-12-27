@@ -16,7 +16,10 @@ export const formatSummaryLinkMarkdown = (
   runId: number,
   title: string
 ): string => {
-  const url = `${server_url}/${owner}/${repo}/actions/runs/${runId}#user-content-${getSectionLink(title)}`;
+  const sectionLink = getSectionLink(title);
+  const baseUrl = `${server_url}/${owner}/${repo}`;
+  const url = `${baseUrl}/actions/runs/${runId}#user-content-${sectionLink}`;
+
   return `🔍 click [here](${url}) for more details\n`;
 };
 

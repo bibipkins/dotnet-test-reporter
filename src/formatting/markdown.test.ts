@@ -10,7 +10,7 @@ import {
 
 jest.mock('./common', () => ({
   formatElapsedTime: jest.fn(() => '1s'),
-  getSectionLink: jest.fn((t: string) => encodeURIComponent(t.toLowerCase().replace(/\s+/g, '-'))),
+  getSectionLink: jest.fn((t: string) => t.toLowerCase().split(' ').join('-')),
   getStatusIcon: jest.fn((s: boolean) => (s ? '✅' : '❌'))
 }));
 
