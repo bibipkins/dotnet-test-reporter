@@ -2,37 +2,41 @@
   "name": "dotnet-test-reporter",
   "version": "1.0.0",
   "description": "Github action for reporting dotnet test results",
+  "homepage": "https://github.com/bibipkins/Dotnet-Test-Reporter#readme",
+  "author": "https://github.com/bibipkins",
+  "license": "MIT",
   "private": true,
   "main": "build/main.js",
   "scripts": {
-    "build": "tsc && ncc build --source-map --license licenses.txt"
+    "build": "tsc && ncc build --source-map --license licenses.txt",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bibipkins/Dotnet-Test-Reporter.git"
   },
-  "keywords": [],
-  "author": "https://github.com/bibipkins",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/bibipkins/Dotnet-Test-Reporter/issues"
   },
-  "homepage": "https://github.com/bibipkins/Dotnet-Test-Reporter#readme",
   "dependencies": {
-    "@actions/core": "^1.10.1",
-    "@actions/github": "^6.0.0",
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1",
     "dotnet-test-reporter": "file:",
-    "fast-sort": "3.4.0",
-    "glob": "^10.3.10",
+    "fast-sort": "3.4.1",
+    "glob": "^13.0.0",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
-    "@types/node": "^20.11.16",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.19.27",
     "@types/xml2js": "^0.4.14",
-    "@vercel/ncc": "^0.38.1",
-    "eslint": "^8.29.0",
-    "eslint-plugin-github": "^4.6.0",
-    "prettier": "^2.8.1",
-    "typescript": "^4.9.4"
+    "@vercel/ncc": "^0.38.4",
+    "eslint": "^9.39.2",
+    "eslint-plugin-github": "^6.0.0",
+    "jest": "^30.2.0",
+    "prettier": "^3.7.4",
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^4.9.5"
   }
 }

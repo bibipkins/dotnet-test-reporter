@@ -1,4 +1,4 @@
-export const getSectionLink = (section: string): string => section.toLowerCase().replace(/ /g, '-');
+export const getSectionLink = (section: string): string => section.toLowerCase().trim().replace(/ /g, '-');
 
 export const getStatusIcon = (success: boolean): string => (success ? '✔️' : '❌');
 

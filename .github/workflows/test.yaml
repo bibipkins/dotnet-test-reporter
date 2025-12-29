@@ -17,7 +17,8 @@ jobs:
       - uses: actions/checkout@v4
       - run: npm ci
       - run: npm run build
-  test:
+      - run: npm run test
+  test-integration:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -62,7 +63,8 @@ jobs:
           coverage-path: ./files/success/test_coverage_cobertura.xml
           coverage-type: cobertura
           coverage-threshold: 44
-          changed-files-and-line-numbers: '[{"name": "Specifications\\BaseSpecification.cs", "lineNumbers": [17,18,19]}]'
+          changed-files-and-line-numbers:
+            '[{"name": "Specifications\\BaseSpecification.cs", "lineNumbers": [17,18,19]}]'
       - name: Test - Coverage Cobertura - No Sources
         uses: ./
         with:
@@ -72,7 +74,8 @@ jobs:
           coverage-path: ./files/success/test_coverage_cobertura_no_sources.xml
           coverage-type: cobertura
           coverage-threshold: 44
-          changed-files-and-line-numbers: '[{"name": "Specifications\\BaseSpecification.cs", "lineNumbers": [17,18,19]}]'
+          changed-files-and-line-numbers:
+            '[{"name": "Specifications\\BaseSpecification.cs", "lineNumbers": [17,18,19]}]'
       - name: Test - Show Failed Tests Only
         uses: ./
         with:
