@@ -1,8 +1,9 @@
 import { ITestSuit, ResultParser, TestOutcome } from '../data';
 import { readXmlFile } from '../utils';
+import { TrxFile } from '../data/trx';
 
 const parseTrx: ResultParser = async (filePath: string) => {
-  const file = await readXmlFile(filePath);
+  const file = await readXmlFile<TrxFile>(filePath);
 
   if (!file) {
     return null;
@@ -19,7 +20,7 @@ const parseTrx: ResultParser = async (filePath: string) => {
   return { success, ...summary, skipped, elapsed, suits };
 };
 
-const parseElapsedTime = (file: any) => {
+const parseElapsedTime = (file: TrxFile) => {
   const times = file.TestRun.Times[0]['$'];
   const start = new Date(times.start);
   const finish = new Date(times.finish);
@@ -27,7 +28,7 @@ const parseElapsedTime = (file: any) => {
   return { start, finish };
 };
 
-const parseSummary = (file: any) => {
+const parseSummary = (file: TrxFile) => {
   const summary = file.TestRun.ResultSummary[0];
   const counters = summary.Counters[0]['$'];
 
@@ -40,10 +41,10 @@ const parseSummary = (file: any) => {
   };
 };
 
-const parseResults = (file: any) => {
-  const results = (file.TestRun?.Results?.[0]?.UnitTestResult ?? []) as any[];
+const parseResults = (file: TrxFile) => {
+  const results = file.TestRun?.Results?.[0]?.UnitTestResult ?? [];
 
-  return results.map((result: any) => ({
+  return results.map(result => ({
     executionId: String(result['$'].executionId),
     testId: String(result['$'].testId),
     testName: String(result['$'].testName),
@@ -61,8 +62,8 @@ const parseResults = (file: any) => {
   }));
 };
 
-const parseDefinitions = (file: any) => {
-  const definitions = (file.TestRun?.TestDefinitions?.[0]?.UnitTest ?? []) as any[];
+const parseDefinitions = (file: TrxFile) => {
+  const definitions = file.TestRun?.TestDefinitions?.[0]?.UnitTest ?? [];
 
   return definitions.map(definition => ({
     id: String(definition['$'].id),
@@ -79,7 +80,7 @@ const parseDefinitions = (file: any) => {
   }));
 };
 
-const parseSuits = (file: any) => {
+const parseSuits = (file: TrxFile) => {
   const suits: ITestSuit[] = [];
   const results = parseResults(file);
   const definitions = parseDefinitions(file);

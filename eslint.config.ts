@@ -6,7 +6,7 @@ import { defineConfig } from 'eslint/config';
 import { Linter } from 'eslint';
 
 const ignoresConfig: Linter.Config = {
-  ignores: ['build/', 'dist/', 'files/', 'node_modules/', 'package-lock.json']
+  ignores: ['build/**', 'dist/**', 'files/**', 'node_modules/**', 'package-lock.json']
 };
 
 const typescriptCustomConfig: Linter.Config = {

@@ -33,6 +33,9 @@ const outputs = {
 
 export const getInputs = (): IActionInputs => {
   const token = core.getInput(inputs.token) || process.env['GITHUB_TOKEN'] || '';
+  const changedFilesAndLineNumbers = JSON.parse(
+    core.getInput(inputs.changedFilesAndLineNumbers)
+  ) as ChangedFileWithLineNumbers[];
 
   return {
     token,
@@ -43,7 +46,7 @@ export const getInputs = (): IActionInputs => {
     coveragePath: core.getInput(inputs.coveragePath),
     coverageType: core.getInput(inputs.coverageType) as CoverageType,
     coverageThreshold: Number(core.getInput(inputs.coverageThreshold)),
-    changedFilesAndLineNumbers: JSON.parse(core.getInput(inputs.changedFilesAndLineNumbers)) as ChangedFileWithLineNumbers[],
+    changedFilesAndLineNumbers,
     showFailedTestsOnly: core.getBooleanInput(inputs.showFailedTestsOnly),
     showTestOutput: core.getBooleanInput(inputs.showTestOutput),
     serverUrl: core.getInput('server-url'),
