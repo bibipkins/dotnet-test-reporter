@@ -1,15 +1,8 @@
 import OpencoverSummary from './OpencoverSummary';
+import SequencePoint from './SequencePoint';
 
 type FileRef = {
   $: { uid: string };
-};
-
-type SequencePoint = {
-  $: {
-    sl: string;
-    vc: string;
-    vs: string;
-  };
 };
 
 type OpencoverMethod = {
