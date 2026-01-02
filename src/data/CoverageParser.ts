@@ -1,6 +1,10 @@
-import { ChangedFileWithLineNumbers } from './IActionInputs';
+import { ChangedFile } from './IActionInputs';
 import ICoverage from './ICoverage';
 
-type CoverageParser = (filePath: string, threshold: number, changedFilesAndLineNumbers: ChangedFileWithLineNumbers[]) => Promise<ICoverage | null>;
+type CoverageParser = (
+  filePath: string,
+  threshold: number,
+  changedFiles: ChangedFile[]
+) => Promise<ICoverage | null>;
 
 export default CoverageParser;

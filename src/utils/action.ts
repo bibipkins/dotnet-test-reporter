@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import type { ChangedFileWithLineNumbers, CoverageType, IActionInputs, ICoverage, IResult } from '../data';
+import type { ChangedFile, CoverageType, IActionInputs, ICoverage, IResult } from '../data';
 
 const inputs = {
   token: 'github-token',
@@ -10,7 +10,7 @@ const inputs = {
   coveragePath: 'coverage-path',
   coverageType: 'coverage-type',
   coverageThreshold: 'coverage-threshold',
-  changedFilesAndLineNumbers: 'changed-files-and-line-numbers',
+  changedFiles: 'changed-files-and-line-numbers',
   showFailedTestsOnly: 'show-failed-tests-only',
   showTestOutput: 'show-test-output',
   serverUrl: 'server-url',
@@ -33,9 +33,7 @@ const outputs = {
 
 export const getInputs = (): IActionInputs => {
   const token = core.getInput(inputs.token) || process.env['GITHUB_TOKEN'] || '';
-  const changedFilesAndLineNumbers = JSON.parse(
-    core.getInput(inputs.changedFilesAndLineNumbers)
-  ) as ChangedFileWithLineNumbers[];
+  const changedFiles = JSON.parse(core.getInput(inputs.changedFiles)) as ChangedFile[];
 
   return {
     token,
@@ -46,7 +44,7 @@ export const getInputs = (): IActionInputs => {
     coveragePath: core.getInput(inputs.coveragePath),
     coverageType: core.getInput(inputs.coverageType) as CoverageType,
     coverageThreshold: Number(core.getInput(inputs.coverageThreshold)),
-    changedFilesAndLineNumbers,
+    changedFiles: changedFiles,
     showFailedTestsOnly: core.getBooleanInput(inputs.showFailedTestsOnly),
     showTestOutput: core.getBooleanInput(inputs.showTestOutput),
     serverUrl: core.getInput('server-url'),
