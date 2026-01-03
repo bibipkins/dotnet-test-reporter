@@ -39,50 +39,23 @@ a TS/react frontend, in that case you would use the action twice.
 
 ## Inputs
 
-**required:**
+You can customize how the action works using one of the many inputs provided in the table below
 
-**`github-token`**<br/> GitHub repository token.
-
-**`results-path`**<br/> Path to the `.trx` file(s) containing test results. Supports glob patterns.
-<br/>Examples: `./TestResults/result.trx`, `./**/*.trx`
-
-**optional:**
-
-**`coverage-path`**<br/> **Optional** - Path to the file containing test coverage. Supports glob patterns.
-<br/>Examples: `./TestResults/coverage.xml`, `./**/coverage.xml`
-
-**`coverage-type`**<br/> Coverage file type. Supported types are `opencover` and `cobertura`. <br/>Default:
-`opencover`
-
-**`coverage-threshold`**<br/> Minimum allowed coverage. You can provide a coverage percentage ranging from
-`0.00` to `100.00`. <br/>Example: `80.42`
-
-**`comment-title`**<br/> Pull Request comment title. <br/>Example: `My Custom Title` <br/>Default:
-`Test Results`
-
-**`post-new-comment`**<br/> Boolean flag. Set to `true` to post a new comment after each run. Set to `false`
-or leave blank to only update an existing comment. <br/>Default: `false`
-
-**`allow-failed-tests`**<br/> Boolean flag. Set to `true` to prevent failed tests from failing the job. Set to
-`false` or leave blank to fail the job if there are any failed tests (recommended). <br/>Default: `false`
-
-**`show-failed-tests-only`**<br/> Boolean flag. Set to `true` to show only the failed tests. This is useful if
-you have many tests and the results exceed the markdown comment limit in github Set to `false` or leave blank
-to show all the test results (recommended). <br/>Default: `false`
-
-**`show-test-output`**<br/> Boolean flag. Set to `true` or leave blank to show the output of the tests.
-(recommended). Set to `false` if there is too much output leading to truncation on the summary <br/>Default:
-`true`
-
-**`changed-files-and-line-numbers`**<br/> Array of changed files and lines numbers. <br/>Examples:
-`[{"name":"Specifications\\BaseSpecification.cs","lineNumbers":[17,18,19]}]` <br/>Default: `[]`
-
-**`pull-request-check`**<br/> Boolean flag. Set to `true` to create GitHub status checks on the commit/PR for
-test results. These checks appear in the PR's "Checks" tab and can be used in branch protection rules. Set to
-`false` or leave blank to skip creating status checks. <br/>Default: `false`
-
-**`pull-request-check-name`**<br/> Name of the GitHub status check for test results. Only used when
-`pull-request-check` is set to `true`. <br/>Example: `My Custom Test Check` <br/>Default: `Test Results`
+| Input                          | Required | Type    | Default      | Description |
+| :----------------------------- | :------: | :-----: | :----------: | :---------- |
+| github-token                   | **yes**  | string  |              | GitHub repository token<br/>**Example**: `${{ secrets.GITHUB_TOKEN }}` |
+| results-path                   | **yes**  | string  |              | Path to the `.trx` file(s) containing test results. Supports glob patterns<br/>**Examples**: `./TestResults/result.trx`, `./**/*.trx` |
+| coverage-path                  | no       | string  |              | Path to the file containing test coverage. Supports glob patterns<br/>**Examples**: `./TestResults/coverage.xml`, `./**/coverage.xml` |
+| coverage-type                  | no       | string  | opencover    | Coverage file type. Supported types are `opencover` and `cobertura`<br/>**Example**: `cobertura` |
+| coverage-threshold             | no       | decimal | 0.00         | Minimum allowed coverage. You can provide a coverage percentage ranging from `0.00` to `100.00`<br/>**Example**: `80.42` |
+| comment-title                  | no       | string  | Test Results | Pull Request comment title<br/>**Example**: `My Custom Title` |
+| post-new-comment               | no       | boolean | false        | Set to `true` to post a new comment after each run<br/>Set to `false` or leave blank to only update an existing comment |
+| allow-failed-tests             | no       | boolean | false        | Set to `true` to prevent failed tests from failing the job<br/>Set to `false` or leave blank to fail the job if there are any failed tests |
+| show-failed-tests-only         | no       | boolean | false        | Set to `true` to show only the failed tests. This is useful if you have many tests and the results exceed the markdown comment limit in github<br/>Set to `false` or leave blank to show all the test results |
+| show-test-output               | no       | boolean | true         | Set to `true` or leave blank to show the output of the tests<br/>Set to `false` if there is too much output leading to truncation of the summary |
+| pull-request-check             | no       | boolean | false        | Set to `true` to create GitHub status checks on the commit/PR for test results. These checks appear in the PR's "Checks" tab and can be used in branch protection rules<br/>Set to `false` or leave blank to skip creating status checks |
+| pull-request-check-name        | no       | string  | Test Results | Name of the GitHub status check for test results. Only used when `pull-request-check` is set to `true`<br/>**Example**: `My Custom Test Check` |
+| changed-files-and-line-numbers | no       | array   | []           | Array of changed files and lines numbers<br/>**Example**:`[{"name":"Specifications\\BaseSpecification.cs","lineNumbers":[17,18,19]}]` |
 
 ## Outputs
 
@@ -109,7 +82,10 @@ test results. These checks appear in the PR's "Checks" tab and can be used in br
 ## Examples
 
 > [!IMPORTANT]
-> please, always use the latest version
+> Always use the latest version.
+
+> [!IMPORTANT]
+> Make sure to provide all required inputs.
 
 ```yaml
 uses: bibipkins/dotnet-test-reporter@v1.6.1
