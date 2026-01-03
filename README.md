@@ -27,13 +27,15 @@
 #### Summary - coverage results example
 
 <img width="1308" height="612" alt="image" src="https://github.com/user-attachments/assets/2e3f671e-0dc2-4f5e-98d7-6ead001a861b" />
+<br/><br/>
 
-<b>Note:</b> despite this action was created specifically for dotnet you can use it with other languages and
+> [!TIP]
+> Despite this action was created specifically for dotnet you can use it with other languages and
 frameworks as long as you can generate `.trx` files. For example, your project can be a C#/dotnet backend with
-a TS/react frontend, in that case you would use the action twice. For react app you would need to:
-
-- install `jest-trx-results-processor` package to generate `.trx` test result files
-- add `cobertura` to `coverageReporters` array in case you would like to include a coverage
+a TS/react frontend, in that case you would use the action twice.
+> For a react app you would need to:
+> - install `jest-trx-results-processor` package to generate `.trx` test result files
+> - add `cobertura` to `coverageReporters` array in case you would like to include a coverage
 
 ## Inputs
 
@@ -106,7 +108,8 @@ test results. These checks appear in the PR's "Checks" tab and can be used in br
 
 ## Examples
 
-<b>Note:</b> please, always use the latest version
+> [!IMPORTANT]
+> please, always use the latest version
 
 ```yaml
 uses: bibipkins/dotnet-test-reporter@v1.6.1
