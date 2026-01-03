@@ -13,6 +13,6 @@
     "noImplicitReturns": true,
     "esModuleInterop": true
   },
-  "include": ["src", "./setupJest.ts"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

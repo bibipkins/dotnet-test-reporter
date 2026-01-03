@@ -51,7 +51,7 @@ export const formatChangedFileCoverageMarkdown = (files: ICoverageFile[]): strin
   let table = '| Filename | Complexity | Lines Covered | Changed Lines Covered |\n';
   table += '|----------|------------|---------------|-----------------------|\n';
 
-  for (let file of files) {
+  for (const file of files) {
     const {
       name,
       complexity,

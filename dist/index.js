@@ -28,7 +28,7 @@ const parsers = {
     opencover: opencover_1.default,
     cobertura: cobertura_1.default
 };
-const processTestCoverage = (coveragePath, coverageType, coverageThreshold, changedFilesAndLineNumbers) => __awaiter(void 0, void 0, void 0, function* () {
+const processTestCoverage = (coveragePath, coverageType, coverageThreshold, changedFiles) => __awaiter(void 0, void 0, void 0, function* () {
     const filePaths = yield (0, glob_1.glob)(coveragePath, { nodir: true });
     if (!filePaths.length) {
         (0, utils_1.log)(`No coverage results found by ${coveragePath}`);
@@ -36,7 +36,7 @@ const processTestCoverage = (coveragePath, coverageType, coverageThreshold, chan
     }
     const path = filePaths[0];
     (0, utils_1.log)(`Processing ${path}...`);
-    const coverage = yield parsers[coverageType](path, coverageThreshold, changedFilesAndLineNumbers);
+    const coverage = yield parsers[coverageType](path, coverageThreshold, changedFiles);
     if (!coverage) {
         (0, utils_1.log)(`Failed parsing ${path}`);
         return null;
@@ -60,7 +60,7 @@ exports.processTestCoverage = processTestCoverage;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.formatElapsedTime = exports.getStatusIcon = exports.getSectionLink = void 0;
-const getSectionLink = (section) => section.toLowerCase().replace(/ /g, '-');
+const getSectionLink = (section) => section.toLowerCase().trim().replace(/ /g, '-');
 exports.getSectionLink = getSectionLink;
 const getStatusIcon = (success) => (success ? '✔️' : '❌');
 exports.getStatusIcon = getStatusIcon;
@@ -96,7 +96,9 @@ const outcomeIcons = {
     Failed: '❌',
     NotExecuted: '⚠️'
 };
-const formatTitleHtml = (title) => wrap(title, { tag: 'h1', attributes: { id: (0, common_1.getSectionLink)(title) } });
+const formatTitleHtml = (title) => {
+    return wrap(title, { tag: 'h1', attributes: { id: (0, common_1.getSectionLink)(title) } });
+};
 exports.formatTitleHtml = formatTitleHtml;
 const formatResultHtml = (result, showFailedTestsOnly, showTestOutput) => {
     let html = wrap('Tests', 'h3');
@@ -105,7 +107,7 @@ const formatResultHtml = (result, showFailedTestsOnly, showTestOutput) => {
         s => (s.tests.filter(t => t.outcome === 'Failed').length > 0 ? 0 : 1),
         s => s.name
     ]);
-    sortedSuits = sortedSuits.filter(s => (!showFailedTestsOnly) || !s.success);
+    sortedSuits = sortedSuits.filter(s => !showFailedTestsOnly || !s.success);
     html += sortedSuits.map(suit => formatTestSuit(suit, showFailedTestsOnly, showTestOutput)).join('');
     return html;
 };
@@ -158,7 +160,7 @@ const formatTestSuit = (suit, showFailedTestsOnly, showTestOutput) => {
     const icon = (0, common_1.getStatusIcon)(suit.success);
     const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
     const sortedTests = (0, fast_sort_1.sort)(suit.tests).asc([test => test.outcome]);
-    const filteredTests = sortedTests.filter(test => (!showFailedTestsOnly) || test.outcome === 'Failed');
+    const filteredTests = sortedTests.filter(test => !showFailedTestsOnly || test.outcome === 'Failed');
     const showOutput = filteredTests.some(test => (test.output && showTestOutput) || test.error);
     const table = formatTable([{ name: 'Result', align: 'center' }, { name: 'Test' }, ...(showOutput ? [{ name: 'Output' }] : [])], filteredTests.map(test => [
         outcomeIcons[test.outcome],
@@ -217,12 +219,18 @@ const formatTable = (headers, rows) => {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.formatChangedFileCoverageMarkdown = exports.formatCoverageMarkdown = exports.formatResultMarkdown = exports.formatSummaryLinkMarkdown = exports.formatFooterMarkdown = exports.formatHeaderMarkdown = void 0;
 const common_1 = __nccwpck_require__(3218);
-const formatHeaderMarkdown = (header) => `## ${header}\n`;
+const formatHeaderMarkdown = (header) => {
+    return `## ${header}\n`;
+};
 exports.formatHeaderMarkdown = formatHeaderMarkdown;
-const formatFooterMarkdown = (commit) => `<br/>_✏️ updated for commit ${commit.substring(0, 7)}_`;
+const formatFooterMarkdown = (commit) => {
+    return `<br/>_✏️ updated for commit ${commit.substring(0, 7)}_`;
+};
 exports.formatFooterMarkdown = formatFooterMarkdown;
 const formatSummaryLinkMarkdown = (server_url, owner, repo, runId, title) => {
-    const url = `${server_url}/${owner}/${repo}/actions/runs/${runId}#user-content-${(0, common_1.getSectionLink)(title)}`;
+    const sectionLink = (0, common_1.getSectionLink)(title);
+    const baseUrl = `${server_url}/${owner}/${repo}`;
+    const url = `${baseUrl}/actions/runs/${runId}#user-content-${sectionLink}`;
     return `🔍 click [here](${url}) for more details\n`;
 };
 exports.formatSummaryLinkMarkdown = formatSummaryLinkMarkdown;
@@ -248,9 +256,11 @@ exports.formatCoverageMarkdown = formatCoverageMarkdown;
 const formatChangedFileCoverageMarkdown = (files) => {
     let table = '| Filename | Complexity | Lines Covered | Changed Lines Covered |\n';
     table += '|----------|------------|---------------|-----------------------|\n';
-    for (let file of files) {
+    for (const file of files) {
         const { name, complexity, changedLineCoverage, changedLinesTotal, changedLinesCovered, linesCovered, linesTotal, lineCoverage } = file;
-        table += `| ${name} | ${complexity} | ${linesCovered} / ${linesTotal} (${lineCoverage}%) | ${changedLinesCovered} / ${changedLinesTotal} (${changedLineCoverage}%) |\n`;
+        table +=
+            `| ${name} | ${complexity} | ${linesCovered} / ${linesTotal} (${lineCoverage}%) ` +
+                `| ${changedLinesCovered} / ${changedLinesTotal} (${changedLineCoverage}%) |\n`;
     }
     return `<details>\n<summary>Results</summary>\n\n${table}\n\n</details>\n\n`;
 };
@@ -280,9 +290,19 @@ const coverage_1 = __nccwpck_require__(9473);
 const utils_1 = __nccwpck_require__(9729);
 const markdown_1 = __nccwpck_require__(490);
 const html_1 = __nccwpck_require__(5302);
+const publishChangedFileCoverage = (coverage, token, serverUrl, postNewComment) => __awaiter(void 0, void 0, void 0, function* () {
+    for (const module of coverage.modules) {
+        const changedFiles = module.files.filter(f => f.changedLinesTotal > 0);
+        const commentTitle = `${module.name}'s Changed File Coverage`;
+        if (changedFiles.length) {
+            const message = (0, markdown_1.formatChangedFileCoverageMarkdown)(changedFiles);
+            yield (0, utils_1.publishComment)(token, serverUrl, commentTitle, message, postNewComment);
+        }
+    }
+});
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFilesAndLineNumbers, showFailedTestsOnly, showTestOutput, serverUrl, pullRequestCheck, pullRequestCheckName } = (0, utils_1.getInputs)();
+        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFiles, showFailedTestsOnly, showTestOutput, serverUrl, pullRequestCheck, pullRequestCheckName } = (0, utils_1.getInputs)();
         let comment = '';
         let summary = (0, html_1.formatTitleHtml)(title);
         const testResult = yield (0, results_1.processTestResults)(resultsPath, allowFailedTests);
@@ -290,17 +310,11 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         comment += (0, markdown_1.formatResultMarkdown)(testResult);
         summary += resultHtml;
         if (coveragePath) {
-            const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold, changedFilesAndLineNumbers);
+            const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold, changedFiles);
             comment += testCoverage ? (0, markdown_1.formatCoverageMarkdown)(testCoverage, coverageThreshold) : '';
             summary += testCoverage ? (0, html_1.formatCoverageHtml)(testCoverage) : '';
             if (testCoverage) {
-                for (const myMod of testCoverage.modules) {
-                    const changedFiles = myMod.files.filter(f => f.changedLinesTotal > 0);
-                    if (changedFiles.length > 0) {
-                        const tempComment = (0, markdown_1.formatChangedFileCoverageMarkdown)(changedFiles);
-                        yield (0, utils_1.publishComment)(token, serverUrl, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);
-                    }
-                }
+                yield publishChangedFileCoverage(testCoverage, token, serverUrl, postNewComment);
             }
         }
         yield (0, utils_1.setSummary)(summary);
@@ -319,25 +333,22 @@ run();
 /***/ }),
 
 /***/ 9613:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const common_1 = __nccwpck_require__(7363);
-const parseCobertura = (filePath, threshold, changedFilesAndLineNumbers) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, changedFilesAndLineNumbers, parseSummary, parseModules); });
+const parseCobertura = (filePath, threshold, changedFiles) => {
+    return (0, common_1.parseCoverage)(filePath, threshold, changedFiles, parseSummary, parseModules);
+};
 const parseSummary = (file, modules) => {
     const summary = file.coverage['$'];
-    const totalCoverage = (0, common_1.calculateCoverage)(Number(summary['lines-covered']) + Number(summary['branches-covered']), Number(summary['lines-valid']) + Number(summary['branches-valid']));
+    const linesCovered = Number(summary['lines-covered']);
+    const linesTotal = Number(summary['lines-valid']);
+    const branchesCovered = Number(summary['branches-covered']);
+    const branchesTotal = Number(summary['branches-valid']);
+    const totalCoverage = (0, common_1.calculateCoverage)(linesCovered + branchesCovered, linesTotal + branchesTotal);
     const changedLinesTotal = (0, common_1.calculateChangedLineTotals)(modules);
     const changedLinesCovered = (0, common_1.calculateChangedLinesCovered)(modules);
     return {
@@ -345,35 +356,35 @@ const parseSummary = (file, modules) => {
         changedLinesTotal,
         changedLinesCovered,
         changedLineCoverage: (0, common_1.calculateCoverage)(changedLinesCovered, changedLinesTotal),
-        linesTotal: Number(summary['lines-valid']),
-        linesCovered: Number(summary['lines-covered']),
-        lineCoverage: (0, common_1.calculateCoverage)(summary['lines-covered'], summary['lines-valid']),
-        branchesTotal: Number(summary['branches-valid']),
-        branchesCovered: Number(summary['branches-covered']),
-        branchCoverage: (0, common_1.calculateCoverage)(summary['branches-covered'], summary['branches-valid'])
+        linesTotal,
+        linesCovered,
+        lineCoverage: (0, common_1.calculateCoverage)(linesCovered, linesTotal),
+        branchesTotal,
+        branchesCovered,
+        branchCoverage: (0, common_1.calculateCoverage)(branchesCovered, branchesTotal)
     };
 };
-const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
+const parseModules = (file, threshold, changedFiles) => {
     var _a, _b, _c;
     const fileFullDirPath = (_b = (_a = file.coverage.sources) === null || _a === void 0 ? void 0 : _a[0].source) !== null && _b !== void 0 ? _b : '';
-    const modules = ((_c = file.coverage.packages[0].package) !== null && _c !== void 0 ? _c : []);
+    const modules = (_c = file.coverage.packages[0].package) !== null && _c !== void 0 ? _c : [];
     return modules.map(module => {
         var _a;
         const name = String(module['$'].name);
-        const classes = ((_a = module.classes[0].class) !== null && _a !== void 0 ? _a : []);
+        const classes = (_a = module.classes[0].class) !== null && _a !== void 0 ? _a : [];
         const files = parseFiles(classes, fileFullDirPath);
         const complexity = Number(module['$'].complexity);
         classes.forEach(c => {
             var _a;
             const file = files.find(f => f.name === String(c['$'].filename));
-            const lines = ((_a = c.lines[0].line) !== null && _a !== void 0 ? _a : []);
+            const lines = (_a = c.lines[0].line) !== null && _a !== void 0 ? _a : [];
             const branchRegex = /\(([^)]+)\)/;
             const branchData = lines
                 .filter(l => l['$']['condition-coverage'])
                 .map(l => { var _a, _b; return (_b = (_a = branchRegex.exec(String(l['$']['condition-coverage']))) === null || _a === void 0 ? void 0 : _a[1].split('/')) !== null && _b !== void 0 ? _b : []; });
             const coverableLines = lines.map(line => Number(line['$'].number));
             if (file) {
-                const changedFile = changedFilesAndLineNumbers.find(f => (f.name === file.name) || (f.name === file.fullPath));
+                const changedFile = changedFiles.find(f => f.name === file.name || f.name === file.fullPath);
                 const changedLineNumbers = (changedFile === null || changedFile === void 0 ? void 0 : changedFile.lineNumbers.filter(ln => coverableLines.includes(Number(ln)))) || [];
                 const changedLines = lines.filter(l => changedLineNumbers.includes(Number(l['$'].number)));
                 file.linesTotal += Number(lines.length);
@@ -393,6 +404,7 @@ const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
 const parseFiles = (classes, fileDirPath) => {
     const fileNames = [...new Set(classes.map(c => String(c['$'].filename)))];
     return fileNames.map(file => ({
+        id: file,
         name: file,
         fullPath: fileDirPath + file,
         totalCoverage: 0,
@@ -436,11 +448,11 @@ const calculateCoverage = (covered, total) => {
 };
 exports.calculateCoverage = calculateCoverage;
 const calculateChangedLineTotals = (modules) => {
-    return Number(modules.reduce((summ, m) => summ + Number(m.files.reduce((summ2, f) => summ2 + Number(f.changedLinesTotal), 0)), 0));
+    return Number(modules.reduce((summ, m) => summ + calculateTotal(m, 'changedLinesTotal'), 0));
 };
 exports.calculateChangedLineTotals = calculateChangedLineTotals;
 const calculateChangedLinesCovered = (modules) => {
-    return Number(modules.reduce((summ, m) => summ + Number(m.files.reduce((summ2, f) => summ2 + Number(f.changedLinesCovered), 0)), 0));
+    return Number(modules.reduce((summ, m) => summ + calculateTotal(m, 'changedLinesCovered'), 0));
 };
 exports.calculateChangedLinesCovered = calculateChangedLinesCovered;
 const createCoverageModule = (name, threshold, files, complexity = 0) => {
@@ -454,89 +466,76 @@ const createCoverageModule = (name, threshold, files, complexity = 0) => {
     return { name, coverage, success, files: updatedFiles, complexity };
 };
 exports.createCoverageModule = createCoverageModule;
-const parseCoverage = (filePath, threshold, changedFilesAndLineNumbers, parseSummary, parseModules) => __awaiter(void 0, void 0, void 0, function* () {
+const parseCoverage = (filePath, threshold, changedFiles, parseSummary, parseModules) => __awaiter(void 0, void 0, void 0, function* () {
     const file = yield (0, utils_1.readXmlFile)(filePath);
     if (!file) {
         return null;
     }
-    const modules = parseModules(file, threshold, changedFilesAndLineNumbers);
+    const modules = parseModules(file, threshold, changedFiles);
     const summary = parseSummary(file, modules);
     const success = !threshold || summary.totalCoverage >= threshold;
     return Object.assign(Object.assign({ success }, summary), { modules });
 });
 exports.parseCoverage = parseCoverage;
+const calculateTotal = (module, key) => {
+    return module.files.reduce((summ, file) => summ + Number(file[key]), 0);
+};
 
 
 /***/ }),
 
 /***/ 2099:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const common_1 = __nccwpck_require__(7363);
-const parseOpencover = (filePath, threshold, changedFilesAndLineNumbers) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, changedFilesAndLineNumbers, parseSummary, parseModules); });
+const parseOpencover = (filePath, threshold, changedFiles) => {
+    return (0, common_1.parseCoverage)(filePath, threshold, changedFiles, parseSummary, parseModules);
+};
 const parseSummary = (file, modules) => {
     const summary = file.CoverageSession.Summary[0]['$'];
-    const totalCoverage = (0, common_1.calculateCoverage)(Number(summary.visitedSequencePoints) + Number(summary.visitedBranchPoints), Number(summary.numSequencePoints) + Number(summary.numBranchPoints));
+    const visitedSequencePoints = Number(summary.visitedSequencePoints);
+    const visitedBranchPoints = Number(summary.visitedBranchPoints);
+    const numberSequencePoints = Number(summary.numSequencePoints);
+    const numberBranchPoints = Number(summary.numBranchPoints);
+    const totalVisitedPoints = visitedSequencePoints + visitedBranchPoints;
+    const totalPoints = numberSequencePoints + numberBranchPoints;
     const changedLinesTotal = (0, common_1.calculateChangedLineTotals)(modules);
     const changedLinesCovered = (0, common_1.calculateChangedLinesCovered)(modules);
     return {
-        totalCoverage,
+        totalCoverage: (0, common_1.calculateCoverage)(totalVisitedPoints, totalPoints),
         changedLinesTotal,
         changedLinesCovered,
         changedLineCoverage: (0, common_1.calculateCoverage)(changedLinesCovered, changedLinesTotal),
-        linesTotal: Number(summary.numSequencePoints),
-        linesCovered: Number(summary.visitedSequencePoints),
-        lineCoverage: (0, common_1.calculateCoverage)(summary.visitedSequencePoints, summary.numSequencePoints),
-        branchesTotal: Number(summary.numBranchPoints),
-        branchesCovered: Number(summary.visitedBranchPoints),
-        branchCoverage: (0, common_1.calculateCoverage)(summary.visitedBranchPoints, summary.numBranchPoints)
+        linesTotal: numberSequencePoints,
+        linesCovered: visitedSequencePoints,
+        lineCoverage: (0, common_1.calculateCoverage)(visitedSequencePoints, numberSequencePoints),
+        branchesTotal: numberBranchPoints,
+        branchesCovered: visitedBranchPoints,
+        branchCoverage: (0, common_1.calculateCoverage)(visitedBranchPoints, numberBranchPoints)
     };
 };
-const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
+const parseModules = (file, threshold, changedFiles) => {
     var _a;
-    const modules = ((_a = file.CoverageSession.Modules[0].Module) !== null && _a !== void 0 ? _a : []);
+    const modules = (_a = file.CoverageSession.Modules[0].Module) !== null && _a !== void 0 ? _a : [];
     return modules.map(module => {
         var _a;
         const name = String(module.ModuleName[0]);
         const files = parseFiles(name, module);
-        const classes = ((_a = module.Classes[0].Class) !== null && _a !== void 0 ? _a : []);
+        const classes = (_a = module.Classes[0].Class) !== null && _a !== void 0 ? _a : [];
         let moduleComplexity = Number(0);
         classes.forEach(c => {
             var _a;
-            const methods = ((_a = c.Methods[0].Method) !== null && _a !== void 0 ? _a : []);
+            const methods = (_a = c.Methods[0].Method) !== null && _a !== void 0 ? _a : [];
             let complexity = Number(0);
             methods.forEach(m => {
-                var _a;
                 const file = files.find(f => f.id === m.FileRef[0]['$'].uid);
                 const summary = m.Summary[0]['$'];
-                const lines = ((_a = m.SequencePoints[0].SequencePoint) !== null && _a !== void 0 ? _a : []);
-                const coverableLines = lines.map(line => Number(line['$'].sl));
                 complexity = complexity + Number(summary.maxCyclomaticComplexity);
                 if (file) {
-                    const changedFile = changedFilesAndLineNumbers.find(f => (f.name === file.name) || (f.name === file.fullPath));
-                    const changedLineNumbers = (changedFile === null || changedFile === void 0 ? void 0 : changedFile.lineNumbers.filter(ln => coverableLines.includes(Number(ln)))) || [];
-                    const changedLines = lines.filter(l => changedLineNumbers.includes(Number(l['$'].sl)));
-                    file.linesTotal += Number(summary.numSequencePoints);
-                    file.linesCovered += Number(summary.visitedSequencePoints);
-                    file.branchesTotal += Number(summary.numBranchPoints);
-                    file.branchesCovered += Number(summary.visitedBranchPoints);
-                    file.linesToCover = file.linesToCover.concat(lines.filter(line => !Number(line['$'].vc)).map(line => Number(line['$'].sl)));
-                    const unCoveredChangedLines = changedLines.filter(line => !Number(line['$'].vs)).map(line => Number(line['$'].sl));
-                    file.changedLinesTotal += changedLines.length || 0;
-                    file.changedLinesCovered += changedLines.length - unCoveredChangedLines.length;
-                    file.changedLineCoverage = (0, common_1.calculateCoverage)(file.changedLinesCovered, file.changedLinesTotal);
+                    updateFileCoverage(file, m, changedFiles);
                     file.complexity = complexity;
                 }
             });
@@ -547,7 +546,7 @@ const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
 };
 const parseFiles = (moduleName, module) => {
     var _a;
-    const fileData = ((_a = module.Files[0].File) !== null && _a !== void 0 ? _a : []);
+    const fileData = (_a = module.Files[0].File) !== null && _a !== void 0 ? _a : [];
     return fileData.map(file => {
         var _a;
         return ({
@@ -564,10 +563,31 @@ const parseFiles = (moduleName, module) => {
             branchesTotal: 0,
             branchesCovered: 0,
             branchCoverage: 0,
-            linesToCover: Array(),
+            linesToCover: [],
             complexity: 0
         });
     });
+};
+const updateFileCoverage = (file, method, changedFiles) => {
+    var _a;
+    const summary = method.Summary[0]['$'];
+    const lines = (_a = method.SequencePoints[0].SequencePoint) !== null && _a !== void 0 ? _a : [];
+    const coverableLines = getSourceLines(lines);
+    const changedFile = changedFiles.find(f => f.name === file.name || f.name === file.fullPath);
+    const changedLineNumbers = (changedFile === null || changedFile === void 0 ? void 0 : changedFile.lineNumbers.filter(ln => coverableLines.includes(Number(ln)))) || [];
+    const changedLines = lines.filter(l => changedLineNumbers.includes(Number(l['$'].sl)));
+    const changedLinesToCover = getSourceLines(changedLines.filter(line => !Number(line['$'].vs)));
+    file.linesTotal += Number(summary.numSequencePoints);
+    file.linesCovered += Number(summary.visitedSequencePoints);
+    file.branchesTotal += Number(summary.numBranchPoints);
+    file.branchesCovered += Number(summary.visitedBranchPoints);
+    file.linesToCover = file.linesToCover.concat(getSourceLines(lines.filter(line => !Number(line['$'].vc))));
+    file.changedLinesTotal += changedLines.length || 0;
+    file.changedLinesCovered += changedLines.length - changedLinesToCover.length;
+    file.changedLineCoverage = (0, common_1.calculateCoverage)(file.changedLinesCovered, file.changedLinesTotal);
+};
+const getSourceLines = (lines) => {
+    return lines.map(line => Number(line['$'].sl));
 };
 exports["default"] = parseOpencover;
 
@@ -622,8 +642,8 @@ const parseSummary = (file) => {
 };
 const parseResults = (file) => {
     var _a, _b, _c, _d;
-    const results = ((_d = (_c = (_b = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.Results) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.UnitTestResult) !== null && _d !== void 0 ? _d : []);
-    return results.map((result) => {
+    const results = (_d = (_c = (_b = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.Results) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.UnitTestResult) !== null && _d !== void 0 ? _d : [];
+    return results.map(result => {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
         return ({
             executionId: String(result['$'].executionId),
@@ -645,7 +665,7 @@ const parseResults = (file) => {
 };
 const parseDefinitions = (file) => {
     var _a, _b, _c, _d;
-    const definitions = ((_d = (_c = (_b = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.TestDefinitions) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.UnitTest) !== null && _d !== void 0 ? _d : []);
+    const definitions = (_d = (_c = (_b = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.TestDefinitions) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.UnitTest) !== null && _d !== void 0 ? _d : [];
     return definitions.map(definition => {
         var _a;
         return ({
@@ -732,10 +752,7 @@ const processTestResults = (resultsPath, allowFailedTests) => __awaiter(void 0, 
     for (const path of trxPaths) {
         yield processResult(path, aggregatedResult);
     }
-    (0, utils_1.setResultOutputs)(aggregatedResult);
-    if (!aggregatedResult.success) {
-        allowFailedTests ? (0, utils_1.log)('Tests Failed') : (0, utils_1.setFailed)('Tests Failed');
-    }
+    setResult(aggregatedResult, allowFailedTests);
     return aggregatedResult;
 });
 exports.processTestResults = processTestResults;
@@ -766,6 +783,17 @@ const getDefaultTestResult = () => ({
     skipped: 0,
     suits: []
 });
+const setResult = (result, allowFailedTests) => {
+    (0, utils_1.setResultOutputs)(result);
+    if (!result.success) {
+        if (allowFailedTests) {
+            (0, utils_1.log)('Tests Failed');
+        }
+        else {
+            (0, utils_1.setFailed)('Tests Failed');
+        }
+    }
+};
 
 
 /***/ }),
@@ -819,7 +847,7 @@ const inputs = {
     coveragePath: 'coverage-path',
     coverageType: 'coverage-type',
     coverageThreshold: 'coverage-threshold',
-    changedFilesAndLineNumbers: 'changed-files-and-line-numbers',
+    changedFiles: 'changed-files-and-line-numbers',
     showFailedTestsOnly: 'show-failed-tests-only',
     showTestOutput: 'show-test-output',
     serverUrl: 'server-url',
@@ -840,6 +868,7 @@ const outputs = {
 };
 const getInputs = () => {
     const token = core.getInput(inputs.token) || process.env['GITHUB_TOKEN'] || '';
+    const changedFiles = JSON.parse(core.getInput(inputs.changedFiles));
     return {
         token,
         title: core.getInput(inputs.title),
@@ -849,7 +878,7 @@ const getInputs = () => {
         coveragePath: core.getInput(inputs.coveragePath),
         coverageType: core.getInput(inputs.coverageType),
         coverageThreshold: Number(core.getInput(inputs.coverageThreshold)),
-        changedFilesAndLineNumbers: JSON.parse(core.getInput(inputs.changedFilesAndLineNumbers)),
+        changedFiles: changedFiles,
         showFailedTestsOnly: core.getBooleanInput(inputs.showFailedTestsOnly),
         showTestOutput: core.getBooleanInput(inputs.showTestOutput),
         serverUrl: core.getInput('server-url'),
@@ -908,9 +937,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.publishComment = void 0;
 const github_1 = __nccwpck_require__(3228);
-const markdown_1 = __nccwpck_require__(490);
 const action_1 = __nccwpck_require__(6743);
 const github_2 = __nccwpck_require__(3786);
+const markdown_1 = __nccwpck_require__(490);
 const publishComment = (token, serverUrl, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
     const context = (0, github_2.getContext)();
     const { owner, repo, runId, issueNumber, sha } = context;
@@ -3806,7 +3835,7 @@ class HttpClient {
         if (this._keepAlive && useProxy) {
             agent = this._proxyAgent;
         }
-        if (this._keepAlive && !useProxy) {
+        if (!useProxy) {
             agent = this._agent;
         }
         // if agent is already assigned use that agent.
@@ -3838,15 +3867,11 @@ class HttpClient {
             agent = tunnelAgent(agentOptions);
             this._proxyAgent = agent;
         }
-        // if reusing agent across request and tunneling agent isn't assigned create a new agent
-        if (this._keepAlive && !agent) {
+        // if tunneling agent isn't assigned create a new agent
+        if (!agent) {
             const options = { keepAlive: this._keepAlive, maxSockets };
             agent = usingSsl ? new https.Agent(options) : new http.Agent(options);
             this._agent = agent;
-        }
-        // if not using private agent and tunnel agent isn't setup then use global agent
-        if (!agent) {
-            agent = usingSsl ? https.globalAgent : http.globalAgent;
         }
         if (usingSsl && this._ignoreSslError) {
             // we don't want to set NODE_TLS_REJECT_UNAUTHORIZED=0 since that will affect request for entire process
@@ -3869,7 +3894,7 @@ class HttpClient {
         }
         const usingSsl = parsedUrl.protocol === 'https:';
         proxyAgent = new undici_1.ProxyAgent(Object.assign({ uri: proxyUrl.href, pipelining: !this._keepAlive ? 0 : 1 }, ((proxyUrl.username || proxyUrl.password) && {
-            token: `${proxyUrl.username}:${proxyUrl.password}`
+            token: `Basic ${Buffer.from(`${proxyUrl.username}:${proxyUrl.password}`).toString('base64')}`
         })));
         this._proxyAgentDispatcher = proxyAgent;
         if (usingSsl && this._ignoreSslError) {
@@ -3983,11 +4008,11 @@ function getProxyUrl(reqUrl) {
     })();
     if (proxyVar) {
         try {
-            return new URL(proxyVar);
+            return new DecodedURL(proxyVar);
         }
         catch (_a) {
             if (!proxyVar.startsWith('http://') && !proxyVar.startsWith('https://'))
-                return new URL(`http://${proxyVar}`);
+                return new DecodedURL(`http://${proxyVar}`);
         }
     }
     else {
@@ -4045,6 +4070,19 @@ function isLoopbackAddress(host) {
         hostLower.startsWith('127.') ||
         hostLower.startsWith('[::1]') ||
         hostLower.startsWith('[0:0:0:0:0:0:0:1]'));
+}
+class DecodedURL extends URL {
+    constructor(url, base) {
+        super(url, base);
+        this._decodedUsername = decodeURIComponent(super.username);
+        this._decodedPassword = decodeURIComponent(super.password);
+    }
+    get username() {
+        return this._decodedUsername;
+    }
+    get password() {
+        return this._decodedPassword;
+    }
 }
 //# sourceMappingURL=proxy.js.map
 
@@ -8641,8 +8679,11 @@ function onceStrict (fn) {
 /***/ 2560:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
-;(function (sax) { // wrapper for non-node envs
-  sax.parser = function (strict, opt) { return new SAXParser(strict, opt) }
+;(function (sax) {
+  // wrapper for non-node envs
+  sax.parser = function (strict, opt) {
+    return new SAXParser(strict, opt)
+  }
   sax.SAXParser = SAXParser
   sax.SAXStream = SAXStream
   sax.createStream = createStream
@@ -8659,9 +8700,18 @@ function onceStrict (fn) {
   sax.MAX_BUFFER_LENGTH = 64 * 1024
 
   var buffers = [
-    'comment', 'sgmlDecl', 'textNode', 'tagName', 'doctype',
-    'procInstName', 'procInstBody', 'entity', 'attribName',
-    'attribValue', 'cdata', 'script'
+    'comment',
+    'sgmlDecl',
+    'textNode',
+    'tagName',
+    'doctype',
+    'procInstName',
+    'procInstBody',
+    'entity',
+    'attribName',
+    'attribValue',
+    'cdata',
+    'script',
   ]
 
   sax.EVENTS = [
@@ -8682,10 +8732,10 @@ function onceStrict (fn) {
     'ready',
     'script',
     'opennamespace',
-    'closenamespace'
+    'closenamespace',
   ]
 
-  function SAXParser (strict, opt) {
+  function SAXParser(strict, opt) {
     if (!(this instanceof SAXParser)) {
       return new SAXParser(strict, opt)
     }
@@ -8704,7 +8754,10 @@ function onceStrict (fn) {
     parser.noscript = !!(strict || parser.opt.noscript)
     parser.state = S.BEGIN
     parser.strictEntities = parser.opt.strictEntities
-    parser.ENTITIES = parser.strictEntities ? Object.create(sax.XML_ENTITIES) : Object.create(sax.ENTITIES)
+    parser.ENTITIES =
+      parser.strictEntities ?
+        Object.create(sax.XML_ENTITIES)
+      : Object.create(sax.ENTITIES)
     parser.attribList = []
 
     // namespaces form a prototype chain.
@@ -8712,6 +8765,12 @@ function onceStrict (fn) {
     // which protos to its parent tag.
     if (parser.opt.xmlns) {
       parser.ns = Object.create(rootNS)
+    }
+
+    // disallow unquoted attribute values if not otherwise configured
+    // and strict mode is true
+    if (parser.opt.unquotedAttributeValues === undefined) {
+      parser.opt.unquotedAttributeValues = !strict
     }
 
     // mostly just for error reporting
@@ -8724,7 +8783,7 @@ function onceStrict (fn) {
 
   if (!Object.create) {
     Object.create = function (o) {
-      function F () {}
+      function F() {}
       F.prototype = o
       var newf = new F()
       return newf
@@ -8739,7 +8798,7 @@ function onceStrict (fn) {
     }
   }
 
-  function checkBufferLength (parser) {
+  function checkBufferLength(parser) {
     var maxAllowed = Math.max(sax.MAX_BUFFER_LENGTH, 10)
     var maxActual = 0
     for (var i = 0, l = buffers.length; i < l; i++) {
@@ -8775,13 +8834,13 @@ function onceStrict (fn) {
     parser.bufferCheckPosition = m + parser.position
   }
 
-  function clearBuffers (parser) {
+  function clearBuffers(parser) {
     for (var i = 0, l = buffers.length; i < l; i++) {
       parser[buffers[i]] = ''
     }
   }
 
-  function flushBuffers (parser) {
+  function flushBuffers(parser) {
     closeText(parser)
     if (parser.cdata !== '') {
       emitNode(parser, 'oncdata', parser.cdata)
@@ -8794,11 +8853,20 @@ function onceStrict (fn) {
   }
 
   SAXParser.prototype = {
-    end: function () { end(this) },
+    end: function () {
+      end(this)
+    },
     write: write,
-    resume: function () { this.error = null; return this },
-    close: function () { return this.write(null) },
-    flush: function () { flushBuffers(this) }
+    resume: function () {
+      this.error = null
+      return this
+    },
+    close: function () {
+      return this.write(null)
+    },
+    flush: function () {
+      flushBuffers(this)
+    },
   }
 
   var Stream
@@ -8807,16 +8875,17 @@ function onceStrict (fn) {
   } catch (ex) {
     Stream = function () {}
   }
+  if (!Stream) Stream = function () {}
 
   var streamWraps = sax.EVENTS.filter(function (ev) {
     return ev !== 'error' && ev !== 'end'
   })
 
-  function createStream (strict, opt) {
+  function createStream(strict, opt) {
     return new SAXStream(strict, opt)
   }
 
-  function SAXStream (strict, opt) {
+  function SAXStream(strict, opt) {
     if (!(this instanceof SAXStream)) {
       return new SAXStream(strict, opt)
     }
@@ -8857,21 +8926,23 @@ function onceStrict (fn) {
           me.on(ev, h)
         },
         enumerable: true,
-        configurable: false
+        configurable: false,
       })
     })
   }
 
   SAXStream.prototype = Object.create(Stream.prototype, {
     constructor: {
-      value: SAXStream
-    }
+      value: SAXStream,
+    },
   })
 
   SAXStream.prototype.write = function (data) {
-    if (typeof Buffer === 'function' &&
+    if (
+      typeof Buffer === 'function' &&
       typeof Buffer.isBuffer === 'function' &&
-      Buffer.isBuffer(data)) {
+      Buffer.isBuffer(data)
+    ) {
       if (!this._decoder) {
         var SD = (__nccwpck_require__(3193).StringDecoder)
         this._decoder = new SD('utf8')
@@ -8896,7 +8967,10 @@ function onceStrict (fn) {
     var me = this
     if (!me._parser['on' + ev] && streamWraps.indexOf(ev) !== -1) {
       me._parser['on' + ev] = function () {
-        var args = arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments)
+        var args =
+          arguments.length === 1 ?
+            [arguments[0]]
+          : Array.apply(null, arguments)
         args.splice(0, 0, ev)
         me.emit.apply(me, args)
       }
@@ -8919,30 +8993,34 @@ function onceStrict (fn) {
   // without a significant breaking change to either this  parser, or the
   // JavaScript language.  Implementation of an emoji-capable xml parser
   // is left as an exercise for the reader.
-  var nameStart = /[:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/
+  var nameStart =
+    /[:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/
 
-  var nameBody = /[:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u00B7\u0300-\u036F\u203F-\u2040.\d-]/
+  var nameBody =
+    /[:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u00B7\u0300-\u036F\u203F-\u2040.\d-]/
 
-  var entityStart = /[#:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/
-  var entityBody = /[#:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u00B7\u0300-\u036F\u203F-\u2040.\d-]/
+  var entityStart =
+    /[#:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/
+  var entityBody =
+    /[#:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u00B7\u0300-\u036F\u203F-\u2040.\d-]/
 
-  function isWhitespace (c) {
+  function isWhitespace(c) {
     return c === ' ' || c === '\n' || c === '\r' || c === '\t'
   }
 
-  function isQuote (c) {
-    return c === '"' || c === '\''
+  function isQuote(c) {
+    return c === '"' || c === "'"
   }
 
-  function isAttribEnd (c) {
+  function isAttribEnd(c) {
     return c === '>' || isWhitespace(c)
   }
 
-  function isMatch (regex, c) {
+  function isMatch(regex, c) {
     return regex.test(c)
   }
 
-  function notMatch (regex, c) {
+  function notMatch(regex, c) {
     return !isMatch(regex, c)
   }
 
@@ -8983,271 +9061,271 @@ function onceStrict (fn) {
     CLOSE_TAG: S++, // </a
     CLOSE_TAG_SAW_WHITE: S++, // </a   >
     SCRIPT: S++, // <script> ...
-    SCRIPT_ENDING: S++ // <script> ... <
+    SCRIPT_ENDING: S++, // <script> ... <
   }
 
   sax.XML_ENTITIES = {
-    'amp': '&',
-    'gt': '>',
-    'lt': '<',
-    'quot': '"',
-    'apos': "'"
+    amp: '&',
+    gt: '>',
+    lt: '<',
+    quot: '"',
+    apos: "'",
   }
 
   sax.ENTITIES = {
-    'amp': '&',
-    'gt': '>',
-    'lt': '<',
-    'quot': '"',
-    'apos': "'",
-    'AElig': 198,
-    'Aacute': 193,
-    'Acirc': 194,
-    'Agrave': 192,
-    'Aring': 197,
-    'Atilde': 195,
-    'Auml': 196,
-    'Ccedil': 199,
-    'ETH': 208,
-    'Eacute': 201,
-    'Ecirc': 202,
-    'Egrave': 200,
-    'Euml': 203,
-    'Iacute': 205,
-    'Icirc': 206,
-    'Igrave': 204,
-    'Iuml': 207,
-    'Ntilde': 209,
-    'Oacute': 211,
-    'Ocirc': 212,
-    'Ograve': 210,
-    'Oslash': 216,
-    'Otilde': 213,
-    'Ouml': 214,
-    'THORN': 222,
-    'Uacute': 218,
-    'Ucirc': 219,
-    'Ugrave': 217,
-    'Uuml': 220,
-    'Yacute': 221,
-    'aacute': 225,
-    'acirc': 226,
-    'aelig': 230,
-    'agrave': 224,
-    'aring': 229,
-    'atilde': 227,
-    'auml': 228,
-    'ccedil': 231,
-    'eacute': 233,
-    'ecirc': 234,
-    'egrave': 232,
-    'eth': 240,
-    'euml': 235,
-    'iacute': 237,
-    'icirc': 238,
-    'igrave': 236,
-    'iuml': 239,
-    'ntilde': 241,
-    'oacute': 243,
-    'ocirc': 244,
-    'ograve': 242,
-    'oslash': 248,
-    'otilde': 245,
-    'ouml': 246,
-    'szlig': 223,
-    'thorn': 254,
-    'uacute': 250,
-    'ucirc': 251,
-    'ugrave': 249,
-    'uuml': 252,
-    'yacute': 253,
-    'yuml': 255,
-    'copy': 169,
-    'reg': 174,
-    'nbsp': 160,
-    'iexcl': 161,
-    'cent': 162,
-    'pound': 163,
-    'curren': 164,
-    'yen': 165,
-    'brvbar': 166,
-    'sect': 167,
-    'uml': 168,
-    'ordf': 170,
-    'laquo': 171,
-    'not': 172,
-    'shy': 173,
-    'macr': 175,
-    'deg': 176,
-    'plusmn': 177,
-    'sup1': 185,
-    'sup2': 178,
-    'sup3': 179,
-    'acute': 180,
-    'micro': 181,
-    'para': 182,
-    'middot': 183,
-    'cedil': 184,
-    'ordm': 186,
-    'raquo': 187,
-    'frac14': 188,
-    'frac12': 189,
-    'frac34': 190,
-    'iquest': 191,
-    'times': 215,
-    'divide': 247,
-    'OElig': 338,
-    'oelig': 339,
-    'Scaron': 352,
-    'scaron': 353,
-    'Yuml': 376,
-    'fnof': 402,
-    'circ': 710,
-    'tilde': 732,
-    'Alpha': 913,
-    'Beta': 914,
-    'Gamma': 915,
-    'Delta': 916,
-    'Epsilon': 917,
-    'Zeta': 918,
-    'Eta': 919,
-    'Theta': 920,
-    'Iota': 921,
-    'Kappa': 922,
-    'Lambda': 923,
-    'Mu': 924,
-    'Nu': 925,
-    'Xi': 926,
-    'Omicron': 927,
-    'Pi': 928,
-    'Rho': 929,
-    'Sigma': 931,
-    'Tau': 932,
-    'Upsilon': 933,
-    'Phi': 934,
-    'Chi': 935,
-    'Psi': 936,
-    'Omega': 937,
-    'alpha': 945,
-    'beta': 946,
-    'gamma': 947,
-    'delta': 948,
-    'epsilon': 949,
-    'zeta': 950,
-    'eta': 951,
-    'theta': 952,
-    'iota': 953,
-    'kappa': 954,
-    'lambda': 955,
-    'mu': 956,
-    'nu': 957,
-    'xi': 958,
-    'omicron': 959,
-    'pi': 960,
-    'rho': 961,
-    'sigmaf': 962,
-    'sigma': 963,
-    'tau': 964,
-    'upsilon': 965,
-    'phi': 966,
-    'chi': 967,
-    'psi': 968,
-    'omega': 969,
-    'thetasym': 977,
-    'upsih': 978,
-    'piv': 982,
-    'ensp': 8194,
-    'emsp': 8195,
-    'thinsp': 8201,
-    'zwnj': 8204,
-    'zwj': 8205,
-    'lrm': 8206,
-    'rlm': 8207,
-    'ndash': 8211,
-    'mdash': 8212,
-    'lsquo': 8216,
-    'rsquo': 8217,
-    'sbquo': 8218,
-    'ldquo': 8220,
-    'rdquo': 8221,
-    'bdquo': 8222,
-    'dagger': 8224,
-    'Dagger': 8225,
-    'bull': 8226,
-    'hellip': 8230,
-    'permil': 8240,
-    'prime': 8242,
-    'Prime': 8243,
-    'lsaquo': 8249,
-    'rsaquo': 8250,
-    'oline': 8254,
-    'frasl': 8260,
-    'euro': 8364,
-    'image': 8465,
-    'weierp': 8472,
-    'real': 8476,
-    'trade': 8482,
-    'alefsym': 8501,
-    'larr': 8592,
-    'uarr': 8593,
-    'rarr': 8594,
-    'darr': 8595,
-    'harr': 8596,
-    'crarr': 8629,
-    'lArr': 8656,
-    'uArr': 8657,
-    'rArr': 8658,
-    'dArr': 8659,
-    'hArr': 8660,
-    'forall': 8704,
-    'part': 8706,
-    'exist': 8707,
-    'empty': 8709,
-    'nabla': 8711,
-    'isin': 8712,
-    'notin': 8713,
-    'ni': 8715,
-    'prod': 8719,
-    'sum': 8721,
-    'minus': 8722,
-    'lowast': 8727,
-    'radic': 8730,
-    'prop': 8733,
-    'infin': 8734,
-    'ang': 8736,
-    'and': 8743,
-    'or': 8744,
-    'cap': 8745,
-    'cup': 8746,
-    'int': 8747,
-    'there4': 8756,
-    'sim': 8764,
-    'cong': 8773,
-    'asymp': 8776,
-    'ne': 8800,
-    'equiv': 8801,
-    'le': 8804,
-    'ge': 8805,
-    'sub': 8834,
-    'sup': 8835,
-    'nsub': 8836,
-    'sube': 8838,
-    'supe': 8839,
-    'oplus': 8853,
-    'otimes': 8855,
-    'perp': 8869,
-    'sdot': 8901,
-    'lceil': 8968,
-    'rceil': 8969,
-    'lfloor': 8970,
-    'rfloor': 8971,
-    'lang': 9001,
-    'rang': 9002,
-    'loz': 9674,
-    'spades': 9824,
-    'clubs': 9827,
-    'hearts': 9829,
-    'diams': 9830
+    amp: '&',
+    gt: '>',
+    lt: '<',
+    quot: '"',
+    apos: "'",
+    AElig: 198,
+    Aacute: 193,
+    Acirc: 194,
+    Agrave: 192,
+    Aring: 197,
+    Atilde: 195,
+    Auml: 196,
+    Ccedil: 199,
+    ETH: 208,
+    Eacute: 201,
+    Ecirc: 202,
+    Egrave: 200,
+    Euml: 203,
+    Iacute: 205,
+    Icirc: 206,
+    Igrave: 204,
+    Iuml: 207,
+    Ntilde: 209,
+    Oacute: 211,
+    Ocirc: 212,
+    Ograve: 210,
+    Oslash: 216,
+    Otilde: 213,
+    Ouml: 214,
+    THORN: 222,
+    Uacute: 218,
+    Ucirc: 219,
+    Ugrave: 217,
+    Uuml: 220,
+    Yacute: 221,
+    aacute: 225,
+    acirc: 226,
+    aelig: 230,
+    agrave: 224,
+    aring: 229,
+    atilde: 227,
+    auml: 228,
+    ccedil: 231,
+    eacute: 233,
+    ecirc: 234,
+    egrave: 232,
+    eth: 240,
+    euml: 235,
+    iacute: 237,
+    icirc: 238,
+    igrave: 236,
+    iuml: 239,
+    ntilde: 241,
+    oacute: 243,
+    ocirc: 244,
+    ograve: 242,
+    oslash: 248,
+    otilde: 245,
+    ouml: 246,
+    szlig: 223,
+    thorn: 254,
+    uacute: 250,
+    ucirc: 251,
+    ugrave: 249,
+    uuml: 252,
+    yacute: 253,
+    yuml: 255,
+    copy: 169,
+    reg: 174,
+    nbsp: 160,
+    iexcl: 161,
+    cent: 162,
+    pound: 163,
+    curren: 164,
+    yen: 165,
+    brvbar: 166,
+    sect: 167,
+    uml: 168,
+    ordf: 170,
+    laquo: 171,
+    not: 172,
+    shy: 173,
+    macr: 175,
+    deg: 176,
+    plusmn: 177,
+    sup1: 185,
+    sup2: 178,
+    sup3: 179,
+    acute: 180,
+    micro: 181,
+    para: 182,
+    middot: 183,
+    cedil: 184,
+    ordm: 186,
+    raquo: 187,
+    frac14: 188,
+    frac12: 189,
+    frac34: 190,
+    iquest: 191,
+    times: 215,
+    divide: 247,
+    OElig: 338,
+    oelig: 339,
+    Scaron: 352,
+    scaron: 353,
+    Yuml: 376,
+    fnof: 402,
+    circ: 710,
+    tilde: 732,
+    Alpha: 913,
+    Beta: 914,
+    Gamma: 915,
+    Delta: 916,
+    Epsilon: 917,
+    Zeta: 918,
+    Eta: 919,
+    Theta: 920,
+    Iota: 921,
+    Kappa: 922,
+    Lambda: 923,
+    Mu: 924,
+    Nu: 925,
+    Xi: 926,
+    Omicron: 927,
+    Pi: 928,
+    Rho: 929,
+    Sigma: 931,
+    Tau: 932,
+    Upsilon: 933,
+    Phi: 934,
+    Chi: 935,
+    Psi: 936,
+    Omega: 937,
+    alpha: 945,
+    beta: 946,
+    gamma: 947,
+    delta: 948,
+    epsilon: 949,
+    zeta: 950,
+    eta: 951,
+    theta: 952,
+    iota: 953,
+    kappa: 954,
+    lambda: 955,
+    mu: 956,
+    nu: 957,
+    xi: 958,
+    omicron: 959,
+    pi: 960,
+    rho: 961,
+    sigmaf: 962,
+    sigma: 963,
+    tau: 964,
+    upsilon: 965,
+    phi: 966,
+    chi: 967,
+    psi: 968,
+    omega: 969,
+    thetasym: 977,
+    upsih: 978,
+    piv: 982,
+    ensp: 8194,
+    emsp: 8195,
+    thinsp: 8201,
+    zwnj: 8204,
+    zwj: 8205,
+    lrm: 8206,
+    rlm: 8207,
+    ndash: 8211,
+    mdash: 8212,
+    lsquo: 8216,
+    rsquo: 8217,
+    sbquo: 8218,
+    ldquo: 8220,
+    rdquo: 8221,
+    bdquo: 8222,
+    dagger: 8224,
+    Dagger: 8225,
+    bull: 8226,
+    hellip: 8230,
+    permil: 8240,
+    prime: 8242,
+    Prime: 8243,
+    lsaquo: 8249,
+    rsaquo: 8250,
+    oline: 8254,
+    frasl: 8260,
+    euro: 8364,
+    image: 8465,
+    weierp: 8472,
+    real: 8476,
+    trade: 8482,
+    alefsym: 8501,
+    larr: 8592,
+    uarr: 8593,
+    rarr: 8594,
+    darr: 8595,
+    harr: 8596,
+    crarr: 8629,
+    lArr: 8656,
+    uArr: 8657,
+    rArr: 8658,
+    dArr: 8659,
+    hArr: 8660,
+    forall: 8704,
+    part: 8706,
+    exist: 8707,
+    empty: 8709,
+    nabla: 8711,
+    isin: 8712,
+    notin: 8713,
+    ni: 8715,
+    prod: 8719,
+    sum: 8721,
+    minus: 8722,
+    lowast: 8727,
+    radic: 8730,
+    prop: 8733,
+    infin: 8734,
+    ang: 8736,
+    and: 8743,
+    or: 8744,
+    cap: 8745,
+    cup: 8746,
+    int: 8747,
+    there4: 8756,
+    sim: 8764,
+    cong: 8773,
+    asymp: 8776,
+    ne: 8800,
+    equiv: 8801,
+    le: 8804,
+    ge: 8805,
+    sub: 8834,
+    sup: 8835,
+    nsub: 8836,
+    sube: 8838,
+    supe: 8839,
+    oplus: 8853,
+    otimes: 8855,
+    perp: 8869,
+    sdot: 8901,
+    lceil: 8968,
+    rceil: 8969,
+    lfloor: 8970,
+    rfloor: 8971,
+    lang: 9001,
+    rang: 9002,
+    loz: 9674,
+    spades: 9824,
+    clubs: 9827,
+    hearts: 9829,
+    diams: 9830,
   }
 
   Object.keys(sax.ENTITIES).forEach(function (key) {
@@ -9263,33 +9341,37 @@ function onceStrict (fn) {
   // shorthand
   S = sax.STATE
 
-  function emit (parser, event, data) {
+  function emit(parser, event, data) {
     parser[event] && parser[event](data)
   }
 
-  function emitNode (parser, nodeType, data) {
+  function emitNode(parser, nodeType, data) {
     if (parser.textNode) closeText(parser)
     emit(parser, nodeType, data)
   }
 
-  function closeText (parser) {
+  function closeText(parser) {
     parser.textNode = textopts(parser.opt, parser.textNode)
     if (parser.textNode) emit(parser, 'ontext', parser.textNode)
     parser.textNode = ''
   }
 
-  function textopts (opt, text) {
+  function textopts(opt, text) {
     if (opt.trim) text = text.trim()
     if (opt.normalize) text = text.replace(/\s+/g, ' ')
     return text
   }
 
-  function error (parser, er) {
+  function error(parser, er) {
     closeText(parser)
     if (parser.trackPosition) {
-      er += '\nLine: ' + parser.line +
-        '\nColumn: ' + parser.column +
-        '\nChar: ' + parser.c
+      er +=
+        '\nLine: ' +
+        parser.line +
+        '\nColumn: ' +
+        parser.column +
+        '\nChar: ' +
+        parser.c
     }
     er = new Error(er)
     parser.error = er
@@ -9297,11 +9379,14 @@ function onceStrict (fn) {
     return parser
   }
 
-  function end (parser) {
-    if (parser.sawRoot && !parser.closedRoot) strictFail(parser, 'Unclosed root tag')
-    if ((parser.state !== S.BEGIN) &&
-      (parser.state !== S.BEGIN_WHITESPACE) &&
-      (parser.state !== S.TEXT)) {
+  function end(parser) {
+    if (parser.sawRoot && !parser.closedRoot)
+      strictFail(parser, 'Unclosed root tag')
+    if (
+      parser.state !== S.BEGIN &&
+      parser.state !== S.BEGIN_WHITESPACE &&
+      parser.state !== S.TEXT
+    ) {
       error(parser, 'Unexpected end')
     }
     closeText(parser)
@@ -9312,7 +9397,7 @@ function onceStrict (fn) {
     return parser
   }
 
-  function strictFail (parser, message) {
+  function strictFail(parser, message) {
     if (typeof parser !== 'object' || !(parser instanceof SAXParser)) {
       throw new Error('bad call to strictFail')
     }
@@ -9321,10 +9406,10 @@ function onceStrict (fn) {
     }
   }
 
-  function newTag (parser) {
+  function newTag(parser) {
     if (!parser.strict) parser.tagName = parser.tagName[parser.looseCase]()
     var parent = parser.tags[parser.tags.length - 1] || parser
-    var tag = parser.tag = { name: parser.tagName, attributes: {} }
+    var tag = (parser.tag = { name: parser.tagName, attributes: {} })
 
     // will be overridden if tag contails an xmlns="foo" or xmlns:foo="bar"
     if (parser.opt.xmlns) {
@@ -9334,9 +9419,9 @@ function onceStrict (fn) {
     emitNode(parser, 'onopentagstart', tag)
   }
 
-  function qname (name, attribute) {
+  function qname(name, attribute) {
     var i = name.indexOf(':')
-    var qualName = i < 0 ? [ '', name ] : name.split(':')
+    var qualName = i < 0 ? ['', name] : name.split(':')
     var prefix = qualName[0]
     var local = qualName[1]
 
@@ -9349,13 +9434,15 @@ function onceStrict (fn) {
     return { prefix: prefix, local: local }
   }
 
-  function attrib (parser) {
+  function attrib(parser) {
     if (!parser.strict) {
       parser.attribName = parser.attribName[parser.looseCase]()
     }
 
-    if (parser.attribList.indexOf(parser.attribName) !== -1 ||
-      parser.tag.attributes.hasOwnProperty(parser.attribName)) {
+    if (
+      parser.attribList.indexOf(parser.attribName) !== -1 ||
+      parser.tag.attributes.hasOwnProperty(parser.attribName)
+    ) {
       parser.attribName = parser.attribValue = ''
       return
     }
@@ -9368,13 +9455,26 @@ function onceStrict (fn) {
       if (prefix === 'xmlns') {
         // namespace binding attribute. push the binding into scope
         if (local === 'xml' && parser.attribValue !== XML_NAMESPACE) {
-          strictFail(parser,
-            'xml: prefix must be bound to ' + XML_NAMESPACE + '\n' +
-            'Actual: ' + parser.attribValue)
-        } else if (local === 'xmlns' && parser.attribValue !== XMLNS_NAMESPACE) {
-          strictFail(parser,
-            'xmlns: prefix must be bound to ' + XMLNS_NAMESPACE + '\n' +
-            'Actual: ' + parser.attribValue)
+          strictFail(
+            parser,
+            'xml: prefix must be bound to ' +
+              XML_NAMESPACE +
+              '\n' +
+              'Actual: ' +
+              parser.attribValue
+          )
+        } else if (
+          local === 'xmlns' &&
+          parser.attribValue !== XMLNS_NAMESPACE
+        ) {
+          strictFail(
+            parser,
+            'xmlns: prefix must be bound to ' +
+              XMLNS_NAMESPACE +
+              '\n' +
+              'Actual: ' +
+              parser.attribValue
+          )
         } else {
           var tag = parser.tag
           var parent = parser.tags[parser.tags.length - 1] || parser
@@ -9394,14 +9494,14 @@ function onceStrict (fn) {
       parser.tag.attributes[parser.attribName] = parser.attribValue
       emitNode(parser, 'onattribute', {
         name: parser.attribName,
-        value: parser.attribValue
+        value: parser.attribValue,
       })
     }
 
     parser.attribName = parser.attribValue = ''
   }
 
-  function openTag (parser, selfClosing) {
+  function openTag(parser, selfClosing) {
     if (parser.opt.xmlns) {
       // emit namespace binding events
       var tag = parser.tag
@@ -9413,8 +9513,10 @@ function onceStrict (fn) {
       tag.uri = tag.ns[qn.prefix] || ''
 
       if (tag.prefix && !tag.uri) {
-        strictFail(parser, 'Unbound namespace prefix: ' +
-          JSON.stringify(parser.tagName))
+        strictFail(
+          parser,
+          'Unbound namespace prefix: ' + JSON.stringify(parser.tagName)
+        )
         tag.uri = qn.prefix
       }
 
@@ -9423,7 +9525,7 @@ function onceStrict (fn) {
         Object.keys(tag.ns).forEach(function (p) {
           emitNode(parser, 'onopennamespace', {
             prefix: p,
-            uri: tag.ns[p]
+            uri: tag.ns[p],
           })
         })
       }
@@ -9438,20 +9540,22 @@ function onceStrict (fn) {
         var qualName = qname(name, true)
         var prefix = qualName.prefix
         var local = qualName.local
-        var uri = prefix === '' ? '' : (tag.ns[prefix] || '')
+        var uri = prefix === '' ? '' : tag.ns[prefix] || ''
         var a = {
           name: name,
           value: value,
           prefix: prefix,
           local: local,
-          uri: uri
+          uri: uri,
         }
 
         // if there's any attributes with an undefined namespace,
         // then fail on them now.
         if (prefix && prefix !== 'xmlns' && !uri) {
-          strictFail(parser, 'Unbound namespace prefix: ' +
-            JSON.stringify(prefix))
+          strictFail(
+            parser,
+            'Unbound namespace prefix: ' + JSON.stringify(prefix)
+          )
           a.uri = prefix
         }
         parser.tag.attributes[name] = a
@@ -9480,7 +9584,7 @@ function onceStrict (fn) {
     parser.attribList.length = 0
   }
 
-  function closeTag (parser) {
+  function closeTag(parser) {
     if (!parser.tagName) {
       strictFail(parser, 'Weird empty close tag.')
       parser.textNode += '</>'
@@ -9527,7 +9631,7 @@ function onceStrict (fn) {
     parser.tagName = tagName
     var s = parser.tags.length
     while (s-- > t) {
-      var tag = parser.tag = parser.tags.pop()
+      var tag = (parser.tag = parser.tags.pop())
       parser.tagName = parser.tag.name
       emitNode(parser, 'onclosetag', parser.tagName)
 
@@ -9551,7 +9655,7 @@ function onceStrict (fn) {
     parser.state = S.TEXT
   }
 
-  function parseEntity (parser) {
+  function parseEntity(parser) {
     var entity = parser.entity
     var entityLC = entity.toLowerCase()
     var num
@@ -9576,7 +9680,12 @@ function onceStrict (fn) {
       }
     }
     entity = entity.replace(/^0+/, '')
-    if (isNaN(num) || numStr.toLowerCase() !== entity) {
+    if (
+      isNaN(num) ||
+      numStr.toLowerCase() !== entity ||
+      num < 0 ||
+      num > 0x10ffff
+    ) {
       strictFail(parser, 'Invalid character entity')
       return '&' + parser.entity + ';'
     }
@@ -9584,7 +9693,7 @@ function onceStrict (fn) {
     return String.fromCodePoint(num)
   }
 
-  function beginWhiteSpace (parser, c) {
+  function beginWhiteSpace(parser, c) {
     if (c === '<') {
       parser.state = S.OPEN_WAKA
       parser.startTagPosition = parser.position
@@ -9597,7 +9706,7 @@ function onceStrict (fn) {
     }
   }
 
-  function charAt (chunk, i) {
+  function charAt(chunk, i) {
     var result = ''
     if (i < chunk.length) {
       result = chunk.charAt(i)
@@ -9605,14 +9714,16 @@ function onceStrict (fn) {
     return result
   }
 
-  function write (chunk) {
+  function write(chunk) {
     var parser = this
     if (this.error) {
       throw this.error
     }
     if (parser.closed) {
-      return error(parser,
-        'Cannot write after close. Assign an onready handler.')
+      return error(
+        parser,
+        'Cannot write after close. Assign an onready handler.'
+      )
     }
     if (chunk === null) {
       return end(parser)
@@ -9670,11 +9781,17 @@ function onceStrict (fn) {
             }
             parser.textNode += chunk.substring(starti, i - 1)
           }
-          if (c === '<' && !(parser.sawRoot && parser.closedRoot && !parser.strict)) {
+          if (
+            c === '<' &&
+            !(parser.sawRoot && parser.closedRoot && !parser.strict)
+          ) {
             parser.state = S.OPEN_WAKA
             parser.startTagPosition = parser.position
           } else {
-            if (!isWhitespace(c) && (!parser.sawRoot || parser.closedRoot)) {
+            if (
+              !isWhitespace(c) &&
+              (!parser.sawRoot || parser.closedRoot)
+            ) {
               strictFail(parser, 'Text data outside of root node.')
             }
             if (c === '&') {
@@ -9732,20 +9849,33 @@ function onceStrict (fn) {
           continue
 
         case S.SGML_DECL:
-          if ((parser.sgmlDecl + c).toUpperCase() === CDATA) {
+          if (parser.sgmlDecl + c === '--') {
+            parser.state = S.COMMENT
+            parser.comment = ''
+            parser.sgmlDecl = ''
+            continue
+          }
+
+          if (
+            parser.doctype &&
+            parser.doctype !== true &&
+            parser.sgmlDecl
+          ) {
+            parser.state = S.DOCTYPE_DTD
+            parser.doctype += '<!' + parser.sgmlDecl + c
+            parser.sgmlDecl = ''
+          } else if ((parser.sgmlDecl + c).toUpperCase() === CDATA) {
             emitNode(parser, 'onopencdata')
             parser.state = S.CDATA
             parser.sgmlDecl = ''
             parser.cdata = ''
-          } else if (parser.sgmlDecl + c === '--') {
-            parser.state = S.COMMENT
-            parser.comment = ''
-            parser.sgmlDecl = ''
           } else if ((parser.sgmlDecl + c).toUpperCase() === DOCTYPE) {
             parser.state = S.DOCTYPE
             if (parser.doctype || parser.sawRoot) {
-              strictFail(parser,
-                'Inappropriately located doctype declaration')
+              strictFail(
+                parser,
+                'Inappropriately located doctype declaration'
+              )
             }
             parser.doctype = ''
             parser.sgmlDecl = ''
@@ -9794,12 +9924,18 @@ function onceStrict (fn) {
           continue
 
         case S.DOCTYPE_DTD:
-          parser.doctype += c
           if (c === ']') {
+            parser.doctype += c
             parser.state = S.DOCTYPE
+          } else if (c === '<') {
+            parser.state = S.OPEN_WAKA
+            parser.startTagPosition = parser.position
           } else if (isQuote(c)) {
+            parser.doctype += c
             parser.state = S.DOCTYPE_DTD_QUOTED
             parser.q = c
+          } else {
+            parser.doctype += c
           }
           continue
 
@@ -9840,16 +9976,30 @@ function onceStrict (fn) {
             // which is a comment of " blah -- bloo "
             parser.comment += '--' + c
             parser.state = S.COMMENT
+          } else if (parser.doctype && parser.doctype !== true) {
+            parser.state = S.DOCTYPE_DTD
           } else {
             parser.state = S.TEXT
           }
           continue
 
         case S.CDATA:
+          var starti = i - 1
+          while (c && c !== ']') {
+            c = charAt(chunk, i++)
+            if (c && parser.trackPosition) {
+              parser.position++
+              if (c === '\n') {
+                parser.line++
+                parser.column = 0
+              } else {
+                parser.column++
+              }
+            }
+          }
+          parser.cdata += chunk.substring(starti, i - 1)
           if (c === ']') {
             parser.state = S.CDATA_ENDING
-          } else {
-            parser.cdata += c
           }
           continue
 
@@ -9902,7 +10052,7 @@ function onceStrict (fn) {
           if (c === '>') {
             emitNode(parser, 'onprocessinginstruction', {
               name: parser.procInstName,
-              body: parser.procInstBody
+              body: parser.procInstBody,
             })
             parser.procInstName = parser.procInstBody = ''
             parser.state = S.TEXT
@@ -9935,7 +10085,10 @@ function onceStrict (fn) {
             openTag(parser, true)
             closeTag(parser)
           } else {
-            strictFail(parser, 'Forward-slash in opening tag not followed by >')
+            strictFail(
+              parser,
+              'Forward-slash in opening tag not followed by >'
+            )
             parser.state = S.ATTRIB
           }
           continue
@@ -9985,7 +10138,7 @@ function onceStrict (fn) {
             parser.attribValue = ''
             emitNode(parser, 'onattribute', {
               name: parser.attribName,
-              value: ''
+              value: '',
             })
             parser.attribName = ''
             if (c === '>') {
@@ -10007,7 +10160,9 @@ function onceStrict (fn) {
             parser.q = c
             parser.state = S.ATTRIB_VALUE_QUOTED
           } else {
-            strictFail(parser, 'Unquoted attribute value')
+            if (!parser.opt.unquotedAttributeValues) {
+              error(parser, 'Unquoted attribute value')
+            }
             parser.state = S.ATTRIB_VALUE_UNQUOTED
             parser.attribValue = c
           }
@@ -10125,10 +10280,22 @@ function onceStrict (fn) {
           }
 
           if (c === ';') {
-            parser[buffer] += parseEntity(parser)
-            parser.entity = ''
-            parser.state = returnState
-          } else if (isMatch(parser.entity.length ? entityBody : entityStart, c)) {
+            var parsedEntity = parseEntity(parser)
+            if (
+              parser.opt.unparsedEntities &&
+              !Object.values(sax.XML_ENTITIES).includes(parsedEntity)
+            ) {
+              parser.entity = ''
+              parser.state = returnState
+              parser.write(parsedEntity)
+            } else {
+              parser[buffer] += parsedEntity
+              parser.entity = ''
+              parser.state = returnState
+            }
+          } else if (
+            isMatch(parser.entity.length ? entityBody : entityStart, c)
+          ) {
             parser.entity += c
           } else {
             strictFail(parser, 'Invalid character in entity name')
@@ -10139,8 +10306,9 @@ function onceStrict (fn) {
 
           continue
 
-        default:
+        default: /* istanbul ignore next */ {
           throw new Error(parser, 'Unknown state: ' + parser.state)
+        }
       }
     } // while
 
@@ -10153,7 +10321,7 @@ function onceStrict (fn) {
   /*! http://mths.be/fromcodepoint v0.1.0 by @mathias */
   /* istanbul ignore next */
   if (!String.fromCodePoint) {
-    (function () {
+    ;(function () {
       var stringFromCharCode = String.fromCharCode
       var floor = Math.floor
       var fromCodePoint = function () {
@@ -10172,18 +10340,20 @@ function onceStrict (fn) {
           if (
             !isFinite(codePoint) || // `NaN`, `+Infinity`, or `-Infinity`
             codePoint < 0 || // not a valid Unicode code point
-            codePoint > 0x10FFFF || // not a valid Unicode code point
+            codePoint > 0x10ffff || // not a valid Unicode code point
             floor(codePoint) !== codePoint // not an integer
           ) {
             throw RangeError('Invalid code point: ' + codePoint)
           }
-          if (codePoint <= 0xFFFF) { // BMP code point
+          if (codePoint <= 0xffff) {
+            // BMP code point
             codeUnits.push(codePoint)
-          } else { // Astral code point; split in surrogate halves
+          } else {
+            // Astral code point; split in surrogate halves
             // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
             codePoint -= 0x10000
-            highSurrogate = (codePoint >> 10) + 0xD800
-            lowSurrogate = (codePoint % 0x400) + 0xDC00
+            highSurrogate = (codePoint >> 10) + 0xd800
+            lowSurrogate = (codePoint % 0x400) + 0xdc00
             codeUnits.push(highSurrogate, lowSurrogate)
           }
           if (index + 1 === length || codeUnits.length > MAX_SIZE) {
@@ -10198,14 +10368,14 @@ function onceStrict (fn) {
         Object.defineProperty(String, 'fromCodePoint', {
           value: fromCodePoint,
           configurable: true,
-          writable: true
+          writable: true,
         })
       } else {
         String.fromCodePoint = fromCodePoint
       }
-    }())
+    })()
   }
-})( false ? 0 : exports)
+})( false ? (0) : exports)
 
 
 /***/ }),
@@ -38113,7 +38283,7 @@ Dicer.prototype._write = function (data, encoding, cb) {
   if (this._headerFirst && this._isPreamble) {
     if (!this._part) {
       this._part = new PartStream(this._partOpts)
-      if (this._events.preamble) { this.emit('preamble', this._part) } else { this._ignore() }
+      if (this.listenerCount('preamble') !== 0) { this.emit('preamble', this._part) } else { this._ignore() }
     }
     const r = this._hparser.push(data)
     if (!this._inHeader && r !== undefined && r < data.length) { data = data.slice(r) } else { return cb() }
@@ -38170,7 +38340,7 @@ Dicer.prototype._oninfo = function (isMatch, data, start, end) {
       }
     }
     if (this._dashes === 2) {
-      if ((start + i) < end && this._events.trailer) { this.emit('trailer', data.slice(start + i, end)) }
+      if ((start + i) < end && this.listenerCount('trailer') !== 0) { this.emit('trailer', data.slice(start + i, end)) }
       this.reset()
       this._finished = true
       // no more parts will be added
@@ -38188,7 +38358,13 @@ Dicer.prototype._oninfo = function (isMatch, data, start, end) {
     this._part._read = function (n) {
       self._unpause()
     }
-    if (this._isPreamble && this._events.preamble) { this.emit('preamble', this._part) } else if (this._isPreamble !== true && this._events.part) { this.emit('part', this._part) } else { this._ignore() }
+    if (this._isPreamble && this.listenerCount('preamble') !== 0) {
+      this.emit('preamble', this._part)
+    } else if (this._isPreamble !== true && this.listenerCount('part') !== 0) {
+      this.emit('part', this._part)
+    } else {
+      this._ignore()
+    }
     if (!this._isPreamble) { this._inHeader = true }
   }
   if (data && start < end && !this._ignoreData) {
@@ -38871,7 +39047,7 @@ function Multipart (boy, cfg) {
 
         ++nfiles
 
-        if (!boy._events.file) {
+        if (boy.listenerCount('file') === 0) {
           self.parser._ignore()
           return
         }
@@ -39400,7 +39576,7 @@ const decoders = {
     if (textDecoders.has(this.toString())) {
       try {
         return textDecoders.get(this).decode(data)
-      } catch (e) { }
+      } catch {}
     }
     return typeof data === 'string'
       ? data

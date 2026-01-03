@@ -3,7 +3,10 @@ import { IResult } from './data';
 import { log, setFailed, setResultOutputs } from './utils';
 import parseTrx from './parsers/trx';
 
-export const processTestResults = async (resultsPath: string, allowFailedTests: boolean): Promise<IResult> => {
+export const processTestResults = async (
+  resultsPath: string,
+  allowFailedTests: boolean
+): Promise<IResult> => {
   const aggregatedResult = getDefaultTestResult();
   const filePaths = await glob(resultsPath);
   const trxPaths = filePaths.filter(path => path.endsWith('.trx'));
@@ -16,11 +19,7 @@ export const processTestResults = async (resultsPath: string, allowFailedTests: 
     await processResult(path, aggregatedResult);
   }
 
-  setResultOutputs(aggregatedResult);
-
-  if (!aggregatedResult.success) {
-    allowFailedTests ? log('Tests Failed') : setFailed('Tests Failed');
-  }
+  setResult(aggregatedResult, allowFailedTests);
 
   return aggregatedResult;
 };
@@ -56,3 +55,15 @@ const getDefaultTestResult = (): IResult => ({
   skipped: 0,
   suits: []
 });
+
+const setResult = (result: IResult, allowFailedTests: boolean) => {
+  setResultOutputs(result);
+
+  if (!result.success) {
+    if (allowFailedTests) {
+      log('Tests Failed');
+    } else {
+      setFailed('Tests Failed');
+    }
+  }
+};

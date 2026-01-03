@@ -1,6 +1,6 @@
 import type CoverageType from './CoverageType';
 
-export type ChangedFileWithLineNumbers = {
+export type ChangedFile = {
   name: string;
   lineNumbers: number[];
 };
@@ -14,7 +14,7 @@ export default interface IActionInputs {
   coverageThreshold: number;
   postNewComment: boolean;
   allowFailedTests: boolean;
-  changedFilesAndLineNumbers: ChangedFileWithLineNumbers[];
+  changedFiles: ChangedFile[];
   showFailedTestsOnly: boolean;
   showTestOutput: boolean;
   serverUrl: string;

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import xml2js from 'xml2js';
 
-export const readXmlFile = async (filePath: string): Promise<any> => {
+export const readXmlFile = async <T>(filePath: string): Promise<T | null> => {
   try {
     if (!fs.existsSync(filePath)) {
       return null;

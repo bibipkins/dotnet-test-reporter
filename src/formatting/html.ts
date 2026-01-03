@@ -18,10 +18,15 @@ const outcomeIcons: { [key in TestOutcome]: string } = {
   NotExecuted: '⚠️'
 };
 
-export const formatTitleHtml = (title: string): string =>
-  wrap(title, { tag: 'h1', attributes: { id: getSectionLink(title) } });
+export const formatTitleHtml = (title: string): string => {
+  return wrap(title, { tag: 'h1', attributes: { id: getSectionLink(title) } });
+};
 
-export const formatResultHtml = (result: IResult, showFailedTestsOnly: boolean, showTestOutput: boolean): string => {
+export const formatResultHtml = (
+  result: IResult,
+  showFailedTestsOnly: boolean,
+  showTestOutput: boolean
+): string => {
   let html = wrap('Tests', 'h3');
 
   html += formatTable(
@@ -34,7 +39,7 @@ export const formatResultHtml = (result: IResult, showFailedTestsOnly: boolean, 
     s => s.name
   ]);
 
-  sortedSuits = sortedSuits.filter(s => (!showFailedTestsOnly) || !s.success);
+  sortedSuits = sortedSuits.filter(s => !showFailedTestsOnly || !s.success);
 
   html += sortedSuits.map(suit => formatTestSuit(suit, showFailedTestsOnly, showTestOutput)).join('');
 
@@ -98,7 +103,7 @@ const formatTestSuit = (suit: ITestSuit, showFailedTestsOnly: boolean, showTestO
   const icon = getStatusIcon(suit.success);
   const summary = `${icon} ${suit.name} - ${suit.passed}/${suit.tests.length}`;
   const sortedTests = sort(suit.tests).asc([test => test.outcome]);
-  const filteredTests = sortedTests.filter(test => (!showFailedTestsOnly) || test.outcome === 'Failed');
+  const filteredTests = sortedTests.filter(test => !showFailedTestsOnly || test.outcome === 'Failed');
   const showOutput = filteredTests.some(test => (test.output && showTestOutput) || test.error);
 
   const table = formatTable(
@@ -109,7 +114,6 @@ const formatTestSuit = (suit: ITestSuit, showFailedTestsOnly: boolean, showTestO
       ...(showOutput ? [formatTestOutput(test, showTestOutput)] : [])
     ])
   );
-
 
   return formatDetails(summary, filteredTests.length ? table : '');
 };
