@@ -1,5 +1,4 @@
 import eslintjson from '@eslint/json';
-import eslintmarkdown from '@eslint/markdown';
 import eslinttypescript from 'typescript-eslint';
 import prettierRecommendedConfig from 'eslint-plugin-prettier/recommended';
 import { defineConfig } from 'eslint/config';
@@ -23,7 +22,6 @@ export default defineConfig([
   ...eslinttypescript.configs.recommended,
   typescriptCustomConfig,
   eslintjson.configs.recommended,
-  eslintmarkdown.configs.recommended,
   prettierRecommendedConfig,
   prettierCustomConfig
 ]);

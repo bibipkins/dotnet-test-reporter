@@ -28,7 +28,7 @@ const parsers = {
     opencover: opencover_1.default,
     cobertura: cobertura_1.default
 };
-const processTestCoverage = (coveragePath, coverageType, coverageThreshold, changedFilesAndLineNumbers) => __awaiter(void 0, void 0, void 0, function* () {
+const processTestCoverage = (coveragePath, coverageType, coverageThreshold, changedFiles) => __awaiter(void 0, void 0, void 0, function* () {
     const filePaths = yield (0, glob_1.glob)(coveragePath, { nodir: true });
     if (!filePaths.length) {
         (0, utils_1.log)(`No coverage results found by ${coveragePath}`);
@@ -36,7 +36,7 @@ const processTestCoverage = (coveragePath, coverageType, coverageThreshold, chan
     }
     const path = filePaths[0];
     (0, utils_1.log)(`Processing ${path}...`);
-    const coverage = yield parsers[coverageType](path, coverageThreshold, changedFilesAndLineNumbers);
+    const coverage = yield parsers[coverageType](path, coverageThreshold, changedFiles);
     if (!coverage) {
         (0, utils_1.log)(`Failed parsing ${path}`);
         return null;
@@ -256,7 +256,7 @@ exports.formatCoverageMarkdown = formatCoverageMarkdown;
 const formatChangedFileCoverageMarkdown = (files) => {
     let table = '| Filename | Complexity | Lines Covered | Changed Lines Covered |\n';
     table += '|----------|------------|---------------|-----------------------|\n';
-    for (let file of files) {
+    for (const file of files) {
         const { name, complexity, changedLineCoverage, changedLinesTotal, changedLinesCovered, linesCovered, linesTotal, lineCoverage } = file;
         table +=
             `| ${name} | ${complexity} | ${linesCovered} / ${linesTotal} (${lineCoverage}%) ` +
@@ -292,7 +292,7 @@ const markdown_1 = __nccwpck_require__(490);
 const html_1 = __nccwpck_require__(5302);
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFilesAndLineNumbers, showFailedTestsOnly, showTestOutput, serverUrl, pullRequestCheck, pullRequestCheckName } = (0, utils_1.getInputs)();
+        const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFiles, showFailedTestsOnly, showTestOutput, serverUrl, pullRequestCheck, pullRequestCheckName } = (0, utils_1.getInputs)();
         let comment = '';
         let summary = (0, html_1.formatTitleHtml)(title);
         const testResult = yield (0, results_1.processTestResults)(resultsPath, allowFailedTests);
@@ -300,7 +300,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         comment += (0, markdown_1.formatResultMarkdown)(testResult);
         summary += resultHtml;
         if (coveragePath) {
-            const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold, changedFilesAndLineNumbers);
+            const testCoverage = yield (0, coverage_1.processTestCoverage)(coveragePath, coverageType, coverageThreshold, changedFiles);
             comment += testCoverage ? (0, markdown_1.formatCoverageMarkdown)(testCoverage, coverageThreshold) : '';
             summary += testCoverage ? (0, html_1.formatCoverageHtml)(testCoverage) : '';
             if (testCoverage) {
@@ -329,25 +329,22 @@ run();
 /***/ }),
 
 /***/ 9613:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const common_1 = __nccwpck_require__(7363);
-const parseCobertura = (filePath, threshold, changedFilesAndLineNumbers) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, changedFilesAndLineNumbers, parseSummary, parseModules); });
+const parseCobertura = (filePath, threshold, changedFiles) => {
+    return (0, common_1.parseCoverage)(filePath, threshold, changedFiles, parseSummary, parseModules);
+};
 const parseSummary = (file, modules) => {
     const summary = file.coverage['$'];
-    const totalCoverage = (0, common_1.calculateCoverage)(Number(summary['lines-covered']) + Number(summary['branches-covered']), Number(summary['lines-valid']) + Number(summary['branches-valid']));
+    const linesCovered = Number(summary['lines-covered']);
+    const linesTotal = Number(summary['lines-valid']);
+    const branchesCovered = Number(summary['branches-covered']);
+    const branchesTotal = Number(summary['branches-valid']);
+    const totalCoverage = (0, common_1.calculateCoverage)(linesCovered + branchesCovered, linesTotal + branchesTotal);
     const changedLinesTotal = (0, common_1.calculateChangedLineTotals)(modules);
     const changedLinesCovered = (0, common_1.calculateChangedLinesCovered)(modules);
     return {
@@ -355,35 +352,35 @@ const parseSummary = (file, modules) => {
         changedLinesTotal,
         changedLinesCovered,
         changedLineCoverage: (0, common_1.calculateCoverage)(changedLinesCovered, changedLinesTotal),
-        linesTotal: Number(summary['lines-valid']),
-        linesCovered: Number(summary['lines-covered']),
-        lineCoverage: (0, common_1.calculateCoverage)(summary['lines-covered'], summary['lines-valid']),
-        branchesTotal: Number(summary['branches-valid']),
-        branchesCovered: Number(summary['branches-covered']),
-        branchCoverage: (0, common_1.calculateCoverage)(summary['branches-covered'], summary['branches-valid'])
+        linesTotal,
+        linesCovered,
+        lineCoverage: (0, common_1.calculateCoverage)(linesCovered, linesTotal),
+        branchesTotal,
+        branchesCovered,
+        branchCoverage: (0, common_1.calculateCoverage)(branchesCovered, branchesTotal)
     };
 };
-const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
+const parseModules = (file, threshold, changedFiles) => {
     var _a, _b, _c;
     const fileFullDirPath = (_b = (_a = file.coverage.sources) === null || _a === void 0 ? void 0 : _a[0].source) !== null && _b !== void 0 ? _b : '';
-    const modules = ((_c = file.coverage.packages[0].package) !== null && _c !== void 0 ? _c : []);
+    const modules = (_c = file.coverage.packages[0].package) !== null && _c !== void 0 ? _c : [];
     return modules.map(module => {
         var _a;
         const name = String(module['$'].name);
-        const classes = ((_a = module.classes[0].class) !== null && _a !== void 0 ? _a : []);
+        const classes = (_a = module.classes[0].class) !== null && _a !== void 0 ? _a : [];
         const files = parseFiles(classes, fileFullDirPath);
         const complexity = Number(module['$'].complexity);
         classes.forEach(c => {
             var _a;
             const file = files.find(f => f.name === String(c['$'].filename));
-            const lines = ((_a = c.lines[0].line) !== null && _a !== void 0 ? _a : []);
+            const lines = (_a = c.lines[0].line) !== null && _a !== void 0 ? _a : [];
             const branchRegex = /\(([^)]+)\)/;
             const branchData = lines
                 .filter(l => l['$']['condition-coverage'])
                 .map(l => { var _a, _b; return (_b = (_a = branchRegex.exec(String(l['$']['condition-coverage']))) === null || _a === void 0 ? void 0 : _a[1].split('/')) !== null && _b !== void 0 ? _b : []; });
             const coverableLines = lines.map(line => Number(line['$'].number));
             if (file) {
-                const changedFile = changedFilesAndLineNumbers.find(f => (f.name === file.name) || (f.name === file.fullPath));
+                const changedFile = changedFiles.find(f => f.name === file.name || f.name === file.fullPath);
                 const changedLineNumbers = (changedFile === null || changedFile === void 0 ? void 0 : changedFile.lineNumbers.filter(ln => coverableLines.includes(Number(ln)))) || [];
                 const changedLines = lines.filter(l => changedLineNumbers.includes(Number(l['$'].number)));
                 file.linesTotal += Number(lines.length);
@@ -403,6 +400,7 @@ const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
 const parseFiles = (classes, fileDirPath) => {
     const fileNames = [...new Set(classes.map(c => String(c['$'].filename)))];
     return fileNames.map(file => ({
+        id: file,
         name: file,
         fullPath: fileDirPath + file,
         totalCoverage: 0,
@@ -446,11 +444,11 @@ const calculateCoverage = (covered, total) => {
 };
 exports.calculateCoverage = calculateCoverage;
 const calculateChangedLineTotals = (modules) => {
-    return Number(modules.reduce((summ, m) => summ + Number(m.files.reduce((summ2, f) => summ2 + Number(f.changedLinesTotal), 0)), 0));
+    return Number(modules.reduce((summ, m) => summ + calculateTotal(m, 'changedLinesTotal'), 0));
 };
 exports.calculateChangedLineTotals = calculateChangedLineTotals;
 const calculateChangedLinesCovered = (modules) => {
-    return Number(modules.reduce((summ, m) => summ + Number(m.files.reduce((summ2, f) => summ2 + Number(f.changedLinesCovered), 0)), 0));
+    return Number(modules.reduce((summ, m) => summ + calculateTotal(m, 'changedLinesCovered'), 0));
 };
 exports.calculateChangedLinesCovered = calculateChangedLinesCovered;
 const createCoverageModule = (name, threshold, files, complexity = 0) => {
@@ -464,89 +462,76 @@ const createCoverageModule = (name, threshold, files, complexity = 0) => {
     return { name, coverage, success, files: updatedFiles, complexity };
 };
 exports.createCoverageModule = createCoverageModule;
-const parseCoverage = (filePath, threshold, changedFilesAndLineNumbers, parseSummary, parseModules) => __awaiter(void 0, void 0, void 0, function* () {
+const parseCoverage = (filePath, threshold, changedFiles, parseSummary, parseModules) => __awaiter(void 0, void 0, void 0, function* () {
     const file = yield (0, utils_1.readXmlFile)(filePath);
     if (!file) {
         return null;
     }
-    const modules = parseModules(file, threshold, changedFilesAndLineNumbers);
+    const modules = parseModules(file, threshold, changedFiles);
     const summary = parseSummary(file, modules);
     const success = !threshold || summary.totalCoverage >= threshold;
     return Object.assign(Object.assign({ success }, summary), { modules });
 });
 exports.parseCoverage = parseCoverage;
+const calculateTotal = (module, key) => {
+    return module.files.reduce((summ, file) => summ + Number(file[key]), 0);
+};
 
 
 /***/ }),
 
 /***/ 2099:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const common_1 = __nccwpck_require__(7363);
-const parseOpencover = (filePath, threshold, changedFilesAndLineNumbers) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, changedFilesAndLineNumbers, parseSummary, parseModules); });
+const parseOpencover = (filePath, threshold, changedFiles) => {
+    return (0, common_1.parseCoverage)(filePath, threshold, changedFiles, parseSummary, parseModules);
+};
 const parseSummary = (file, modules) => {
     const summary = file.CoverageSession.Summary[0]['$'];
-    const totalCoverage = (0, common_1.calculateCoverage)(Number(summary.visitedSequencePoints) + Number(summary.visitedBranchPoints), Number(summary.numSequencePoints) + Number(summary.numBranchPoints));
+    const visitedSequencePoints = Number(summary.visitedSequencePoints);
+    const visitedBranchPoints = Number(summary.visitedBranchPoints);
+    const numberSequencePoints = Number(summary.numSequencePoints);
+    const numberBranchPoints = Number(summary.numBranchPoints);
+    const totalVisitedPoints = visitedSequencePoints + visitedBranchPoints;
+    const totalPoints = numberSequencePoints + numberBranchPoints;
     const changedLinesTotal = (0, common_1.calculateChangedLineTotals)(modules);
     const changedLinesCovered = (0, common_1.calculateChangedLinesCovered)(modules);
     return {
-        totalCoverage,
+        totalCoverage: (0, common_1.calculateCoverage)(totalVisitedPoints, totalPoints),
         changedLinesTotal,
         changedLinesCovered,
         changedLineCoverage: (0, common_1.calculateCoverage)(changedLinesCovered, changedLinesTotal),
-        linesTotal: Number(summary.numSequencePoints),
-        linesCovered: Number(summary.visitedSequencePoints),
-        lineCoverage: (0, common_1.calculateCoverage)(summary.visitedSequencePoints, summary.numSequencePoints),
-        branchesTotal: Number(summary.numBranchPoints),
-        branchesCovered: Number(summary.visitedBranchPoints),
-        branchCoverage: (0, common_1.calculateCoverage)(summary.visitedBranchPoints, summary.numBranchPoints)
+        linesTotal: numberSequencePoints,
+        linesCovered: visitedSequencePoints,
+        lineCoverage: (0, common_1.calculateCoverage)(visitedSequencePoints, numberSequencePoints),
+        branchesTotal: numberBranchPoints,
+        branchesCovered: visitedBranchPoints,
+        branchCoverage: (0, common_1.calculateCoverage)(visitedBranchPoints, numberBranchPoints)
     };
 };
-const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
+const parseModules = (file, threshold, changedFiles) => {
     var _a;
-    const modules = ((_a = file.CoverageSession.Modules[0].Module) !== null && _a !== void 0 ? _a : []);
+    const modules = (_a = file.CoverageSession.Modules[0].Module) !== null && _a !== void 0 ? _a : [];
     return modules.map(module => {
         var _a;
         const name = String(module.ModuleName[0]);
         const files = parseFiles(name, module);
-        const classes = ((_a = module.Classes[0].Class) !== null && _a !== void 0 ? _a : []);
+        const classes = (_a = module.Classes[0].Class) !== null && _a !== void 0 ? _a : [];
         let moduleComplexity = Number(0);
         classes.forEach(c => {
             var _a;
-            const methods = ((_a = c.Methods[0].Method) !== null && _a !== void 0 ? _a : []);
+            const methods = (_a = c.Methods[0].Method) !== null && _a !== void 0 ? _a : [];
             let complexity = Number(0);
             methods.forEach(m => {
-                var _a;
                 const file = files.find(f => f.id === m.FileRef[0]['$'].uid);
                 const summary = m.Summary[0]['$'];
-                const lines = ((_a = m.SequencePoints[0].SequencePoint) !== null && _a !== void 0 ? _a : []);
-                const coverableLines = lines.map(line => Number(line['$'].sl));
                 complexity = complexity + Number(summary.maxCyclomaticComplexity);
                 if (file) {
-                    const changedFile = changedFilesAndLineNumbers.find(f => (f.name === file.name) || (f.name === file.fullPath));
-                    const changedLineNumbers = (changedFile === null || changedFile === void 0 ? void 0 : changedFile.lineNumbers.filter(ln => coverableLines.includes(Number(ln)))) || [];
-                    const changedLines = lines.filter(l => changedLineNumbers.includes(Number(l['$'].sl)));
-                    file.linesTotal += Number(summary.numSequencePoints);
-                    file.linesCovered += Number(summary.visitedSequencePoints);
-                    file.branchesTotal += Number(summary.numBranchPoints);
-                    file.branchesCovered += Number(summary.visitedBranchPoints);
-                    file.linesToCover = file.linesToCover.concat(lines.filter(line => !Number(line['$'].vc)).map(line => Number(line['$'].sl)));
-                    const unCoveredChangedLines = changedLines.filter(line => !Number(line['$'].vs)).map(line => Number(line['$'].sl));
-                    file.changedLinesTotal += changedLines.length || 0;
-                    file.changedLinesCovered += changedLines.length - unCoveredChangedLines.length;
-                    file.changedLineCoverage = (0, common_1.calculateCoverage)(file.changedLinesCovered, file.changedLinesTotal);
+                    updateFileCoverage(file, m, changedFiles);
                     file.complexity = complexity;
                 }
             });
@@ -557,7 +542,7 @@ const parseModules = (file, threshold, changedFilesAndLineNumbers) => {
 };
 const parseFiles = (moduleName, module) => {
     var _a;
-    const fileData = ((_a = module.Files[0].File) !== null && _a !== void 0 ? _a : []);
+    const fileData = (_a = module.Files[0].File) !== null && _a !== void 0 ? _a : [];
     return fileData.map(file => {
         var _a;
         return ({
@@ -574,10 +559,31 @@ const parseFiles = (moduleName, module) => {
             branchesTotal: 0,
             branchesCovered: 0,
             branchCoverage: 0,
-            linesToCover: Array(),
+            linesToCover: [],
             complexity: 0
         });
     });
+};
+const updateFileCoverage = (file, method, changedFiles) => {
+    var _a;
+    const summary = method.Summary[0]['$'];
+    const lines = (_a = method.SequencePoints[0].SequencePoint) !== null && _a !== void 0 ? _a : [];
+    const coverableLines = getSourceLines(lines);
+    const changedFile = changedFiles.find(f => f.name === file.name || f.name === file.fullPath);
+    const changedLineNumbers = (changedFile === null || changedFile === void 0 ? void 0 : changedFile.lineNumbers.filter(ln => coverableLines.includes(Number(ln)))) || [];
+    const changedLines = lines.filter(l => changedLineNumbers.includes(Number(l['$'].sl)));
+    const changedLinesToCover = getSourceLines(changedLines.filter(line => !Number(line['$'].vs)));
+    file.linesTotal += Number(summary.numSequencePoints);
+    file.linesCovered += Number(summary.visitedSequencePoints);
+    file.branchesTotal += Number(summary.numBranchPoints);
+    file.branchesCovered += Number(summary.visitedBranchPoints);
+    file.linesToCover = file.linesToCover.concat(getSourceLines(lines.filter(line => !Number(line['$'].vc))));
+    file.changedLinesTotal += changedLines.length || 0;
+    file.changedLinesCovered += changedLines.length - changedLinesToCover.length;
+    file.changedLineCoverage = (0, common_1.calculateCoverage)(file.changedLinesCovered, file.changedLinesTotal);
+};
+const getSourceLines = (lines) => {
+    return lines.map(line => Number(line['$'].sl));
 };
 exports["default"] = parseOpencover;
 
@@ -632,8 +638,8 @@ const parseSummary = (file) => {
 };
 const parseResults = (file) => {
     var _a, _b, _c, _d;
-    const results = ((_d = (_c = (_b = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.Results) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.UnitTestResult) !== null && _d !== void 0 ? _d : []);
-    return results.map((result) => {
+    const results = (_d = (_c = (_b = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.Results) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.UnitTestResult) !== null && _d !== void 0 ? _d : [];
+    return results.map(result => {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
         return ({
             executionId: String(result['$'].executionId),
@@ -655,7 +661,7 @@ const parseResults = (file) => {
 };
 const parseDefinitions = (file) => {
     var _a, _b, _c, _d;
-    const definitions = ((_d = (_c = (_b = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.TestDefinitions) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.UnitTest) !== null && _d !== void 0 ? _d : []);
+    const definitions = (_d = (_c = (_b = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.TestDefinitions) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.UnitTest) !== null && _d !== void 0 ? _d : [];
     return definitions.map(definition => {
         var _a;
         return ({
@@ -742,10 +748,7 @@ const processTestResults = (resultsPath, allowFailedTests) => __awaiter(void 0, 
     for (const path of trxPaths) {
         yield processResult(path, aggregatedResult);
     }
-    (0, utils_1.setResultOutputs)(aggregatedResult);
-    if (!aggregatedResult.success) {
-        allowFailedTests ? (0, utils_1.log)('Tests Failed') : (0, utils_1.setFailed)('Tests Failed');
-    }
+    setResult(aggregatedResult, allowFailedTests);
     return aggregatedResult;
 });
 exports.processTestResults = processTestResults;
@@ -776,6 +779,17 @@ const getDefaultTestResult = () => ({
     skipped: 0,
     suits: []
 });
+const setResult = (result, allowFailedTests) => {
+    (0, utils_1.setResultOutputs)(result);
+    if (!result.success) {
+        if (allowFailedTests) {
+            (0, utils_1.log)('Tests Failed');
+        }
+        else {
+            (0, utils_1.setFailed)('Tests Failed');
+        }
+    }
+};
 
 
 /***/ }),
@@ -829,7 +843,7 @@ const inputs = {
     coveragePath: 'coverage-path',
     coverageType: 'coverage-type',
     coverageThreshold: 'coverage-threshold',
-    changedFilesAndLineNumbers: 'changed-files-and-line-numbers',
+    changedFiles: 'changed-files-and-line-numbers',
     showFailedTestsOnly: 'show-failed-tests-only',
     showTestOutput: 'show-test-output',
     serverUrl: 'server-url',
@@ -850,6 +864,7 @@ const outputs = {
 };
 const getInputs = () => {
     const token = core.getInput(inputs.token) || process.env['GITHUB_TOKEN'] || '';
+    const changedFiles = JSON.parse(core.getInput(inputs.changedFiles));
     return {
         token,
         title: core.getInput(inputs.title),
@@ -859,7 +874,7 @@ const getInputs = () => {
         coveragePath: core.getInput(inputs.coveragePath),
         coverageType: core.getInput(inputs.coverageType),
         coverageThreshold: Number(core.getInput(inputs.coverageThreshold)),
-        changedFilesAndLineNumbers: JSON.parse(core.getInput(inputs.changedFilesAndLineNumbers)),
+        changedFiles: changedFiles,
         showFailedTestsOnly: core.getBooleanInput(inputs.showFailedTestsOnly),
         showTestOutput: core.getBooleanInput(inputs.showTestOutput),
         serverUrl: core.getInput('server-url'),
@@ -918,9 +933,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.publishComment = void 0;
 const github_1 = __nccwpck_require__(3228);
-const markdown_1 = __nccwpck_require__(490);
 const action_1 = __nccwpck_require__(6743);
 const github_2 = __nccwpck_require__(3786);
+const markdown_1 = __nccwpck_require__(490);
 const publishComment = (token, serverUrl, title, message, postNew) => __awaiter(void 0, void 0, void 0, function* () {
     const context = (0, github_2.getContext)();
     const { owner, repo, runId, issueNumber, sha } = context;

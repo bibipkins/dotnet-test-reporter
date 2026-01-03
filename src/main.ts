@@ -1,8 +1,30 @@
 import { processTestResults } from './results';
 import { processTestCoverage } from './coverage';
 import { getInputs, publishComment, setFailed, setSummary, createTestStatusCheck } from './utils';
-import { formatChangedFileCoverageMarkdown, formatCoverageMarkdown, formatResultMarkdown } from './formatting/markdown';
+import {
+  formatChangedFileCoverageMarkdown,
+  formatCoverageMarkdown,
+  formatResultMarkdown
+} from './formatting/markdown';
 import { formatCoverageHtml, formatResultHtml, formatTitleHtml } from './formatting/html';
+import { ICoverage } from './data';
+
+const publishChangedFileCoverage = async (
+  coverage: ICoverage,
+  token: string,
+  serverUrl: string,
+  postNewComment: boolean
+) => {
+  for (const module of coverage.modules) {
+    const changedFiles = module.files.filter(f => f.changedLinesTotal > 0);
+    const commentTitle = `${module.name}'s Changed File Coverage`;
+
+    if (changedFiles.length) {
+      const message = formatChangedFileCoverageMarkdown(changedFiles);
+      await publishComment(token, serverUrl, commentTitle, message, postNewComment);
+    }
+  }
+};
 
 const run = async (): Promise<void> => {
   try {
@@ -15,7 +37,7 @@ const run = async (): Promise<void> => {
       coverageThreshold,
       postNewComment,
       allowFailedTests,
-      changedFilesAndLineNumbers,
+      changedFiles,
       showFailedTestsOnly,
       showTestOutput,
       serverUrl,
@@ -32,17 +54,18 @@ const run = async (): Promise<void> => {
     summary += resultHtml;
 
     if (coveragePath) {
-      const testCoverage = await processTestCoverage(coveragePath, coverageType, coverageThreshold, changedFilesAndLineNumbers);
+      const testCoverage = await processTestCoverage(
+        coveragePath,
+        coverageType,
+        coverageThreshold,
+        changedFiles
+      );
+
       comment += testCoverage ? formatCoverageMarkdown(testCoverage, coverageThreshold) : '';
       summary += testCoverage ? formatCoverageHtml(testCoverage) : '';
+
       if (testCoverage) {
-        for(const myMod of testCoverage.modules) {
-          const changedFiles = myMod.files.filter(f => f.changedLinesTotal > 0);
-          if (changedFiles.length > 0) {
-            const tempComment = formatChangedFileCoverageMarkdown(changedFiles);
-            await publishComment(token, serverUrl, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);
-          }
-        }
+        await publishChangedFileCoverage(testCoverage, token, serverUrl, postNewComment);
       }
     }
 
