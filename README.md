@@ -44,8 +44,8 @@ You can customize how the action works using one of the many inputs provided in 
 | Input                          | Required | Type    | Default      | Description |
 | :----------------------------- | :------: | :-----: | :----------: | :---------- |
 | github-token                   | **yes**  | string  |              | GitHub repository token<br/>**Example**: `${{ secrets.GITHUB_TOKEN }}` |
-| results-path                   | **yes**  | string  |              | Path to the `.trx` file(s) containing test results. Supports glob patterns<br/>**Examples**: `./TestResults/result.trx`, `./**/*.trx` |
-| coverage-path                  | no       | string  |              | Path to the file containing test coverage. Supports glob patterns<br/>**Examples**: `./TestResults/coverage.xml`, `./**/coverage.xml` |
+| results-path                   | **yes**  | string  |              | Path to the `.trx` file(s) containing test results. Supports glob patterns<br/>**Examples**:<br/>`./TestResults/result.trx`<br/>`./**/*.trx` |
+| coverage-path                  | no       | string  |              | Path to the file containing test coverage. Supports glob patterns<br/>**Examples**:<br/>`./TestResults/coverage.xml`<br/>`./**/coverage.xml` |
 | coverage-type                  | no       | string  | opencover    | Coverage file type. Supported types are `opencover` and `cobertura`<br/>**Example**: `cobertura` |
 | coverage-threshold             | no       | decimal | 0.00         | Minimum allowed coverage. You can provide a coverage percentage ranging from `0.00` to `100.00`<br/>**Example**: `80.42` |
 | comment-title                  | no       | string  | Test Results | Pull Request comment title<br/>**Example**: `My Custom Title` |
