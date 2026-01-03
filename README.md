@@ -22,11 +22,11 @@
 
 #### Summary - test results example
 
-<img width="1498" height="641" alt="image" src="https://github.com/user-attachments/assets/22ad3b4e-8a4d-4c85-a7ec-b38b58d3b07e" />
+<img width="1510" height="622" alt="image" src="https://github.com/user-attachments/assets/c3c6b32b-0e4b-4ae0-9beb-18c3c8fb3e7a" />
 
 #### Summary - coverage results example
 
-<img width="1308" height="612" alt="image" src="https://github.com/user-attachments/assets/2e3f671e-0dc2-4f5e-98d7-6ead001a861b" />
+<img width="1505" height="472" alt="image" src="https://github.com/user-attachments/assets/16460e8d-395d-4841-b876-6ed3d8e06b34" />
 <br/><br/>
 
 > [!TIP]
