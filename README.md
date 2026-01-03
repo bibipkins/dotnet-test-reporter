@@ -33,9 +33,9 @@
 > Despite this action was created specifically for dotnet you can use it with other languages and
 frameworks as long as you can generate `.trx` files. For example, your project can be a C#/dotnet backend with
 a TS/react frontend, in that case you would use the action twice.
-> For a react app you would need to:
+> So if the frontend uses jest to run your tests, you can do this:
 > - install `jest-trx-results-processor` package to generate `.trx` test result files
-> - add `cobertura` to `coverageReporters` array in case you would like to include a coverage
+> - add `cobertura` to `coverageReporters` array and set `coverage-type` input to `cobertura`, in case you would like to include a coverage
 
 ## Inputs
 
