@@ -55,7 +55,7 @@ You can customize how the action works using one of the many inputs provided in 
 | show-test-output               | no       | boolean | true         | Set to `true` or leave blank to show the output of the tests<br/>Set to `false` if there is too much output leading to truncation of the summary |
 | pull-request-check             | no       | boolean | false        | Set to `true` to create GitHub status checks on the commit/PR for test results.<br/>These checks appear in the PR's "Checks" tab and can be used in branch protection rules<br/>Set to `false` or leave blank to skip creating status checks |
 | pull-request-check-name        | no       | string  | Test Results | Name of the GitHub status check for test results.<br/>Only used when `pull-request-check` is set to `true`<br/>**Example**: `My Custom Test Check` |
-| changed-files-and-line-numbers | no       | json    | []           | JSON array of changed files and lines numbers<br/>**Example**:`'[{"name":"Specifications\\BaseSpecification.cs","lineNumbers":[17,18,19]}]'` |
+| changed-files-and-line-numbers | no       | json    | []           | JSON array of changed files and lines numbers<br/>**Example**:<br/>`'[{"name":"Specifications\\BaseSpecification.cs","lineNumbers":[17,18,19]}]'` |
 
 ## Outputs
 
