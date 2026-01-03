@@ -290,6 +290,16 @@ const coverage_1 = __nccwpck_require__(9473);
 const utils_1 = __nccwpck_require__(9729);
 const markdown_1 = __nccwpck_require__(490);
 const html_1 = __nccwpck_require__(5302);
+const publishChangedFileCoverage = (coverage, token, serverUrl, postNewComment) => __awaiter(void 0, void 0, void 0, function* () {
+    for (const module of coverage.modules) {
+        const changedFiles = module.files.filter(f => f.changedLinesTotal > 0);
+        const commentTitle = `${module.name}'s Changed File Coverage`;
+        if (changedFiles.length) {
+            const message = (0, markdown_1.formatChangedFileCoverageMarkdown)(changedFiles);
+            yield (0, utils_1.publishComment)(token, serverUrl, commentTitle, message, postNewComment);
+        }
+    }
+});
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { token, title, resultsPath, coveragePath, coverageType, coverageThreshold, postNewComment, allowFailedTests, changedFiles, showFailedTestsOnly, showTestOutput, serverUrl, pullRequestCheck, pullRequestCheckName } = (0, utils_1.getInputs)();
@@ -304,13 +314,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
             comment += testCoverage ? (0, markdown_1.formatCoverageMarkdown)(testCoverage, coverageThreshold) : '';
             summary += testCoverage ? (0, html_1.formatCoverageHtml)(testCoverage) : '';
             if (testCoverage) {
-                for (const myMod of testCoverage.modules) {
-                    const changedFiles = myMod.files.filter(f => f.changedLinesTotal > 0);
-                    if (changedFiles.length > 0) {
-                        const tempComment = (0, markdown_1.formatChangedFileCoverageMarkdown)(changedFiles);
-                        yield (0, utils_1.publishComment)(token, serverUrl, `${myMod.name}'s Changed File Coverage`, tempComment, postNewComment);
-                    }
-                }
+                yield publishChangedFileCoverage(testCoverage, token, serverUrl, postNewComment);
             }
         }
         yield (0, utils_1.setSummary)(summary);
