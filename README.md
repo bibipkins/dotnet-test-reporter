@@ -45,7 +45,7 @@ You can customize how the action works using one of the many inputs provided in 
 | :----------------------------- | :------: | :-----: | :----------: | :---------- |
 | github-token                   | **yes**  | string  |              | GitHub repository token<br/>**Example**: `${{ secrets.GITHUB_TOKEN }}` |
 | results-path                   | **yes**  | string  |              | Path to the `.trx` file(s) containing test results. Supports glob patterns<br/>**Examples**:<br/>`./TestResults/result.trx`<br/>`./**/*.trx` |
-| coverage-path                  | no       | string  |              | Path to the file containing test coverage. Supports glob patterns<br/>**Examples**:<br/>`./TestResults/coverage.xml`<br/>`./**/coverage.xml` |
+| coverage-path                  | no       | string  | ''           | Path to the file containing test coverage. Supports glob patterns<br/>**Examples**:<br/>`./TestResults/coverage.xml`<br/>`./**/coverage.xml` |
 | coverage-type                  | no       | string  | opencover    | Coverage file type. Supported types are `opencover` and `cobertura`<br/>**Example**: `cobertura` |
 | coverage-threshold             | no       | decimal | 0.00         | Minimum allowed coverage. You can provide a coverage percentage ranging from `0.00` to `100.00`<br/>**Example**: `80.42` |
 | comment-title                  | no       | string  | Test Results | Pull Request comment title<br/>**Example**: `My Custom Title` |
@@ -56,6 +56,7 @@ You can customize how the action works using one of the many inputs provided in 
 | pull-request-check             | no       | boolean | false        | Set to `true` to create GitHub status checks on the commit/PR for test results. These checks appear in the PR's "Checks" tab and can be used in branch protection rules<br/>Set to `false` or leave blank to skip creating status checks |
 | pull-request-check-name        | no       | string  | Test Results | Name of the GitHub status check for test results. Only used when `pull-request-check` is set to `true`<br/>**Example**: `My Custom Test Check` |
 | changed-files-and-line-numbers | no       | json    | []           | JSON array of changed files and lines numbers<br/>**Example**:<br/>`'[{"name":"MyProject\\MyClass.cs","lineNumbers":[17,18,19]}]'` |
+| server-url                     | no       | string  | ''           | GitHub server URL. This is useful if you are using GitHub Enterprise Server<br/>**Example**: `${{ github.server_url }}` |
 
 ## Outputs
 
