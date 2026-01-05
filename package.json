@@ -10,7 +10,8 @@
   "scripts": {
     "build": "tsc && ncc build --source-map --license licenses.txt",
     "lint": "eslint .",
-    "test": "jest"
+    "test": "jest",
+    "test:cover": "jest --coverage"
   },
   "repository": {
     "type": "git",

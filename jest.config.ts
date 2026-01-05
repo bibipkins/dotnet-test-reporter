@@ -4,7 +4,8 @@ const config: JestConfigWithTsJest = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   testMatch: ['**/?(*.)+(test).ts'],
-  transform: { '^.+\\.ts$': 'ts-jest' }
+  transform: { '^.+\\.ts$': 'ts-jest' },
+  collectCoverageFrom: ['src/**/*.ts']
 };
 
 export default config;
