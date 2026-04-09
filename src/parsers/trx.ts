@@ -44,22 +44,86 @@ const parseSummary = (file: TrxFile) => {
 const parseResults = (file: TrxFile) => {
   const results = file.TestRun?.Results?.[0]?.UnitTestResult ?? [];
 
-  return results.map(result => ({
-    executionId: String(result['$'].executionId),
-    testId: String(result['$'].testId),
-    testName: String(result['$'].testName),
-    testType: String(result['$'].testType),
-    testListId: String(result['$'].testListId),
-    computerName: String(result['$'].computerName),
-    duration: String(result['$'].duration),
-    startTime: new Date(result['$'].startTime),
-    endTime: new Date(result['$'].endTime),
-    outcome: String(result['$'].outcome) as TestOutcome,
-    output: String(result.Output?.[0]?.StdOut?.[0] ?? ''),
-    error: String(result.Output?.[0]?.ErrorInfo?.[0]?.Message?.[0] ?? ''),
-    trace: String(result.Output?.[0]?.ErrorInfo?.[0]?.StackTrace?.[0] ?? ''),
-    relativeResultsDirectory: String(result['$'].relativeResultsDirectory)
-  }));
+  const parseResult = (result: (typeof results)[number]): ReturnType<typeof mapResult>[] => {
+    const mappedResult = mapResult(result);
+    const innerResults = result.InnerResults?.[0]?.UnitTestResult ?? [];
+
+    return [mappedResult, ...innerResults.flatMap(parseResult)];
+  };
+
+  const mapResult = (result: (typeof results)[number]) => {
+    const attributes = result['$'];
+
+    return {
+      executionId: attributes.executionId ? String(attributes.executionId) : '',
+      testId: attributes.testId ? String(attributes.testId) : '',
+      testName: attributes.testName ? String(attributes.testName) : '',
+      testType: attributes.testType ? String(attributes.testType) : '',
+      testListId: attributes.testListId ? String(attributes.testListId) : '',
+      computerName: attributes.computerName ? String(attributes.computerName) : '',
+      duration: attributes.duration ? String(attributes.duration) : '',
+      startTime: new Date(attributes.startTime ?? ''),
+      endTime: new Date(attributes.endTime ?? ''),
+      outcome: String(attributes.outcome) as TestOutcome,
+      output: String(result.Output?.[0]?.StdOut?.[0] ?? ''),
+      error: String(result.Output?.[0]?.ErrorInfo?.[0]?.Message?.[0] ?? ''),
+      trace: String(result.Output?.[0]?.ErrorInfo?.[0]?.StackTrace?.[0] ?? ''),
+      relativeResultsDirectory: String(attributes.relativeResultsDirectory ?? '')
+    };
+  };
+
+  return results.flatMap(parseResult);
+};
+
+const doesResultMatchDefinition = (
+  result: ReturnType<typeof parseResults>[number],
+  definition: ReturnType<typeof parseDefinitions>[number]
+): boolean => {
+  if (result.testId === definition.id || result.executionId === definition.executionId) {
+    return true;
+  }
+
+  if (result.testName === definition.name) {
+    return true;
+  }
+
+  return result.testName.startsWith(`${definition.name}(`);
+};
+
+const getResultScore = (
+  result: ReturnType<typeof parseResults>[number],
+  definition: ReturnType<typeof parseDefinitions>[number]
+): number => {
+  let score = 0;
+
+  if (result.testId === definition.id) score += 40;
+  if (result.executionId === definition.executionId) score += 30;
+  if (result.testName === definition.name) score += 20;
+  if (result.testName.startsWith(`${definition.name}(`)) score += 20;
+  if (result.outcome === 'Failed') score += 100;
+  if (result.error) score += 50;
+  if (result.trace) score += 25;
+  if (result.output) score += 5;
+
+  return score;
+};
+
+const findResultForDefinition = (
+  results: ReturnType<typeof parseResults>,
+  definition: ReturnType<typeof parseDefinitions>[number]
+) => {
+  const matches = results.filter(result => doesResultMatchDefinition(result, definition));
+
+  if (!matches.length) {
+    return undefined;
+  }
+
+  return matches.reduce((best, current) => {
+    const bestScore = getResultScore(best, definition);
+    const currentScore = getResultScore(current, definition);
+
+    return currentScore > bestScore ? current : best;
+  });
 };
 
 const parseDefinitions = (file: TrxFile) => {
@@ -87,7 +151,7 @@ const parseSuits = (file: TrxFile) => {
   const sortedDefinitions = definitions.sort((a, b) => a.name.localeCompare(b.name));
 
   for (const definition of sortedDefinitions) {
-    const result = results.find(r => r.testId === definition.id);
+    const result = findResultForDefinition(results, definition);
     const existingSuit = suits.find(s => s.name === definition.testMethod.className);
     const suit = existingSuit || {
       name: definition.testMethod.className,

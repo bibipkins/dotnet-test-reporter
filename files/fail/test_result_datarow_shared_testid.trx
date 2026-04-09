@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="run-2" name="sample-shared-id" runUser="user" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times start="2026-04-09T12:00:00.0000000+00:00" finish="2026-04-09T12:00:01.0000000+00:00" />
+  <Results>
+    <UnitTestResult executionId="exec-parent-2" testId="test-shared-1" testName="Example.Tests.OTARunnerTests.RemoveTodaysOTAs_VariousInputs_ValidSuccess" computerName="DEVBOX" duration="00:00:00.1000000" startTime="2026-04-09T12:00:00.0000000+00:00" endTime="2026-04-09T12:00:00.1000000+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="exec-parent-2">
+      <InnerResults>
+        <UnitTestResult executionId="exec-row-2" testId="test-shared-1" testName="Example.Tests.OTARunnerTests.RemoveTodaysOTAs_VariousInputs_ValidSuccess(addDays: -1, expectedResult: false)" computerName="DEVBOX" duration="00:00:00.0500000" startTime="2026-04-09T12:00:00.0000000+00:00" endTime="2026-04-09T12:00:00.0500000+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="exec-row-2">
+          <Output>
+            <ErrorInfo>
+              <Message>Assert.AreEqual failed. DataRow shared-id mismatch.</Message>
+              <StackTrace>at Example.Tests.OTARunnerTests.RemoveTodaysOTAs_VariousInputs_ValidSuccess(Int32 addDays, Boolean expectedResult) in C:\repo\OTARunnerTests.cs:line 55</StackTrace>
+            </ErrorInfo>
+          </Output>
+        </UnitTestResult>
+      </InnerResults>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Example.Tests.OTARunnerTests.RemoveTodaysOTAs_VariousInputs_ValidSuccess" storage="c:\repo\tests.dll" id="test-shared-1">
+      <Execution id="exec-parent-2" />
+      <TestMethod codeBase="C:\repo\tests.dll" adapterTypeName="executor://MSTestAdapter" className="Example.Tests.OTARunnerTests" name="RemoveTodaysOTAs_VariousInputs_ValidSuccess" />
+    </UnitTest>
+  </TestDefinitions>
+  <ResultSummary outcome="Failed">
+    <Counters total="1" executed="1" passed="0" failed="1" />
+  </ResultSummary>
+</TestRun>
