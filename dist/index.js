@@ -643,24 +643,72 @@ const parseSummary = (file) => {
 const parseResults = (file) => {
     var _a, _b, _c, _d;
     const results = (_d = (_c = (_b = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.Results) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.UnitTestResult) !== null && _d !== void 0 ? _d : [];
-    return results.map(result => {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
-        return ({
-            executionId: String(result['$'].executionId),
-            testId: String(result['$'].testId),
-            testName: String(result['$'].testName),
-            testType: String(result['$'].testType),
-            testListId: String(result['$'].testListId),
-            computerName: String(result['$'].computerName),
-            duration: String(result['$'].duration),
-            startTime: new Date(result['$'].startTime),
-            endTime: new Date(result['$'].endTime),
-            outcome: String(result['$'].outcome),
-            output: String((_d = (_c = (_b = (_a = result.Output) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.StdOut) === null || _c === void 0 ? void 0 : _c[0]) !== null && _d !== void 0 ? _d : ''),
-            error: String((_k = (_j = (_h = (_g = (_f = (_e = result.Output) === null || _e === void 0 ? void 0 : _e[0]) === null || _f === void 0 ? void 0 : _f.ErrorInfo) === null || _g === void 0 ? void 0 : _g[0]) === null || _h === void 0 ? void 0 : _h.Message) === null || _j === void 0 ? void 0 : _j[0]) !== null && _k !== void 0 ? _k : ''),
-            trace: String((_r = (_q = (_p = (_o = (_m = (_l = result.Output) === null || _l === void 0 ? void 0 : _l[0]) === null || _m === void 0 ? void 0 : _m.ErrorInfo) === null || _o === void 0 ? void 0 : _o[0]) === null || _p === void 0 ? void 0 : _p.StackTrace) === null || _q === void 0 ? void 0 : _q[0]) !== null && _r !== void 0 ? _r : ''),
-            relativeResultsDirectory: String(result['$'].relativeResultsDirectory)
-        });
+    const parseResult = (result) => {
+        var _a, _b, _c;
+        const mappedResult = mapResult(result);
+        const innerResults = (_c = (_b = (_a = result.InnerResults) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.UnitTestResult) !== null && _c !== void 0 ? _c : [];
+        return [mappedResult, ...innerResults.flatMap(parseResult)];
+    };
+    const mapResult = (result) => {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u;
+        const attributes = result['$'];
+        return {
+            executionId: attributes.executionId ? String(attributes.executionId) : '',
+            testId: attributes.testId ? String(attributes.testId) : '',
+            testName: attributes.testName ? String(attributes.testName) : '',
+            testType: attributes.testType ? String(attributes.testType) : '',
+            testListId: attributes.testListId ? String(attributes.testListId) : '',
+            computerName: attributes.computerName ? String(attributes.computerName) : '',
+            duration: attributes.duration ? String(attributes.duration) : '',
+            startTime: new Date((_a = attributes.startTime) !== null && _a !== void 0 ? _a : ''),
+            endTime: new Date((_b = attributes.endTime) !== null && _b !== void 0 ? _b : ''),
+            outcome: String(attributes.outcome),
+            output: String((_f = (_e = (_d = (_c = result.Output) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.StdOut) === null || _e === void 0 ? void 0 : _e[0]) !== null && _f !== void 0 ? _f : ''),
+            error: String((_m = (_l = (_k = (_j = (_h = (_g = result.Output) === null || _g === void 0 ? void 0 : _g[0]) === null || _h === void 0 ? void 0 : _h.ErrorInfo) === null || _j === void 0 ? void 0 : _j[0]) === null || _k === void 0 ? void 0 : _k.Message) === null || _l === void 0 ? void 0 : _l[0]) !== null && _m !== void 0 ? _m : ''),
+            trace: String((_t = (_s = (_r = (_q = (_p = (_o = result.Output) === null || _o === void 0 ? void 0 : _o[0]) === null || _p === void 0 ? void 0 : _p.ErrorInfo) === null || _q === void 0 ? void 0 : _q[0]) === null || _r === void 0 ? void 0 : _r.StackTrace) === null || _s === void 0 ? void 0 : _s[0]) !== null && _t !== void 0 ? _t : ''),
+            relativeResultsDirectory: String((_u = attributes.relativeResultsDirectory) !== null && _u !== void 0 ? _u : '')
+        };
+    };
+    return results.flatMap(parseResult);
+};
+const doesResultMatchDefinition = (result, definition) => {
+    if (result.testId === definition.id || result.executionId === definition.executionId) {
+        return true;
+    }
+    if (result.testName === definition.name) {
+        return true;
+    }
+    return result.testName.startsWith(`${definition.name}(`);
+};
+const getResultScore = (result, definition) => {
+    let score = 0;
+    if (result.testId === definition.id)
+        score += 40;
+    if (result.executionId === definition.executionId)
+        score += 30;
+    if (result.testName === definition.name)
+        score += 20;
+    if (result.testName.startsWith(`${definition.name}(`))
+        score += 20;
+    if (result.outcome === 'Failed')
+        score += 100;
+    if (result.error)
+        score += 50;
+    if (result.trace)
+        score += 25;
+    if (result.output)
+        score += 5;
+    return score;
+};
+const findResultForDefinition = (results, definition) => {
+    const matches = results.filter(result => doesResultMatchDefinition(result, definition));
+    if (!matches.length) {
+        return undefined;
+    }
+    return matches.reduce((best, current) => {
+        const bestScore = getResultScore(best, definition);
+        const currentScore = getResultScore(current, definition);
+        return currentScore > bestScore ? current : best;
     });
 };
 const parseDefinitions = (file) => {
@@ -690,7 +738,7 @@ const parseSuits = (file) => {
     const definitions = parseDefinitions(file);
     const sortedDefinitions = definitions.sort((a, b) => a.name.localeCompare(b.name));
     for (const definition of sortedDefinitions) {
-        const result = results.find(r => r.testId === definition.id);
+        const result = findResultForDefinition(results, definition);
         const existingSuit = suits.find(s => s.name === definition.testMethod.className);
         const suit = existingSuit || {
             name: definition.testMethod.className,
