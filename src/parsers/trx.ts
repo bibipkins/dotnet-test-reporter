@@ -90,41 +90,6 @@ const doesResultMatchDefinition = (
   return result.testName.startsWith(`${definition.name}(`);
 };
 
-const getResultScore = (
-  result: ReturnType<typeof parseResults>[number],
-  definition: ReturnType<typeof parseDefinitions>[number]
-): number => {
-  let score = 0;
-
-  if (result.testId === definition.id) score += 40;
-  if (result.executionId === definition.executionId) score += 30;
-  if (result.testName === definition.name) score += 20;
-  if (result.testName.startsWith(`${definition.name}(`)) score += 20;
-  if (result.outcome === 'Failed') score += 100;
-  if (result.error) score += 50;
-  if (result.trace) score += 25;
-  if (result.output) score += 5;
-
-  return score;
-};
-
-const findResultForDefinition = (
-  results: ReturnType<typeof parseResults>,
-  definition: ReturnType<typeof parseDefinitions>[number]
-) => {
-  const matches = results.filter(result => doesResultMatchDefinition(result, definition));
-
-  if (!matches.length) {
-    return undefined;
-  }
-
-  return matches.reduce((best, current) => {
-    const bestScore = getResultScore(best, definition);
-    const currentScore = getResultScore(current, definition);
-
-    return currentScore > bestScore ? current : best;
-  });
-};
 
 const parseDefinitions = (file: TrxFile) => {
   const definitions = file.TestRun?.TestDefinitions?.[0]?.UnitTest ?? [];
@@ -144,14 +109,22 @@ const parseDefinitions = (file: TrxFile) => {
   }));
 };
 
+const findAllResultsForDefinition = (
+  results: ReturnType<typeof parseResults>,
+  definition: ReturnType<typeof parseDefinitions>[number]
+) => {
+  return results.filter(result => doesResultMatchDefinition(result, definition));
+};
+
 const parseSuits = (file: TrxFile) => {
   const suits: ITestSuit[] = [];
   const results = parseResults(file);
   const definitions = parseDefinitions(file);
   const sortedDefinitions = definitions.sort((a, b) => a.name.localeCompare(b.name));
+  const processedResults = new Set<string>();
 
   for (const definition of sortedDefinitions) {
-    const result = findResultForDefinition(results, definition);
+    const matchingResults = findAllResultsForDefinition(results, definition);
     const existingSuit = suits.find(s => s.name === definition.testMethod.className);
     const suit = existingSuit || {
       name: definition.testMethod.className,
@@ -160,13 +133,21 @@ const parseSuits = (file: TrxFile) => {
       tests: []
     };
 
-    suit.tests.push({
-      name: definition.name.replace(`${definition.testMethod.className}.`, ''),
-      output: result?.output ?? '',
-      error: result?.error ?? '',
-      trace: result?.trace ?? '',
-      outcome: result?.outcome || 'NotExecuted'
-    });
+    for (const result of matchingResults) {
+      const resultKey = `${result.testId}-${result.executionId}`;
+
+      if (!processedResults.has(resultKey)) {
+        processedResults.add(resultKey);
+
+        suit.tests.push({
+          name: result.testName.replace(`${definition.testMethod.className}.`, ''),
+          output: result.output,
+          error: result.error,
+          trace: result.trace,
+          outcome: result.outcome
+        });
+      }
+    }
 
     if (!existingSuit) {
       suits.push(suit);

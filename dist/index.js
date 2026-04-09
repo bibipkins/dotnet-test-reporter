@@ -680,37 +680,6 @@ const doesResultMatchDefinition = (result, definition) => {
     }
     return result.testName.startsWith(`${definition.name}(`);
 };
-const getResultScore = (result, definition) => {
-    let score = 0;
-    if (result.testId === definition.id)
-        score += 40;
-    if (result.executionId === definition.executionId)
-        score += 30;
-    if (result.testName === definition.name)
-        score += 20;
-    if (result.testName.startsWith(`${definition.name}(`))
-        score += 20;
-    if (result.outcome === 'Failed')
-        score += 100;
-    if (result.error)
-        score += 50;
-    if (result.trace)
-        score += 25;
-    if (result.output)
-        score += 5;
-    return score;
-};
-const findResultForDefinition = (results, definition) => {
-    const matches = results.filter(result => doesResultMatchDefinition(result, definition));
-    if (!matches.length) {
-        return undefined;
-    }
-    return matches.reduce((best, current) => {
-        const bestScore = getResultScore(best, definition);
-        const currentScore = getResultScore(current, definition);
-        return currentScore > bestScore ? current : best;
-    });
-};
 const parseDefinitions = (file) => {
     var _a, _b, _c, _d;
     const definitions = (_d = (_c = (_b = (_a = file.TestRun) === null || _a === void 0 ? void 0 : _a.TestDefinitions) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.UnitTest) !== null && _d !== void 0 ? _d : [];
@@ -731,14 +700,17 @@ const parseDefinitions = (file) => {
         });
     });
 };
+const findAllResultsForDefinition = (results, definition) => {
+    return results.filter(result => doesResultMatchDefinition(result, definition));
+};
 const parseSuits = (file) => {
-    var _a, _b, _c;
     const suits = [];
     const results = parseResults(file);
     const definitions = parseDefinitions(file);
     const sortedDefinitions = definitions.sort((a, b) => a.name.localeCompare(b.name));
+    const processedResults = new Set();
     for (const definition of sortedDefinitions) {
-        const result = findResultForDefinition(results, definition);
+        const matchingResults = findAllResultsForDefinition(results, definition);
         const existingSuit = suits.find(s => s.name === definition.testMethod.className);
         const suit = existingSuit || {
             name: definition.testMethod.className,
@@ -746,13 +718,19 @@ const parseSuits = (file) => {
             passed: 0,
             tests: []
         };
-        suit.tests.push({
-            name: definition.name.replace(`${definition.testMethod.className}.`, ''),
-            output: (_a = result === null || result === void 0 ? void 0 : result.output) !== null && _a !== void 0 ? _a : '',
-            error: (_b = result === null || result === void 0 ? void 0 : result.error) !== null && _b !== void 0 ? _b : '',
-            trace: (_c = result === null || result === void 0 ? void 0 : result.trace) !== null && _c !== void 0 ? _c : '',
-            outcome: (result === null || result === void 0 ? void 0 : result.outcome) || 'NotExecuted'
-        });
+        for (const result of matchingResults) {
+            const resultKey = `${result.testId}-${result.executionId}`;
+            if (!processedResults.has(resultKey)) {
+                processedResults.add(resultKey);
+                suit.tests.push({
+                    name: result.testName.replace(`${definition.testMethod.className}.`, ''),
+                    output: result.output,
+                    error: result.error,
+                    trace: result.trace,
+                    outcome: result.outcome
+                });
+            }
+        }
         if (!existingSuit) {
             suits.push(suit);
         }
