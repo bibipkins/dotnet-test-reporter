@@ -90,7 +90,6 @@ const doesResultMatchDefinition = (
   return result.testName.startsWith(`${definition.name}(`);
 };
 
-
 const parseDefinitions = (file: TrxFile) => {
   const definitions = file.TestRun?.TestDefinitions?.[0]?.UnitTest ?? [];
 

@@ -21,10 +21,10 @@ describe('trx parser', () => {
     expect(result).not.toBeNull();
 
     const allTests = result!.suits.flatMap(suit => suit.tests);
-    
+
     // Should find both parent and inner result
     expect(allTests.length).toBe(2);
-    
+
     // Find the parameterized inner result with error details
     const innerTest = allTests.find(t => t.name.includes('(addDays:'));
     expect(innerTest).toBeDefined();
