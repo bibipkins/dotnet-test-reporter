@@ -89,7 +89,7 @@ You can customize how the action works using one of the many inputs provided in 
 > Make sure to provide all required inputs.
 
 ```yaml
-uses: bibipkins/dotnet-test-reporter@v1.6.1
+uses: bibipkins/dotnet-test-reporter@v1.6.4
 with:
   github-token: ${{ secrets.GITHUB_TOKEN }}
   comment-title: 'Unit Test Results'

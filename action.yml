@@ -39,12 +39,14 @@ inputs:
     default: false
   show-failed-tests-only:
     description:
-      'Boolean flag. Show only failed tests in summary. Useful for when test count is large and the details are truncated'
+      'Boolean flag. Show only failed tests in summary. Useful for when test count is large and the details
+      are truncated'
     required: false
     default: false
   show-test-output:
     description:
-      'Boolean flag. Show the output of the tests. Useful if there is too much output leading to truncation on the summary'
+      'Boolean flag. Show the output of the tests. Useful if there is too much output leading to truncation on
+      the summary'
     required: false
     default: true
   server-url:
@@ -82,5 +84,5 @@ outputs:
   coverage-branches-covered:
     description: 'Branches covered'
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/index.js'

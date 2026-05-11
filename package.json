@@ -31,10 +31,10 @@
   "devDependencies": {
     "@eslint/json": "^0.14.0",
     "@types/jest": "^30.0.0",
-    "@types/node": "^20.19.27",
+    "@types/node": "^24.12.3",
     "@types/xml2js": "^0.4.14",
     "@vercel/ncc": "^0.38.4",
-    "eslint": "^9.39.2",
+    "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "jest": "^30.2.0",
